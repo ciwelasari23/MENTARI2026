@@ -3,16 +3,16 @@
 @section('title', 'Kelola Kegiatan Level 1 (Output)')
 
 @section('content')
-    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+    <div class="card-container">
         
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-extrabold text-[#0B1E40]">Daftar Output Kegiatan</h2>
-            <button class="bg-[#14B8A6] hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg text-sm shadow-sm transition">
+            <button class="btn-teal">
                 + Tambah Output
             </button>
         </div>
 
-        <!-- PASTE TABEL OUTPUT KEGIATAN ANDA DI SINI -->
+        <!-- Tabel Output Kegiatan -->
         <div class="table-responsive">
             <table class="data-table">
                 <thead>

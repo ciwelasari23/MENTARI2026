@@ -8,21 +8,28 @@
     padding: 0;
 }
 
+/* PERBAIKAN: Gunakan Flexbox Column agar elemen tidak saling bertumpuk */
 .login-body {
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; 
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden; 
+    overflow-y: auto; /* Mengizinkan scroll HANYA jika layar HP sangat pendek */
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Membagi ruang: Header (Atas), Form (Tengah), Footer (Bawah) */
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
     color: #1f2937;
     background-color: #f9fafb;
 }
 
-/* Background & Overlay */
+/* Background & Overlay (Diubah menjadi fixed agar selalu menutupi layar penuh) */
 .bg-wrapper {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 0;
+    width: 100%;
+    height: 100%;
 }
 .bg-img {
     width: 100%;
@@ -36,16 +43,15 @@
     backdrop-filter: blur(1px);
 }
 
-/* Header BPS Logo (Dinaikkan agar tidak menyita ruang form) */
+/* Header BPS Logo (Diubah menjadi relative agar antri rapi di atas) */
 .header-logo {
-    position: absolute;
-    top: 1rem; 
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 10;
     width: 100%;
     display: flex;
     justify-content: center;
+    padding-top: 1.5rem;
+    flex-shrink: 0; /* Mencegah logo gepeng saat layar mengecil */
 }
 .header-logo img {
     height: 2.25rem; 
@@ -54,19 +60,17 @@
     filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
 }
 
-/* Area Form Tengah */
+/* Area Form Tengah (Diubah menjadi relative dan flex: 1 agar mengisi ruang kosong) */
 .content-area {
-    position: absolute;
-    inset: 0;
+    position: relative;
     z-index: 10;
     width: 100%;
-    height: 100%;
+    flex: 1; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 1rem;
-    pointer-events: none;
+    padding: 2rem 1rem; /* Jarak aman atas-bawah form */
 }
 
 /* Alert Box */
@@ -81,7 +85,6 @@
     border-radius: 0.375rem;
     font-size: 11px;
     box-shadow: 0 5px 10px -3px rgba(0,0,0,0.1);
-    pointer-events: auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -96,7 +99,7 @@
     cursor: pointer;
 }
 
-/* Kotak Utama (Dinaikkan menjauhi footer, padding vertikal disesuaikan) */
+/* Kotak Utama */
 .login-card {
     background-color: #ffffff;
     border-radius: 1rem;
@@ -104,8 +107,6 @@
     padding: 1.25rem 1.5rem; 
     width: 100%;
     max-width: 360px;
-    pointer-events: auto;
-    margin-top: 0.5rem; /* Posisi form dinaikkan */
     flex-shrink: 0;
 }
 
@@ -117,14 +118,14 @@
     margin-bottom: 1.5rem;
 }
 .mentari-icon-img {
-    width: 6rem; /* Ukuran ikon matahari */
+    width: 6rem;
     height: auto;
     object-fit: contain;
 }
 .mentari-title {
     font-size: 1.75rem;
     font-weight: 900;
-    color: #005A9C; /* Biru BPS */
+    color: #005A9C; 
     margin-top: 0.25rem;
     margin-bottom: 0;
     letter-spacing: 0.05em;
@@ -132,8 +133,8 @@
 .mentari-subtitle {
     font-size: 0.55rem;
     font-weight: 800;
-    color: #3b82f6; /* Biru terang */
-    letter-spacing: 0.2em; /* Jarak antar huruf agar sejajar */
+    color: #3b82f6; 
+    letter-spacing: 0.2em; 
     text-transform: uppercase;
     margin-top: 0.15rem;
 }
@@ -297,16 +298,15 @@
     width: 1.15rem; 
     height: 1.15rem; 
 }
-/* Footer Bawah (Diturunkan maksimal) */
+
+/* Footer Bawah (Diubah menjadi relative agar antri rapi di bawah) */
 .footer-area {
-    position: absolute;
-    bottom: 0.5rem; /* Jauh diturunkan ke paling bawah layar */
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 10;
     width: 100%;
     text-align: center;
-    pointer-events: none;
+    padding-bottom: 1.5rem;
+    flex-shrink: 0; /* Mencegah footer menghilang saat layar sempit */
 }
 .footer-text-main {
     font-size: 10px;

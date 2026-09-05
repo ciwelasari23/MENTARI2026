@@ -109,15 +109,14 @@ html {
 }
 
 html::-webkit-scrollbar {
-    display: none; /* Untuk browser berbasis Webkit (Chrome, Safari, Edge) */
+    display: none; 
 }
 
 html {
-    -ms-overflow-style: none;  /* Untuk Internet Explorer dan Edge lama */
-    scrollbar-width: none;  /* Untuk Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
 }
 
-/* Mengunci ukuran layar penuh secara pas dan mencegah pergerakan */
 html, body {
     height: 100vh;
     margin: 0;
@@ -125,7 +124,6 @@ html, body {
     overflow: hidden;
 }
 
-/* Menyembunyikan bilah scroll di semua browser secara permanen */
 html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none;
 }
@@ -311,7 +309,7 @@ html, body {
 }
 .tab-inactive:hover { color: #374151; }
 
-/* Teks Judul Form */
+
 .card-title {
     font-size: 1rem;
     font-weight: 800;
@@ -330,7 +328,7 @@ html, body {
     .card-subtitle { font-size: 10px; }
 }
 
-/* Elemen Input */
+
 .form-group {
     margin-bottom: 0.5rem;
 }
@@ -378,7 +376,7 @@ html, body {
 .submit-mitra { background-color: #ff8243; }
 .submit-mitra:hover { background-color: #ea580c; }
 
-/* Area Login Google */
+
 .google-section {
     margin-top: 0.75rem;
     width: 100%;

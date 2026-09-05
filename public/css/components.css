@@ -1,0 +1,33 @@
+/* =================================================
+   PENGUNCIAN LAYAR & PENCEGAH SCROLLBAR
+   ================================================= */
+
+html {
+    overflow-y: scroll;
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Untuk browser berbasis Webkit (Chrome, Safari, Edge) */
+}
+
+html {
+    -ms-overflow-style: none;  /* Untuk Internet Explorer dan Edge lama */
+    scrollbar-width: none;  /* Untuk Firefox */
+}
+
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Menyembunyikan bilah scroll di semua browser secara permanen */
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none;
+}
+html, body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
