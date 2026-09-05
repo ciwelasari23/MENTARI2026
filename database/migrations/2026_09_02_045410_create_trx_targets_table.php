@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('trx_target', function (Blueprint $table) {
             $table->integer('id_target')->autoIncrement();
             $table->integer('id_proses'); // FK ke mst_kegiatan_level4_proses
-            $table->integer('id_wilayah'); // FK ke mst_wilayah
+            $table->string('id_wilayah', 16); // FK ke mst_wilayah
             $table->integer('target_kuantiti');
             $table->timestamps();
 
