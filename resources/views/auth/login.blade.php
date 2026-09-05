@@ -95,8 +95,9 @@
                     Masuk ke Sistem
                 </button>
             </form>
-            <!-- Login Google -->
-            <div class="google-section">
+
+            <!-- Login Google (Hanya Muncul saat Tab Mitra Dipilih) -->
+            <div class="google-section" x-show="role === 'mitra'" x-transition style="display: none;">
                 <div class="divider-container">
                     <span class="divider-line"></span>
                     <span class="divider-text">atau</span>

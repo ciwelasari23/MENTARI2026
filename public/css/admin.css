@@ -80,7 +80,7 @@ html, body {
     align-items: center;
     gap: 0.75rem;
     width: 100%;
-    padding: 0.65rem 1rem;
+    padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.85rem;
     font-weight: 600;
@@ -96,99 +96,31 @@ html, body {
     color: #1f2937;
 }
 
-.nav-item.active {
-    background-color: #005A9C;
-    color: #ffffff;
+/* KOTAK BIRU UTAMA (Muter Dinamis ke Menu Lain) */
+.custom-active {
+    background-color: #005A9C !important;
+    color: #ffffff !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    font-weight: 700;
+    font-weight: 700 !important;
 }
 
-.nav-item.active:hover {
-    background-color: #005A9C;
-    color: #ffffff;
+.custom-active svg,
+.custom-active .nav-icon {
+    color: #ffffff !important;
+}
+
+/* SUB-MENU AKTIF (Elegan dengan latar lembut) */
+.submenu-active {
+    color: #005A9C !important;
+    font-weight: 800 !important;
+    background-color: rgba(0, 90, 156, 0.08) !important;
+    border-radius: 0.375rem;
 }
 
 .nav-icon {
     width: 1.25rem;
     height: 1.25rem;
     flex-shrink: 0;
-}
-
-.sidebar-nav button.nav-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.65rem 1rem;
-    background-color: transparent;
-    color: #4b5563;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.sidebar-nav button.nav-item:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
-}
-
-.sidebar-nav button.nav-item.active {
-    background-color: transparent;
-    color: #4b5563;
-    box-shadow: none;
-}
-
-.sidebar-nav button.nav-item.active:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
-}
-
-.sidebar-nav button.nav-item svg.w-4 {
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-}
-
-.sidebar-nav div[x-show] {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    margin-top: 0.125rem;
-    margin-bottom: 0.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-}
-
-.sidebar-nav div[x-show] .nav-item {
-    width: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #4b5563;
-    background-color: transparent;
-    border-radius: 0.375rem;
-}
-
-.sidebar-nav div[x-show] .nav-item:hover {
-    background-color: #f3f4f6;
-    color: #111827;
-}
-
-.sidebar-nav div[x-show] .nav-item.active {
-    background-color: #eff6ff;
-    color: #005A9C;
-    font-weight: 800;
-    box-shadow: none;
-}
-
-.sidebar-nav div[x-show] .nav-item.active:hover {
-    background-color: #dbeafe;
-    color: #005A9C;
 }
 
 .sidebar-profile {
@@ -259,15 +191,8 @@ html, body {
     padding: 1.25rem 2rem;
     background-color: #ffffff;
     border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 1.5rem;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
-}
-
-.topbar-title-group {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
 }
 
 .topbar-title {
@@ -326,31 +251,36 @@ html, body {
     box-shadow: 0 0 0 1px #14B8A6;
 }
 
-@media (max-width: 767px) {
-    .main-content {
-        width: 100%;
-    }
-    .topbar {
-        padding: 1rem 1.25rem;
-        margin-bottom: 1rem;
-    }
-    .topbar-title {
-        font-size: 1.1rem;
-    }
-    .scroll-area {
-        padding: 1rem;
-    }
-    .sidebar-header-custom {
-        padding-top: 1.25rem;
-    }
-    .sidebar-icon-large {
-        max-width: 190px;
-    }
+.card-container {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    border: 1px solid #f3f4f6;
 }
 
-@media (min-width: 768px) {
-    .sidebar {
-        position: static;
-        transform: translateX(0) !important;
-    }
+.btn-action-edit {
+    background-color: #eab308;
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
 }
+.btn-action-edit:hover { background-color: #ca8a04; }
+
+.btn-action-delete {
+    background-color: #ef4444;
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.btn-action-delete:hover { background-color: #dc2626; }

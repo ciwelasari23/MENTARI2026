@@ -21,7 +21,7 @@ class KegiatanLevel4Controller extends Controller
         $prosesList = $query->get();
         $details = MstKegiatanLevel3Detail::all();
         
-        return view('admin.kegiatan.level4', compact('prosesList', 'details', 'search'));
+        return view('admin.kegiatan.level1.level4', compact('prosesList', 'details', 'search'));
     }
 
     public function store(Request $request)

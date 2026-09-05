@@ -21,7 +21,7 @@ class KegiatanLevel3Controller extends Controller
         $details = $query->get();
         $kegiatanList = MstKegiatanLevel2Kegiatan::all();
         
-        return view('admin.kegiatan.level3', compact('details', 'kegiatanList', 'search'));
+        return view('admin.kegiatan.level1.level3', compact('details', 'kegiatanList', 'search'));
     }
 
     public function store(Request $request)

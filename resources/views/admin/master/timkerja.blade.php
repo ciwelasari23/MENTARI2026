@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Master Data: Tim Kerja')
-@section('header', 'Kelola Master Data Tim Kerja')
+@section('header', 'Master Data Tim Kerja')
 
 @section('content')
 <div class="space-y-6" x-data="{ modalTambah: false, selected: [], selectAll: false }">

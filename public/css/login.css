@@ -1,5 +1,5 @@
 /* =========================================
-   login.css - Styling Khusus Halaman Login
+   login.css - Styling Khusus Halaman Login (Proporsional & Pas)
    ========================================= */
 
 *, *::before, *::after {
@@ -8,22 +8,21 @@
     padding: 0;
 }
 
-/* PERBAIKAN: Gunakan Flexbox Column agar elemen tidak saling bertumpuk */
+/* Kunci utama agar layar pas 100vh penuh dan anti scroll */
 .login-body {
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden; 
-    overflow-y: auto; /* Mengizinkan scroll HANYA jika layar HP sangat pendek */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Membagi ruang: Header (Atas), Form (Tengah), Footer (Bawah) */
+    justify-content: space-between;
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
     color: #1f2937;
     background-color: #f9fafb;
 }
 
-/* Background & Overlay (Diubah menjadi fixed agar selalu menutupi layar penuh) */
+/* Background & Overlay */
 .bg-wrapper {
     position: fixed;
     inset: 0;
@@ -43,24 +42,23 @@
     backdrop-filter: blur(1px);
 }
 
-/* Header BPS Logo (Diubah menjadi relative agar antri rapi di atas) */
+/* Header BPS Logo (Diturunkan sedikit jaraknya) */
 .header-logo {
     position: relative;
     z-index: 10;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 1.5rem;
-    flex-shrink: 0; /* Mencegah logo gepeng saat layar mengecil */
+    padding-top: 1.75rem; /* Jarak atas diperbesar agar logo turun */
+    flex-shrink: 0;
 }
 .header-logo img {
-    height: 2.25rem; 
+    height: 2.25rem; /* Ukuran logo BPS sedikit diperbesar */
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
 }
 
-/* Area Form Tengah (Diubah menjadi relative dan flex: 1 agar mengisi ruang kosong) */
+/* Area Form Tengah */
 .content-area {
     position: relative;
     z-index: 10;
@@ -70,21 +68,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem; /* Jarak aman atas-bawah form */
+    padding: 0.25rem 1rem;
 }
 
 /* Alert Box */
 .alert-box {
     margin-bottom: 0.5rem;
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     background-color: #fef2f2;
     border-left: 4px solid #ef4444;
     color: #b91c1c;
-    padding: 0.5rem 0.75rem;
+    padding: 0.45rem 0.65rem;
     border-radius: 0.375rem;
-    font-size: 11px;
-    box-shadow: 0 5px 10px -3px rgba(0,0,0,0.1);
+    font-size: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -99,14 +96,14 @@
     cursor: pointer;
 }
 
-/* Kotak Utama */
+/* Kotak Utama (Form sedikit dibesarkan agar tulisan lebih jelas) */
 .login-card {
     background-color: #ffffff;
     border-radius: 1rem;
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
-    padding: 1.25rem 1.5rem; 
+    box-shadow: 0 12px 35px -10px rgba(0,0,0,0.15);
+    padding: 1.25rem 1.75rem; 
     width: 100%;
-    max-width: 360px;
+    max-width: 390px; /* Lebar card sedikit ditambah */
     flex-shrink: 0;
 }
 
@@ -115,26 +112,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 .mentari-icon-img {
-    width: 6rem;
+    width: 5rem;
     height: auto;
     object-fit: contain;
 }
 .mentari-title {
-    font-size: 1.75rem;
+    font-size: 1.75rem; /* Tulisan MENTARI diperbesar */
     font-weight: 900;
     color: #005A9C; 
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
     margin-bottom: 0;
     letter-spacing: 0.05em;
 }
 .mentari-subtitle {
-    font-size: 0.55rem;
+    font-size: 0.55rem; /* Subtitle diperbesar */
     font-weight: 800;
     color: #3b82f6; 
-    letter-spacing: 0.2em; 
+    letter-spacing: 0.15em; 
     text-transform: uppercase;
     margin-top: 0.15rem;
 }
@@ -149,8 +146,8 @@
 }
 .tab-btn {
     flex: 1;
-    padding: 0.5rem 0;
-    font-size: 11px;
+    padding: 0.45rem 0;
+    font-size: 12px; /* Font tab diperbesar */
     border-radius: 0.375rem;
     transition: all 0.2s;
     border: none;
@@ -179,7 +176,7 @@
 }
 .form-label {
     display: block;
-    font-size: 11px;
+    font-size: 12px; /* Label diperbesar */
     font-weight: 600;
     color: #374151;
     margin-bottom: 0.25rem;
@@ -190,16 +187,16 @@
 }
 .input-icon-left {
     position: absolute;
-    left: 0.75rem;
+    left: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
-    width: 1rem;
-    height: 1rem;
+    width: 1.05rem;
+    height: 1.05rem;
 }
 .input-icon-right {
     position: absolute;
-    right: 0.75rem;
+    right: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
@@ -211,20 +208,20 @@
 }
 .form-input {
     width: 100%;
-    padding: 0.55rem 0.75rem;
+    padding: 0.55rem 0.85rem; /* Input diperbesar agar lebih nyaman */
     background-color: #fafafa;
     border: 1px solid #e5e7eb;
     border-radius: 0.375rem;
-    font-size: 12px;
+    font-size: 12.5px; /* Teks dalam input diperbesar */
     color: #1f2937;
     outline: none;
     transition: border-color 0.2s;
 }
 .form-input.has-icon {
-    padding-left: 2.25rem;
+    padding-left: 2.35rem;
 }
 .form-input.has-icon-right {
-    padding-right: 2.25rem;
+    padding-right: 2.35rem;
 }
 .form-input:focus {
     border-color: #005A9C; 
@@ -235,12 +232,12 @@
     width: 100%;
     color: #ffffff;
     font-weight: 600;
-    padding: 0.65rem 0;
+    padding: 0.65rem 0; /* Tombol diperbesar */
     border-radius: 0.375rem;
-    font-size: 12px;
+    font-size: 12.5px; /* Teks tombol diperbesar */
     border: none;
     cursor: pointer;
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
     transition: background-color 0.2s;
 }
 .submit-pegawai { background-color: #005A9C; } 
@@ -250,7 +247,7 @@
 
 /* Google Section */
 .google-section {
-    margin-top: 1rem;
+    margin-top: 0.85rem;
     width: 100%;
 }
 .divider-container {
@@ -258,7 +255,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
 }
 .divider-line {
     position: absolute;
@@ -270,8 +267,8 @@
 .divider-text {
     position: relative;
     background-color: #ffffff;
-    padding: 0 0.75rem;
-    font-size: 13px;
+    padding: 0 0.5rem;
+    font-size: 11px;
     font-weight: 600;
     color: #9ca3af;
 }
@@ -285,7 +282,7 @@
     border: 1px solid #93c5fd; 
     color: #374151;
     font-weight: 600;
-    padding: 0.5rem 0;
+    padding: 0.55rem 0;
     border-radius: 0.375rem;
     font-size: 12px;
     text-decoration: none;
@@ -295,27 +292,27 @@
     background-color: #f0f9ff;
 }
 .google-icon { 
-    width: 1.15rem; 
-    height: 1.15rem; 
+    width: 1.1rem; 
+    height: 1.1rem; 
 }
 
-/* Footer Bawah (Diubah menjadi relative agar antri rapi di bawah) */
+/* Footer Bawah (Dinaikkan agar lebih dekat ke form) */
 .footer-area {
     position: relative;
     z-index: 10;
     width: 100%;
     text-align: center;
-    padding-bottom: 1.5rem;
-    flex-shrink: 0; /* Mencegah footer menghilang saat layar sempit */
+    padding-bottom: 1.25rem; /* Jarak bawah diperpendek agar footer naik ke atas */
+    flex-shrink: 0;
 }
 .footer-text-main {
-    font-size: 10px;
+    font-size: 11px; /* Font hak cipta diperbesar sedikit */
     font-weight: 700;
     color: #1f2937;
     margin: 0;
 }
 .footer-text-sub {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: #1f2937;
     margin-top: 0.15rem;

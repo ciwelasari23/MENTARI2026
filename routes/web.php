@@ -85,13 +85,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/wilayah/{id}', [WilayahController::class, 'destroy'])->name('wilayah.destroy');
     Route::delete('/master/wilayah-bulk', [WilayahController::class, 'bulkDestroy'])->name('wilayah.bulkDestroy');
 
-    // Master Data: Tim Kerja
-    Route::get('/master/tim-kerja', [TimKerjaController::class, 'index'])->name('timkerja.index');
-    Route::post('/master/tim-kerja', [TimKerjaController::class, 'store'])->name('timkerja.store');
-    Route::put('/master/tim-kerja/{id}', [TimKerjaController::class, 'update'])->name('timkerja.update');
-    Route::delete('/master/tim-kerja/{id}', [TimKerjaController::class, 'destroy'])->name('timkerja.destroy');
-    Route::delete('/master/tim-kerja-bulk', [TimKerjaController::class, 'bulkDestroy'])->name('timkerja.bulkDestroy');
-
+// Master Data: Tim Kerja
+    Route::get('/master/timkerja', [TimKerjaController::class, 'index'])->name('timkerja.index');
+    Route::post('/master/timkerja', [TimKerjaController::class, 'store'])->name('timkerja.store');
+    Route::put('/master/timkerja/{id}', [TimKerjaController::class, 'update'])->name('timkerja.update');
+    Route::delete('/master/timkerja/{id}', [TimKerjaController::class, 'destroy'])->name('timkerja.destroy');
+    Route::delete('/master/timkerja-bulk', [TimKerjaController::class, 'bulkDestroy'])->name('timkerja.bulkDestroy');
+    
     // Master Data: Pengguna
     Route::get('/master/user', [UserController::class, 'index'])->name('user.index');
     Route::post('/master/user', [UserController::class, 'store'])->name('user.store');

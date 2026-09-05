@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Master Data: Wilayah')
-@section('header', 'Kelola Master Data Wilayah')
+@section('header', 'Master Data Wilayah')
 
 @section('content')
 <div class="space-y-6" x-data="{ modalTambah: false, selected: [], selectAll: false }">
@@ -13,7 +13,7 @@
             <!-- Form Pencarian -->
             <form action="{{ route('admin.wilayah.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari wilayah..." class="form-input w-48">
-                <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
+                <button type="submit" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
                 @if(request('search'))
                     <a href="{{ route('admin.wilayah.index') }}" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 flex items-center">Reset</a>
                 @endif
@@ -23,7 +23,7 @@
             <form action="{{ route('admin.wilayah.bulkDestroy') }}" method="POST" x-show="selected.length > 0" onsubmit="return confirm('Yakin ingin menghapus wilayah yang dicentang?');" style="display: none;">
                 @csrf @method('DELETE')
                 <template x-for="id in selected"><input type="hidden" name="ids[]" :value="id"></template>
-                <button type="submit" class="btn-action-delete flex items-center gap-2 px-4 py-2">
+                <button type="submit" class="btn-action-delete flex items-center gap-2 px-4 py-2" style="font-size: 0.875rem;">
                     Hapus Terpilih (<span x-text="selected.length"></span>)
                 </button>
             </form>
@@ -52,7 +52,7 @@
                     <th class="p-3 text-center">Aksi</th>
                 </tr>
             </thead>
- <tbody>
+            <tbody>
                 @forelse($wilayahs as $index => $item)
                 <tr class="border-b hover:bg-gray-50" x-data="{ modalDetail: false, modalEdit: false, modalHapus: false }">
                     <td class="p-3 text-center"><input type="checkbox" x-model="selected" value="{{ $item->id_wilayah }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></td>
@@ -61,6 +61,7 @@
                     <td class="p-3 font-medium text-gray-600">{{ $item->kode_wilayah }}</td>
                     <td class="p-3 font-semibold text-gray-800">{{ $item->nama_wilayah }}</td>
                     <td class="p-3 text-center whitespace-nowrap">
+                        <!-- Tombol Aksi Sesuai Gambar -->
                         <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
@@ -117,7 +118,7 @@
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
                                         <button type="button" @click="modalEdit = false" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Batal</button>
-                                        <button type="submit" class="btn-action-edit">Simpan</button>
+                                        <button type="submit" class="btn-action-edit text-[0.875rem] px-4 py-2 rounded-lg">Simpan</button>
                                     </div>
                                 </form>
                             </div>
@@ -131,7 +132,7 @@
                                 <form action="{{ route('admin.wilayah.destroy', $item->id_wilayah) }}" method="POST" class="flex justify-center gap-2">
                                     @csrf @method('DELETE')
                                     <button type="button" @click="modalHapus = false" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Batal</button>
-                                    <button type="submit" class="btn-action-delete">Ya, Hapus!</button>
+                                    <button type="submit" class="btn-action-delete text-[0.875rem] px-4 py-2 rounded-lg">Ya, Hapus!</button>
                                 </form>
                             </div>
                         </div>
@@ -151,20 +152,20 @@
             <form action="{{ route('admin.wilayah.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="form-label">ID Wilayah</label>
-                    <input type="text" name="id_wilayah" required class="form-input" placeholder="Contoh: 1400...">
+                    <label class="form-label text-xs font-bold text-gray-700">ID Wilayah</label>
+                    <input type="text" name="id_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: 1400...">
                 </div>
                 <div>
-                    <label class="form-label">Kode Wilayah</label>
-                    <input type="text" name="kode_wilayah" required class="form-input" placeholder="Contoh: 1471...">
+                    <label class="form-label text-xs font-bold text-gray-700">Kode Wilayah</label>
+                    <input type="text" name="kode_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: 1471...">
                 </div>
                 <div>
-                    <label class="form-label">Nama Wilayah</label>
-                    <input type="text" name="nama_wilayah" required class="form-input" placeholder="Contoh: Kota Pekanbaru...">
+                    <label class="form-label text-xs font-bold text-gray-700">Nama Wilayah</label>
+                    <input type="text" name="nama_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: Kota Pekanbaru...">
                 </div>
                 <div>
-                    <label class="form-label">Level Wilayah</label>
-                    <input type="number" name="level_wilayah" required class="form-input" placeholder="Contoh: 1 / 2 / 3">
+                    <label class="form-label text-xs font-bold text-gray-700">Level Wilayah</label>
+                    <input type="number" name="level_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: 1 / 2 / 3">
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" @click="modalTambah = false" class="bg-gray-200 text-gray-700 px-4 py-2 rounded text-sm font-bold">Batal</button>
