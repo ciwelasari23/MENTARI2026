@@ -32,9 +32,26 @@
         </div>
     </div>
 
+    <!-- PESAN SUKSES -->
     @if(session('success'))
         <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 3000)" x-show="show" x-transition.duration.500ms class="alert-success">
             {{ session('success') }}
+        </div>
+    @endif
+
+    <!-- PESAN ERROR VALIDASI (TAMBAHAN BARU) -->
+    @if($errors->any())
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-md shadow-sm">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-red-800">Gagal Menyimpan Data:</h3>
+                    <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
     @endif
 
@@ -45,8 +62,8 @@
                     <th class="p-3 w-10 text-center"><input type="checkbox" x-model="selectAll" @change="selected = selectAll ? {{ json_encode($wilayahs->pluck('id_wilayah')->map(fn($id) => (string)$id)) }} : []" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></th>
                     <th class="p-3 w-16 text-center">No</th>
                     <th class="p-3">ID Wilayah</th>
-                    <th class="p-3">Kode Wilayah</th>
                     <th class="p-3">Nama Wilayah</th>
+                    <th class="p-3 text-center">Level</th>
                     <th class="p-3 text-center">Aksi</th>
                 </tr>
             </thead>
@@ -56,15 +73,14 @@
                     <td class="p-3 text-center"><input type="checkbox" x-model="selected" value="{{ $item->id_wilayah }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></td>
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
                     <td class="p-3 font-medium text-gray-600">{{ $item->id_wilayah }}</td>
-                    <td class="p-3 font-medium text-gray-600">{{ $item->kode_wilayah }}</td>
                     <td class="p-3 font-semibold text-gray-800">{{ $item->nama_wilayah }}</td>
+                    <td class="p-3 text-center font-medium">{{ $item->level_wilayah }}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <!-- Tombol Aksi Sesuai Gambar -->
                         <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
-                        <!-- Modal Detail (Read) -->
+                        <!-- Modal Detail -->
                         <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">Detail Wilayah</h3>
@@ -72,10 +88,6 @@
                                     <div>
                                         <span class="text-gray-500 font-medium block">ID Wilayah</span>
                                         <p class="text-gray-800 font-semibold">{{ $item->id_wilayah }}</p>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500 font-medium block">Kode Wilayah</span>
-                                        <p class="text-gray-800 font-semibold">{{ $item->kode_wilayah }}</p>
                                     </div>
                                     <div>
                                         <span class="text-gray-500 font-medium block">Nama Wilayah</span>
@@ -99,19 +111,15 @@
                                 <form action="{{ route('admin.wilayah.update', $item->id_wilayah) }}" method="POST" class="space-y-4">
                                     @csrf @method('PUT')
                                     <div>
-                                        <label class="form-label">ID Wilayah</label>
+                                        <label class="form-label text-xs font-bold text-gray-700">ID Wilayah</label>
                                         <input type="text" name="id_wilayah" value="{{ $item->id_wilayah }}" required class="form-input">
                                     </div>
                                     <div>
-                                        <label class="form-label">Kode Wilayah</label>
-                                        <input type="text" name="kode_wilayah" value="{{ $item->kode_wilayah }}" required class="form-input">
-                                    </div>
-                                    <div>
-                                        <label class="form-label">Nama Wilayah</label>
+                                        <label class="form-label text-xs font-bold text-gray-700">Nama Wilayah</label>
                                         <input type="text" name="nama_wilayah" value="{{ $item->nama_wilayah }}" required class="form-input">
                                     </div>
                                     <div>
-                                        <label class="form-label">Level Wilayah</label>
+                                        <label class="form-label text-xs font-bold text-gray-700">Level Wilayah</label>
                                         <input type="number" name="level_wilayah" value="{{ $item->level_wilayah }}" required class="form-input">
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
@@ -122,6 +130,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-2 mt-2">Konfirmasi Hapus</h3>
@@ -142,6 +151,7 @@
         </table>
     </div>
 
+    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-md w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Wilayah</h3>
@@ -150,10 +160,6 @@
                 <div>
                     <label class="form-label text-xs font-bold text-gray-700">ID Wilayah</label>
                     <input type="text" name="id_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: 1400...">
-                </div>
-                <div>
-                    <label class="form-label text-xs font-bold text-gray-700">Kode Wilayah</label>
-                    <input type="text" name="kode_wilayah" required class="form-input w-full px-3 py-2 border rounded-md" placeholder="Contoh: 1471...">
                 </div>
                 <div>
                     <label class="form-label text-xs font-bold text-gray-700">Nama Wilayah</label>

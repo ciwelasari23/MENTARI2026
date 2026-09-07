@@ -99,4 +99,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
     Route::delete('/master/user-bulk', [UserController::class, 'bulkDestroy'])->name('user.bulkDestroy');
 
+    // Master Data: Role
+    Route::resource('/master/role', \App\Http\Controllers\Admin\RoleController::class);
 });

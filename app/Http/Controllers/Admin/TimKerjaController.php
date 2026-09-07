@@ -18,45 +18,51 @@ class TimKerjaController extends Controller
         }
 
         $teams = $query->get();
-        return view('admin.master.timkerja', compact('teams', 'search'));
+        return view('admin.master.timkerja', compact('teams'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama_team' => 'required|string|max:255',
+            'nama_team' => 'required|string|max:100',
         ]);
 
-        MstTeam::create($request->all());
+        // Simpan data spesifik, jangan gunakan $request->all()
+        MstTeam::create([
+            'nama_team' => $request->nama_team
+        ]);
 
         return redirect()->route('admin.timkerja.index')->with('success', 'Tim Kerja berhasil ditambahkan.');
     }
 
-    public function update(Request $request, int|string $id)
+    public function update(Request $request, string|int $id)
     {
         $request->validate([
-            'nama_team' => 'required|string|max:255',
+            'nama_team' => 'required|string|max:100',
         ]);
 
-        $team = MstTeam::findOrFail($id);
-        $team->update($request->all());
+        // Update data spesifik
+        MstTeam::findOrFail($id)->update([
+            'nama_team' => $request->nama_team
+        ]);
 
         return redirect()->route('admin.timkerja.index')->with('success', 'Tim Kerja berhasil diperbarui.');
     }
 
-    public function destroy(int|string $id)
+    public function destroy(string|int $id)
     {
-        $team = MstTeam::findOrFail($id);
-        $team->delete();
-
+        MstTeam::findOrFail($id)->delete();
         return redirect()->route('admin.timkerja.index')->with('success', 'Tim Kerja berhasil dihapus.');
     }
 
     public function bulkDestroy(Request $request)
     {
         $request->validate(['ids' => 'required|array']);
-        MstTeam::whereIn('id_team', $request->ids)->delete();
-
-        return redirect()->route('admin.timkerja.index')->with('success', count($request->ids) . ' Tim Kerja berhasil dihapus secara massal.');
+        
+        // Ambil nama primary key secara dinamis
+        $pk = (new MstTeam)->getKeyName(); 
+        MstTeam::whereIn($pk, $request->ids)->delete();
+        
+        return redirect()->route('admin.timkerja.index')->with('success', 'Tim Kerja terpilih berhasil dihapus.');
     }
 }

@@ -72,7 +72,8 @@
                     <td class="p-3">{{ $item->team->nama_team ?? '-' }}</td>
                     <td class="p-3 text-center whitespace-nowrap">
                         
-                        <button @click="modalDetail = true" class="btn-action-detail mr-1">Detail</button>
+                        <!-- Perubahan class tombol Detail di sini -->
+                        <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600 transition-colors">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 

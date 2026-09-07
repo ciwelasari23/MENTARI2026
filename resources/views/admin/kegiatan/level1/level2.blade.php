@@ -58,21 +58,25 @@
                     <td class="p-3 text-gray-600">{{ $item->output->nama_output ?? '-' }}</td>
                     <td class="p-3 font-semibold text-gray-800">{{ $item->nama_kegiatan }}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button @click="modalDetail = true" class="btn-action-detail mr-1">Detail</button>
+                        
+                        <!-- Tombol Detail diubah menjadi warna biru -->
+                        <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600 transition-colors">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
+                        <!-- Modal Detail -->
                         <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Kegiatan Level 2</h3>
                                 <div class="space-y-4">
-                                    <div><label class="form-label">Output Induk</label><div class="form-input bg-gray-50">{{ $item->output->nama_output ?? '-' }}</div></div>
-                                    <div><label class="form-label">Nama Kegiatan</label><div class="form-input bg-gray-50">{{ $item->nama_kegiatan }}</div></div>
+                                    <div><label class="form-label text-gray-500">Output Induk</label><div class="form-input bg-gray-50 font-semibold">{{ $item->output->nama_output ?? '-' }}</div></div>
+                                    <div><label class="form-label text-gray-500">Nama Kegiatan</label><div class="form-input bg-gray-50 font-semibold">{{ $item->nama_kegiatan }}</div></div>
                                 </div>
                                 <div class="flex justify-end mt-6"><button type="button" @click="modalDetail = false" class="bg-gray-800 text-white px-4 py-2 rounded text-sm font-bold hover:bg-gray-700">Tutup</button></div>
                             </div>
                         </div>
 
+                        <!-- Modal Edit -->
                         <div x-show="modalEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalEdit = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">Edit Kegiatan Level 2</h3>
@@ -94,6 +98,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -117,6 +122,7 @@
         </table>
     </div>
 
+    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-md w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Kegiatan Level 2</h3>

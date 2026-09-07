@@ -39,6 +39,22 @@
         </div>
     @endif
 
+    <!-- PENANGKAP ERROR VALIDASI -->
+    @if($errors->any())
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-md shadow-sm">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-red-800">Gagal Menyimpan Data:</h3>
+                    <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="card-container overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
             <thead>
@@ -63,10 +79,13 @@
                         {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }} - 
                         {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}
                     </td>
-                    <td class="p-3 font-medium text-[#14B8A6]">{{ $item->target_total }} {{ $item->satuan_target }}</td>
+                    <td class="p-3 font-medium text-[#14B8A6]">
+                        {{ number_format($item->target_total, 0, ',', '.') }} <span class="text-gray-500 text-xs ml-1">{{ $item->satuan_target }}</span>
+                    </td>
                     <td class="p-3 text-center whitespace-nowrap">
                         
-                        <button @click="modalDetail = true" class="btn-action-detail mr-1">Detail</button>
+                        <!-- Tombol Detail -->
+                        <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600 transition-colors">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
@@ -76,24 +95,24 @@
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Informasi Detail Kegiatan Level 3</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="md:col-span-2">
-                                        <label class="form-label">Kegiatan Induk (Level 2)</label>
-                                        <div class="form-input bg-gray-50">{{ $item->kegiatan->nama_kegiatan ?? 'Tidak ada data' }}</div>
+                                        <label class="form-label text-gray-500">Kegiatan Induk (Level 2)</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->kegiatan->nama_kegiatan ?? 'Tidak ada data' }}</div>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="form-label">Nama Detail Kegiatan</label>
-                                        <div class="form-input bg-gray-50">{{ $item->nama_keg_detail }}</div>
+                                        <label class="form-label text-gray-500">Nama Detail Kegiatan</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->nama_keg_detail }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Tanggal Mulai</label>
-                                        <div class="form-input bg-gray-50">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d F Y') }}</div>
+                                        <label class="form-label text-gray-500">Tanggal Mulai</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d F Y') }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Tanggal Selesai</label>
-                                        <div class="form-input bg-gray-50">{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d F Y') }}</div>
+                                        <label class="form-label text-gray-500">Tanggal Selesai</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d F Y') }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Target Total</label>
-                                        <div class="form-input bg-gray-50 font-bold text-[#14B8A6]">{{ $item->target_total }} {{ $item->satuan_target }}</div>
+                                        <label class="form-label text-gray-500">Target Total</label>
+                                        <div class="form-input bg-gray-50 font-bold text-[#14B8A6]">{{ number_format($item->target_total, 0, ',', '.') }} {{ $item->satuan_target }}</div>
                                     </div>
                                 </div>
                                 <div class="flex justify-end mt-6">
@@ -102,6 +121,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Edit -->
                         <div x-show="modalEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalEdit = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">Edit Detail Kegiatan Level 3</h3>
@@ -134,7 +154,18 @@
                                         </div>
                                         <div>
                                             <label class="form-label">Satuan Target</label>
-                                            <input type="text" name="satuan_target" value="{{ $item->satuan_target }}" required class="form-input">
+                                            <select name="satuan_target" required class="form-input">
+                                                <option value="Dokumen" {{ $item->satuan_target == 'Dokumen' ? 'selected' : '' }}>Dokumen</option>
+                                                <option value="Laporan" {{ $item->satuan_target == 'Laporan' ? 'selected' : '' }}>Laporan</option>
+                                                <option value="Desa / Kelurahan" {{ $item->satuan_target == 'Desa / Kelurahan' ? 'selected' : '' }}>Desa / Kelurahan</option>
+                                                <option value="Kecamatan" {{ $item->satuan_target == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
+                                                <option value="Kabupaten / Kota" {{ $item->satuan_target == 'Kabupaten / Kota' ? 'selected' : '' }}>Kabupaten / Kota</option>
+                                                <option value="Perusahaan / Usaha" {{ $item->satuan_target == 'Perusahaan / Usaha' ? 'selected' : '' }}>Perusahaan / Usaha</option>
+                                                <option value="Rumah Tangga" {{ $item->satuan_target == 'Rumah Tangga' ? 'selected' : '' }}>Rumah Tangga</option>
+                                                <option value="Responden" {{ $item->satuan_target == 'Responden' ? 'selected' : '' }}>Responden</option>
+                                                <option value="Kegiatan" {{ $item->satuan_target == 'Kegiatan' ? 'selected' : '' }}>Kegiatan</option>
+                                                <option value="Rekomendasi" {{ $item->satuan_target == 'Rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
@@ -145,6 +176,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -177,6 +209,7 @@
         </table>
     </div>
 
+    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Detail Kegiatan Level 3</h3>
@@ -194,7 +227,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="form-label">Nama Detail Kegiatan (Level 3)</label>
-                        <input type="text" name="nama_keg_detail" required class="form-input">
+                        <input type="text" name="nama_keg_detail" required class="form-input" placeholder="Contoh: Pencacahan Lapangan Sensus...">
                     </div>
                     <div>
                         <label class="form-label">Tanggal Mulai</label>
@@ -206,11 +239,23 @@
                     </div>
                     <div>
                         <label class="form-label">Target Total</label>
-                        <input type="number" name="target_total" min="1" required class="form-input">
+                        <input type="number" name="target_total" min="1" required class="form-input" placeholder="Masukkan jumlah angka...">
                     </div>
                     <div>
                         <label class="form-label">Satuan Target</label>
-                        <input type="text" name="satuan_target" required class="form-input">
+                        <select name="satuan_target" required class="form-input">
+                            <option value="">-- Pilih Satuan Target --</option>
+                            <option value="Dokumen">Dokumen</option>
+                            <option value="Laporan">Laporan</option>
+                            <option value="Desa / Kelurahan">Desa / Kelurahan</option>
+                            <option value="Kecamatan">Kecamatan</option>
+                            <option value="Kabupaten / Kota">Kabupaten / Kota</option>
+                            <option value="Perusahaan / Usaha">Perusahaan / Usaha</option>
+                            <option value="Rumah Tangga">Rumah Tangga</option>
+                            <option value="Responden">Responden</option>
+                            <option value="Kegiatan">Kegiatan</option>
+                            <option value="Rekomendasi">Rekomendasi</option>
+                        </select>
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-6">

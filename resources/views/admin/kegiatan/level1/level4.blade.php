@@ -59,6 +59,7 @@
                     <th class="p-3">Detail Induk (Level 3)</th>
                     <th class="p-3">Nama Proses (Level 4)</th>
                     <th class="p-3">Jadwal</th>
+                    <th class="p-3">Target</th>
                     <th class="p-3 text-center">Aksi</th>
                 </tr>
             </thead>
@@ -75,9 +76,13 @@
                         {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }} - 
                         {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}
                     </td>
+                    <td class="p-3 font-medium text-[#14B8A6]">
+                        {{ number_format($item->target_total_provinsi, 0, ',', '.') }} <span class="text-gray-500 text-xs ml-1">{{ $item->satuan_target }}</span>
+                    </td>
                     <td class="p-3 text-center whitespace-nowrap">
                         
-                        <button @click="modalDetail = true" class="btn-action-detail mr-1">Detail</button>
+                        <!-- Tombol Detail -->
+                        <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600 transition-colors">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
@@ -86,24 +91,24 @@
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Informasi Proses Kegiatan Level 4</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="md:col-span-2">
-                                        <label class="form-label">Detail Induk (Level 3)</label>
-                                        <div class="form-input bg-gray-50">{{ $item->detail->nama_keg_detail ?? 'Tidak ada data' }}</div>
+                                        <label class="form-label text-gray-500">Detail Induk (Level 3)</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->detail->nama_keg_detail ?? 'Tidak ada data' }}</div>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="form-label">Nama Proses Kegiatan</label>
-                                        <div class="form-input bg-gray-50">{{ $item->nama_proses }}</div>
+                                        <label class="form-label text-gray-500">Nama Proses Kegiatan</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->nama_proses }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Tanggal Mulai</label>
-                                        <div class="form-input bg-gray-50">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d F Y') }}</div>
+                                        <label class="form-label text-gray-500">Tanggal Mulai</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d F Y') }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Tanggal Selesai</label>
-                                        <div class="form-input bg-gray-50">{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d F Y') }}</div>
+                                        <label class="form-label text-gray-500">Tanggal Selesai</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d F Y') }}</div>
                                     </div>
                                     <div>
-                                        <label class="form-label">Target Total Provinsi</label>
-                                        <div class="form-input bg-gray-50 font-bold text-[#14B8A6]">{{ $item->target_total_provinsi }} {{ $item->satuan_target }}</div>
+                                        <label class="form-label text-gray-500">Target Total Provinsi</label>
+                                        <div class="form-input bg-gray-50 font-bold text-[#14B8A6]">{{ number_format($item->target_total_provinsi, 0, ',', '.') }} {{ $item->satuan_target }}</div>
                                     </div>
                                 </div>
                                 <div class="flex justify-end mt-6">
@@ -145,7 +150,18 @@
                                         </div>
                                         <div>
                                             <label class="form-label">Satuan Target</label>
-                                            <input type="text" name="satuan_target" value="{{ $item->satuan_target }}" required class="form-input">
+                                            <select name="satuan_target" required class="form-input">
+                                                <option value="Dokumen" {{ $item->satuan_target == 'Dokumen' ? 'selected' : '' }}>Dokumen</option>
+                                                <option value="Laporan" {{ $item->satuan_target == 'Laporan' ? 'selected' : '' }}>Laporan</option>
+                                                <option value="Desa / Kelurahan" {{ $item->satuan_target == 'Desa / Kelurahan' ? 'selected' : '' }}>Desa / Kelurahan</option>
+                                                <option value="Kecamatan" {{ $item->satuan_target == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
+                                                <option value="Kabupaten / Kota" {{ $item->satuan_target == 'Kabupaten / Kota' ? 'selected' : '' }}>Kabupaten / Kota</option>
+                                                <option value="Perusahaan / Usaha" {{ $item->satuan_target == 'Perusahaan / Usaha' ? 'selected' : '' }}>Perusahaan / Usaha</option>
+                                                <option value="Rumah Tangga" {{ $item->satuan_target == 'Rumah Tangga' ? 'selected' : '' }}>Rumah Tangga</option>
+                                                <option value="Responden" {{ $item->satuan_target == 'Responden' ? 'selected' : '' }}>Responden</option>
+                                                <option value="Kegiatan" {{ $item->satuan_target == 'Kegiatan' ? 'selected' : '' }}>Kegiatan</option>
+                                                <option value="Rekomendasi" {{ $item->satuan_target == 'Rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
@@ -206,7 +222,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="form-label">Nama Proses Kegiatan (Level 4)</label>
-                        <input type="text" name="nama_proses" required class="form-input">
+                        <input type="text" name="nama_proses" required class="form-input" placeholder="Contoh: Pencacahan Lapangan...">
                     </div>
                     <div>
                         <label class="form-label">Tanggal Mulai</label>
@@ -218,11 +234,23 @@
                     </div>
                     <div>
                         <label class="form-label">Target Total Provinsi</label>
-                        <input type="number" name="target_total_provinsi" min="1" required class="form-input">
+                        <input type="number" name="target_total_provinsi" min="1" required class="form-input" placeholder="Masukkan jumlah angka...">
                     </div>
                     <div>
                         <label class="form-label">Satuan Target</label>
-                        <input type="text" name="satuan_target" required class="form-input">
+                        <select name="satuan_target" required class="form-input">
+                            <option value="">-- Pilih Satuan Target --</option>
+                            <option value="Dokumen">Dokumen</option>
+                            <option value="Laporan">Laporan</option>
+                            <option value="Desa / Kelurahan">Desa / Kelurahan</option>
+                            <option value="Kecamatan">Kecamatan</option>
+                            <option value="Kabupaten / Kota">Kabupaten / Kota</option>
+                            <option value="Perusahaan / Usaha">Perusahaan / Usaha</option>
+                            <option value="Rumah Tangga">Rumah Tangga</option>
+                            <option value="Responden">Responden</option>
+                            <option value="Kegiatan">Kegiatan</option>
+                            <option value="Rekomendasi">Rekomendasi</option>
+                        </select>
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-6">

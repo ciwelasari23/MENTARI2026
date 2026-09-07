@@ -3,75 +3,69 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MstWilayah;
 use Illuminate\Http\Request;
+use App\Models\MstWilayah;
 
 class WilayahController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->input('search');
-        
         $query = MstWilayah::query();
 
         if ($search) {
             $query->where('nama_wilayah', 'like', "%{$search}%")
-                  ->orWhere('kode_wilayah', 'like', "%{$search}%")
                   ->orWhere('id_wilayah', 'like', "%{$search}%");
         }
 
-        $wilayahs = $query->orderBy('id_wilayah', 'desc')->get();
-
-        return view('admin.master.wilayah', compact('wilayahs', 'search'));
+        $wilayahs = $query->get();
+        return view('admin.master.wilayah', compact('wilayahs'));
     }
 
     public function store(Request $request)
     {
+        // 1. Validasi tanpa kode_wilayah
         $request->validate([
             'id_wilayah' => 'required|string|max:16|unique:mst_wilayah,id_wilayah',
-            'kode_wilayah' => 'required|string|max:50',
             'nama_wilayah' => 'required|string|max:100',
             'level_wilayah' => 'required|integer',
         ]);
 
-        MstWilayah::create($request->all());
+        // 2. Simpan ke database
+        MstWilayah::create([
+            'id_wilayah' => $request->id_wilayah,
+            'nama_wilayah' => $request->nama_wilayah,
+            'level_wilayah' => $request->level_wilayah,
+        ]);
 
-        return redirect()->route('admin.wilayah.index')->with('success', 'Data wilayah berhasil ditambahkan.');
+        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil ditambahkan.');
     }
 
-    public function update(Request $request, int|string $id)
+    public function update(Request $request, string $id)
     {
-        $wilayah = MstWilayah::findOrFail($id);
-
         $request->validate([
-            'id_wilayah' => 'required|string|max:16|unique:mst_wilayah,id_wilayah,' . $id . ',id_wilayah',
-            'kode_wilayah' => 'required|string|max:50',
             'nama_wilayah' => 'required|string|max:100',
             'level_wilayah' => 'required|integer',
         ]);
 
-        $wilayah->update($request->all());
+        MstWilayah::findOrFail($id)->update([
+            'nama_wilayah' => $request->nama_wilayah,
+            'level_wilayah' => $request->level_wilayah,
+        ]);
 
-        return redirect()->route('admin.wilayah.index')->with('success', 'Data wilayah berhasil diperbarui.');
+        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil diperbarui.');
     }
 
-    public function destroy(int|string $id)
+    public function destroy(string $id)
     {
-        $wilayah = MstWilayah::findOrFail($id);
-        $wilayah->delete();
-
-        return redirect()->route('admin.wilayah.index')->with('success', 'Data wilayah berhasil dihapus.');
+        MstWilayah::findOrFail($id)->delete();
+        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil dihapus.');
     }
 
     public function bulkDestroy(Request $request)
     {
-        $ids = $request->input('ids');
-
-        if ($ids) {
-            MstWilayah::whereIn('id_wilayah', $ids)->delete();
-            return redirect()->route('admin.wilayah.index')->with('success', 'Data wilayah terpilih berhasil dihapus.');
-        }
-
-        return redirect()->route('admin.wilayah.index')->with('error', 'Tidak ada data yang dipilih.');
+        $request->validate(['ids' => 'required|array']);
+        MstWilayah::whereIn('id_wilayah', $request->ids)->delete();
+        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah terpilih berhasil dihapus.');
     }
 }

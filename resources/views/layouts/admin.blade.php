@@ -52,7 +52,8 @@
                 <div x-show="openMaster" x-transition class="pl-4 ml-6 my-1 space-y-1 border-l-2 border-blue-100" style="display: none;">
                     <a href="{{ url('/admin/master/wilayah') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/wilayah') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Wilayah</a>
                     <a href="{{ url('/admin/master/timkerja') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/timkerja') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Tim Kerja</a>
-                    <a href="{{ url('/admin/master/user') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/user') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Pengguna</a>
+                    <a href="{{ route('admin.role.index') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/role') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Manajemen Role</a>
+                    <a href="{{ url('/admin/master/user') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/user') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">User</a>
                 </div>
             </div>
 
