@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             'nama_lengkap' => 'Cici Wela Sari',
             'email' => 'admin@bps.go.id',
             'kategori_user' => 'Pegawai',
-            'password_hash' => Hash::make('password123'),
+            'password_hash' => Hash::make('password123'), 
         ]);
 
         // Akun Verifikator
@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
             'nama_lengkap' => 'Verifikator Sistem',
             'email' => 'verifikator@bps.go.id',
             'kategori_user' => 'Pegawai',
-            'password_hash' => Hash::make('password123'),
+            'password_hash' => Hash::make('password123'), 
         ]);
 
         // Akun Pelapor (Mitra)
@@ -37,7 +37,17 @@ class UserSeeder extends Seeder
             'nama_lengkap' => 'Mitra Pelapor',
             'email' => 'mitra@domain.com',
             'kategori_user' => 'Mitra',
-            'password_hash' => Hash::make('password123'),
+            'password_hash' => Hash::make('password123'), 
+        ]);
+
+        // Akun Admin / Operator Kabupaten/Kota
+        User::create([
+            'id_role' => 3, // Sesuaikan dengan id_role Kabupaten/Kota Anda
+            'nip_nik' => '9988776655443322',
+            'nama_lengkap' => 'Operator Kabupaten',
+            'email' => 'kabupaten@bps.go.id',
+            'kategori_user' => 'Pegawai', // atau 'Mitra' sesuai sistem Anda
+            'password_hash' => Hash::make('password123'), 
         ]);
     }
 }

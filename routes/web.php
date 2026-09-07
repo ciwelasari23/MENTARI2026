@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\VerifikasiLaporanController;
 use App\Http\Controllers\Admin\WilayahController; 
 use App\Http\Controllers\Admin\TimKerjaController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Auth\GoogleController; // Pastikan controller ini sudah dibuat
+use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,7 +24,7 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Rute Google Login (Harus Publik / Di luar Admin & Auth Middleware)
+// Rute Google Login
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
@@ -33,7 +33,7 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');
 
-// Rute Pelaporan (Untuk Petugas/Mitra - di luar prefix admin)
+// Rute Pelaporan
 Route::middleware(['auth'])->group(function () {
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
     Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Grup Rute Admin BPS Riau
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    
     // Level 1: Output Kegiatan
     Route::get('/kegiatan/level1', [KegiatanLevel1Controller::class, 'index'])->name('level1.index');
     Route::post('/kegiatan/level1', [KegiatanLevel1Controller::class, 'store'])->name('level1.store');
@@ -69,14 +70,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/kegiatan/level4/{id}', [KegiatanLevel4Controller::class, 'destroy'])->name('level4.destroy');  
     Route::delete('/kegiatan/level4-bulk', [KegiatanLevel4Controller::class, 'bulkDestroy'])->name('level4.bulkDestroy');
     
-    // Target Wilayah
-    Route::get('/target-wilayah', [TargetWilayahController::class, 'index'])->name('target.index');
-    Route::post('/target-wilayah', [TargetWilayahController::class, 'store'])->name('target.store');
-    Route::delete('/target-wilayah/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
+    // Target Wilayah (Dilindungi validasi hak akses)
+    Route::get('/target', [TargetWilayahController::class, 'index'])->name('target.index');
+    Route::post('/target', [TargetWilayahController::class, 'store'])->name('target.store');
+    Route::put('/target/{id}', [TargetWilayahController::class, 'update'])->name('target.update');
+    Route::delete('/target/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
 
     // Verifikasi Laporan
-    Route::get('/verifikasi-laporan', [VerifikasiLaporanController::class, 'index'])->name('verifikasi.index');
-    Route::put('/verifikasi-laporan/{id}', [VerifikasiLaporanController::class, 'update'])->name('verifikasi.update');
+    Route::get('/verifikasi', [VerifikasiLaporanController::class, 'index'])->name('verifikasi.index');
+    Route::put('/verifikasi/{id}', [VerifikasiLaporanController::class, 'update'])->name('verifikasi.update');
 
     // Master Data: Wilayah
     Route::get('/master/wilayah', [WilayahController::class, 'index'])->name('wilayah.index');
@@ -85,7 +87,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/wilayah/{id}', [WilayahController::class, 'destroy'])->name('wilayah.destroy');
     Route::delete('/master/wilayah-bulk', [WilayahController::class, 'bulkDestroy'])->name('wilayah.bulkDestroy');
 
-// Master Data: Tim Kerja
+    // Master Data: Tim Kerja
     Route::get('/master/timkerja', [TimKerjaController::class, 'index'])->name('timkerja.index');
     Route::post('/master/timkerja', [TimKerjaController::class, 'store'])->name('timkerja.store');
     Route::put('/master/timkerja/{id}', [TimKerjaController::class, 'update'])->name('timkerja.update');
@@ -100,5 +102,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/user-bulk', [UserController::class, 'bulkDestroy'])->name('user.bulkDestroy');
 
     // Master Data: Role
+    Route::post('/master/role/{id}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('role.permissions');
     Route::resource('/master/role', \App\Http\Controllers\Admin\RoleController::class);
 });

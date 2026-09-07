@@ -6,10 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-
     public function up()
     {
         Schema::create('mst_role', function (Blueprint $table) {
@@ -19,11 +15,9 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('mst_roles');
+        // Ubah dari 'mst_roles' menjadi 'mst_role' agar sesuai dengan saat pembuatan
+        Schema::dropIfExists('mst_role');
     }
 };

@@ -37,16 +37,36 @@ class User extends Authenticatable
         return $this->password_hash;
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // ==========================================
+    // TAMBAHKAN RELASI DAN FUNGSI INI
+    // ==========================================
+
+    // Relasi ke tabel MstRole (Many-to-One / BelongsTo)
+    public function role()
     {
-        return [
-            // Pastikan password_hash dienkripsi otomatis oleh Laravel
-            'password_hash' => 'hashed',
-        ];
+        return $this->belongsTo(MstRole::class, 'id_role', 'id_role');
+    }
+
+    // Fungsi helper untuk mengecek izin akses (permissions)
+    // Fungsi helper untuk mengecek izin akses (permissions)
+    // Perbaikan fungsi hasPermission agar fleksibel mengecek nama atau deskripsi permission
+    public function hasPermission(string $permissionName): bool
+    {
+        // Jika Super Admin (id_role == 1), berikan akses penuh
+        if ($this->id_role == 1) {
+            return true;
+        }
+
+        // Cek melalui relasi role -> permissions (mencocokkan kolom 'name' ATAU 'display_name')
+        if ($this->role && $this->role->permissions) {
+            return $this->role->permissions()
+                ->where(function($query) use ($permissionName) {
+                    $query->where('name', 'LIKE', "%{$permissionName}%")
+                          ->orWhere('display_name', 'LIKE', "%{$permissionName}%");
+                })
+                ->exists();
+        }
+
+        return false;
     }
 }

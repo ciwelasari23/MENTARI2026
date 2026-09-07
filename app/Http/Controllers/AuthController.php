@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash; // <-- Tambahkan baris ini
 use App\Models\User;
 
 class AuthController extends Controller
@@ -23,11 +23,20 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // 1. Cari user secara manual berdasarkan email
+        $user = User::where('email', $credentials['email'])->first();
+
+        // 2. Jika user ditemukan DAN password yang diketik cocok dengan password_hash di database
+        if ($user && Hash::check($credentials['password'], $user->password_hash)) {
+            
+            // 3. Masukkan user ke dalam sistem (Login Manual)
+            Auth::login($user); 
             $request->session()->regenerate();
+            
             return redirect()->intended('dashboard');
         }
 
+        // Jika email tidak ada atau password salah
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
         ])->onlyInput('email');
@@ -53,19 +62,18 @@ class AuthController extends Controller
             'kategori_user' => ['required', 'in:pegawai,mitra'],
         ]);
 
-        // Secara default, pendaftar baru diset sebagai Pelapor (Role 3)
         $roleId = 3; 
 
         User::create([
             'nip_nik' => $request->nip_nik,
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
-            'password_hash' => Hash::make($request->password), 
+            // HAPUS Hash::make() karena model sudah melakukan casting otomatis 'hashed'
+            'password_hash' => $request->password, 
             'kategori_user' => ucfirst($request->kategori_user), 
             'id_role' => $roleId,
         ]);
 
-        // Kembalikan ke halaman login dengan pesan sukses (meminjam error bag sementara)
         return back()->withErrors(['Berhasil mendaftar! Silakan login menggunakan akun baru Anda.']);
     }
 }

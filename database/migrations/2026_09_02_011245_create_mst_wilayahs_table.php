@@ -6,17 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-
     public function up()
     {
         Schema::create('mst_wilayah', function (Blueprint $table) {
-            // Karena Primary Key berupa VARCHAR(16)
+            // Primary Key berupa VARCHAR(16)
             $table->string('id_wilayah', 16)->primary();
+            
+            // Tambahkan kolom kode_wilayah yang diminta oleh Seeder
+            $table->string('kode_wilayah', 20)->nullable();
+            
             $table->string('nama_wilayah', 100);
-            $table->integer('level_wilayah');
+            
+            // Buat nullable agar tidak error jika Seeder tidak mengirimkan level
+            $table->integer('level_wilayah')->nullable();
+            
             $table->string('id_parent_wilayah', 16)->nullable();
             $table->timestamps();
 
@@ -27,11 +30,10 @@ return new class extends Migration
                 ->onDelete('cascade');
         });
     }
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
-        Schema::dropIfExists('mst_wilayahs');
+        // Hapus huruf 's' di belakang agar nama tabel sesuai
+        Schema::dropIfExists('mst_wilayah');
     }
 };

@@ -4,38 +4,61 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\TrxTarget;
-use App\Models\MstKegiatanLevel4Proses;
+use App\Models\TrxTargetWilayah;
 use App\Models\MstWilayah;
+use App\Models\MstKegiatanLevel4Proses;
 
 class TargetWilayahController extends Controller
 {
     public function index()
     {
-        $targets = TrxTarget::with(['proses', 'wilayah'])->get();
+        $targets = TrxTargetWilayah::with(['wilayah', 'proses', 'pembuat'])->get();
+        $wilayahs = MstWilayah::all();
         $prosesList = MstKegiatanLevel4Proses::all();
-        $wilayahList = MstWilayah::all();
-        return view('admin.target.index', compact('targets', 'prosesList', 'wilayahList'));
+
+        return view('target.index', compact('targets', 'wilayahs', 'prosesList'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'id_proses' => 'required|exists:mst_kegiatan_level4_proses,id_proses',
-            'id_wilayah' => 'required|exists:mst_wilayah,id_wilayah',
-            'target_kuantiti' => 'required|integer|min:1',
+            'id_wilayah' => 'required',
+            'id_proses' => 'required|integer',
+            'target_daerah' => 'required|integer|min:1',
         ]);
 
-        TrxTarget::create($request->all());
+        TrxTargetWilayah::create([
+            'id_wilayah' => $request->id_wilayah,
+            'id_proses' => $request->id_proses,
+            'target_daerah' => $request->target_daerah,
+            'created_by' => auth()->id(),
+        ]);
 
         return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil ditetapkan.');
     }
 
+    // Tambahkan method update untuk menangani aksi Edit
+    public function update(Request $request, int|string $id)
+    {
+        $request->validate([
+            'id_wilayah' => 'required',
+            'id_proses' => 'required|integer',
+            'target_daerah' => 'required|integer|min:1',
+        ]);
+
+        $target = TrxTargetWilayah::findOrFail($id);
+        $target->update([
+            'id_wilayah' => $request->id_wilayah,
+            'id_proses' => $request->id_proses,
+            'target_daerah' => $request->target_daerah,
+        ]);
+
+        return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil diperbarui.');
+    }
+
     public function destroy(int|string $id)
     {
-        $target = TrxTarget::findOrFail($id);
-        $target->delete();
-
+        TrxTargetWilayah::findOrFail($id)->delete();
         return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil dihapus.');
     }
 }
