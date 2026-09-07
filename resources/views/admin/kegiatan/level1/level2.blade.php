@@ -62,7 +62,6 @@
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
-                        <!-- Modal Detail -->
                         <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Kegiatan Level 2</h3>
