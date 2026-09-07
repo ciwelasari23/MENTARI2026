@@ -10,7 +10,6 @@
         <h3 class="text-lg font-bold text-gray-800">Daftar Pengguna Sistem</h3>
         
         <div class="flex items-center gap-2">
-            <!-- Form Pencarian -->
             <form action="{{ route('admin.user.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama/email/NIP..." class="form-input w-48">
                 <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
@@ -19,7 +18,6 @@
                 @endif
             </form>
 
-            <!-- Tombol Hapus Massal -->
             <form action="{{ route('admin.user.bulkDestroy') }}" method="POST" x-show="selected.length > 0" onsubmit="return confirm('Yakin ingin menghapus pengguna yang dicentang?');" style="display: none;">
                 @csrf @method('DELETE')
                 <template x-for="id in selected"><input type="hidden" name="ids[]" :value="id"></template>
@@ -54,22 +52,53 @@
             </thead>
             <tbody>
                 @forelse($users as $index => $item)
-                <tr class="border-b hover:bg-gray-50" x-data="{ modalEdit: false, modalHapus: false }">
+                <tr class="border-b hover:bg-gray-50" x-data="{ modalDetail: false, modalEdit: false, modalHapus: false }">
                     <td class="p-3 text-center"><input type="checkbox" x-model="selected" value="{{ $item->getKey() }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></td>
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
                     <td class="p-3 font-semibold text-gray-800">{{ $item->nama_lengkap }}</td>
                     <td class="p-3 text-gray-600 text-xs">
-                        <div>NIP: {{ $item->nip ?? '-' }}</div>
+                        <div>NIP: {{ $item->nip_nik ?? '-' }}</div>
                         <div class="text-gray-500">{{ $item->email }}</div>
                     </td>
                     <td class="p-3">
-                        <span class="px-2.5 py-1 text-xs font-bold rounded-full {{ $item->role == 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700' }}">
-                            {{ ucfirst($item->role) }}
+                        <span class="px-2.5 py-1 text-xs font-bold rounded-full {{ $item->kategori_user == 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700' }}">
+                            {{ ucfirst($item->kategori_user) }}
                         </span>
                     </td>
                     <td class="p-3 text-center whitespace-nowrap">
+                        <button @click="modalDetail = true" class="bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold mr-1 hover:bg-blue-600 transition-colors">Detail</button>
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
+
+                        <!-- Modal Detail (Read) -->
+                        <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
+                            <div class="card-container max-w-lg w-full shadow-xl" @click.away="modalDetail = false">
+                                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Pengguna</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->nama_lengkap }}</div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="form-label">NIP</label>
+                                            <div class="form-input bg-gray-50">{{ $item->nip_nik ?? '-' }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Email</label>
+                                            <div class="form-input bg-gray-50">{{ $item->email }}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Role / Hak Akses</label>
+                                        <div class="form-input bg-gray-50">{{ ucfirst($item->kategori_user) }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end mt-6">
+                                    <button type="button" @click="modalDetail = false" class="bg-gray-800 text-white px-4 py-2 rounded text-sm font-bold hover:bg-gray-700">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Modal Edit -->
                         <div x-show="modalEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
@@ -84,7 +113,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="form-label">NIP</label>
-                                            <input type="text" name="nip" value="{{ $item->nip }}" class="form-input">
+                                            <input type="text" name="nip" value="{{ $item->nip_nik }}" class="form-input">
                                         </div>
                                         <div>
                                             <label class="form-label">Email</label>
@@ -95,8 +124,8 @@
                                         <div>
                                             <label class="form-label">Role</label>
                                             <select name="role" required class="form-input">
-                                                <option value="admin" {{ $item->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                                <option value="petugas" {{ $item->role == 'petugas' ? 'selected' : '' }}>Petugas / Mitra</option>
+                                                <option value="admin" {{ $item->kategori_user == 'admin' ? 'selected' : '' }}>Admin</option>
+                                                <option value="petugas" {{ $item->kategori_user == 'petugas' ? 'selected' : '' }}>Petugas / Mitra</option>
                                             </select>
                                         </div>
                                         <div>

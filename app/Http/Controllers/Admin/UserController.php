@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule; 
 
 class UserController extends Controller
 {
@@ -17,7 +18,7 @@ class UserController extends Controller
         if ($search) {
             $query->where('nama_lengkap', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('nip', 'like', "%{$search}%");
+                  ->orWhere('nip_nik', 'like', "%{$search}%"); // Ubah ke nip_nik
         }
 
         $users = $query->get();
@@ -28,18 +29,20 @@ class UserController extends Controller
     {
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'nip' => 'nullable|string|max:50|unique:users,nip',
+            'email' => ['required', 'email', Rule::unique(User::class, 'email')],
+            // Validasi menunjuk ke kolom nip_nik di database
+            'nip' => ['nullable', 'string', 'max:50', Rule::unique(User::class, 'nip_nik')],
             'password' => 'required|min:6',
             'role' => 'required|string',
         ]);
 
+        // Sesuaikan key array dengan nama kolom di database Anda
         User::create([
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'nip' => $request->nip,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'nama_lengkap'  => $request->nama_lengkap,
+            'email'         => $request->email,
+            'nip_nik'       => $request->nip,
+            'password_hash' => Hash::make($request->password),
+            'kategori_user' => $request->role,
         ]);
 
         return redirect()->route('admin.user.index')->with('success', 'Pengguna berhasil ditambahkan.');
@@ -48,25 +51,27 @@ class UserController extends Controller
     public function update(Request $request, int|string $id)
     {
         $user = User::findOrFail($id);
+        $pk = $user->getKeyName();
 
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id . ',id', // Sesuaikan primary key jika berbeda (misal id atau id_user)
-            'nip' => 'nullable|string|max:50|unique:users,nip,' . $id . ',id',
+            'email' => ['required', 'email', Rule::unique(User::class, 'email')->ignore($user->{$pk}, $pk)],
+            // Validasi pengecualian menunjuk ke nip_nik
+            'nip' => ['nullable', 'string', 'max:50', Rule::unique(User::class, 'nip_nik')->ignore($user->{$pk}, $pk)],
             'role' => 'required|string',
         ]);
 
+        // Sesuaikan key array dengan nama kolom di database Anda
         $data = [
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'nip' => $request->nip,
-            'role' => $request->role,
+            'nama_lengkap'  => $request->nama_lengkap,
+            'email'         => $request->email,
+            'nip_nik'       => $request->nip,
+            'kategori_user' => $request->role,
         ];
 
-        // Jika password diisi, update passwordnya
         if ($request->filled('password')) {
             $request->validate(['password' => 'min:6']);
-            $data['password'] = Hash::make($request->password);
+            $data['password_hash'] = Hash::make($request->password);
         }
 
         $user->update($data);
@@ -85,7 +90,9 @@ class UserController extends Controller
     public function bulkDestroy(Request $request)
     {
         $request->validate(['ids' => 'required|array']);
-        User::whereIn('id', $request->ids)->delete(); // Sesuaikan 'id' jika primary key tabel user berbeda
+        
+        $pk = (new User)->getKeyName(); 
+        User::whereIn($pk, $request->ids)->delete(); 
 
         return redirect()->route('admin.user.index')->with('success', count($request->ids) . ' pengguna berhasil dihapus secara massal.');
     }

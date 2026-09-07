@@ -10,7 +10,6 @@
         <h3 class="text-lg font-bold text-gray-800">Daftar Output Kegiatan</h3>
         
         <div class="flex items-center gap-2">
-            <!-- Form Pencarian -->
             <form action="{{ route('admin.level1.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama output..." class="form-input w-48">
                 <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
@@ -19,7 +18,6 @@
                 @endif
             </form>
 
-            <!-- Tombol Hapus Massal -->
             <form action="{{ route('admin.level1.bulkDestroy') }}" method="POST" x-show="selected.length > 0" onsubmit="return confirm('Yakin ingin menghapus semua data yang dicentang? Semua data di bawah level ini mungkin akan ikut terhapus.');" style="display: none;">
                 @csrf
                 @method('DELETE')
@@ -93,7 +91,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Edit -->
                         <div x-show="modalEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalEdit = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">Edit Output Level 1</h3>
@@ -117,7 +114,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4"><svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>
@@ -148,7 +144,6 @@
         </table>
     </div>
 
-    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-md w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Output Level 1</h3>

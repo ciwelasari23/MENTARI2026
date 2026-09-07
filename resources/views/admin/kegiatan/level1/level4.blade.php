@@ -5,13 +5,11 @@
 
 @section('content')
 <div class="space-y-6" x-data="{ modalTambah: false, selected: [], selectAll: false }">
-    
-    <!-- Header, Pencarian, & Tombol Aksi -->
+
     <div class="flex flex-wrap gap-4 justify-between items-center card-container">
         <h3 class="text-lg font-bold text-gray-800">Daftar Proses Kegiatan</h3>
         
         <div class="flex items-center gap-2">
-            <!-- Form Pencarian -->
             <form action="{{ route('admin.level4.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama proses..." class="form-input w-48">
                 <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
@@ -67,7 +65,6 @@
             <tbody>
                 @forelse($prosesList as $index => $item)
                 <tr class="border-b hover:bg-gray-50" x-data="{ modalEdit: false, modalDetail: false, modalHapus: false }">
-                    <!-- Checkbox Item -->
                     <td class="p-3 text-center">
                         <input type="checkbox" x-model="selected" value="{{ $item->id_proses }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer">
                     </td>
@@ -84,7 +81,6 @@
                         <button @click="modalEdit = true" class="btn-action-edit mr-1">Edit</button>
                         <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
 
-                        <!-- Modal Detail -->
                         <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Informasi Proses Kegiatan Level 4</h3>
@@ -116,7 +112,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Edit -->
                         <div x-show="modalEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalEdit = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4">Edit Proses Kegiatan Level 4</h3>
@@ -161,7 +156,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -195,7 +189,6 @@
         </table>
     </div>
 
-    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Proses Kegiatan Level 4</h3>

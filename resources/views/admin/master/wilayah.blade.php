@@ -10,7 +10,6 @@
         <h3 class="text-lg font-bold text-gray-800">Daftar Wilayah</h3>
         
         <div class="flex items-center gap-2">
-            <!-- Form Pencarian -->
             <form action="{{ route('admin.wilayah.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari wilayah..." class="form-input w-48">
                 <button type="submit" class="bg-[#1f2937] text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
@@ -19,7 +18,6 @@
                 @endif
             </form>
 
-            <!-- Tombol Hapus Massal -->
             <form action="{{ route('admin.wilayah.bulkDestroy') }}" method="POST" x-show="selected.length > 0" onsubmit="return confirm('Yakin ingin menghapus wilayah yang dicentang?');" style="display: none;">
                 @csrf @method('DELETE')
                 <template x-for="id in selected"><input type="hidden" name="ids[]" :value="id"></template>
@@ -124,7 +122,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-2 mt-2">Konfirmasi Hapus</h3>
@@ -145,7 +142,6 @@
         </table>
     </div>
 
-    <!-- Modal Tambah -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-md w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Wilayah</h3>
