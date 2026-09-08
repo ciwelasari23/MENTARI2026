@@ -11,7 +11,7 @@ class MenuSeeder extends Seeder
     public function run()
     {
         $defaultMenus = [
-            ['nama_menu' => 'Dashboard', 'url' => '/admin/dashboard', 'parent_id' => null],
+            // Dashboard dihapus dari sini karena sudah ada secara statis di layout utama
             ['nama_menu' => 'Visualisasi Data', 'url' => '/admin/visualisasi', 'parent_id' => null],
             ['nama_menu' => 'Master Data', 'url' => '#', 'parent_id' => null],
             ['nama_menu' => 'Kelola Kegiatan', 'url' => '#', 'parent_id' => null],

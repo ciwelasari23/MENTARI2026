@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Visualisasi Data - MENTARI')
-@section('header', 'Visualisasi Data & Progres Kegiatan')
+@section('title', 'Dashboard - MENTARI')
+@section('header', 'Dashboard Monitoring Utama')
 
 @section('content')
 <!-- Tambahkan library Chart.js -->

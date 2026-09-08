@@ -44,17 +44,11 @@
 
         <nav class="sidebar-nav p-4 space-y-1.5 flex-1 overflow-y-auto overflow-x-hidden text-sm font-semibold" x-data="{ currentUrl: window.location.href }">
 
-            <!-- Dashboard (Selalu Tampil) -->
+        <!-- Dashboard -->
+            @if($user->hasPermission('Dashboard') || $user->hasPermission('Visualisasi Data'))
             <a href="{{ url('/dashboard') }}" class="nav-item" :class="currentUrl.includes('/dashboard') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
-                <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Dashboard
-            </a>
-
-            <!-- Visualisasi Data -->
-            @if($user->hasPermission('Visualisasi Data'))
-            <a href="{{ url('/visualisasi') }}" class="nav-item" :class="currentUrl.includes('/visualisasi') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                Visualisasi Data
+                Dashboard
             </a>
             @endif
 
@@ -133,7 +127,8 @@
 
             <!-- MENU DINAMIS / MODUL TAMBAHAN (DENGAN DUKUNGAN SUBMENU) -->
             @php
-                $hardcodedMenus = ['Visualisasi Data', 'Master Data', 'Kelola Kegiatan', 'Target Wilayah', 'Form Pelaporan', 'Verifikasi Laporan', 'Evaluasi Kegiatan'];
+                // Menambahkan 'Dashboard' dan 'Visualisasi Data' ke daftar pengecualian
+                $hardcodedMenus = ['Dashboard', 'Visualisasi Data', 'Master Data', 'Kelola Kegiatan', 'Target Wilayah', 'Form Pelaporan', 'Verifikasi Laporan', 'Evaluasi Kegiatan'];
                 
                 // Ambil menu induk (parent_id is null) yang bukan menu bawaan sistem
                 $dynamicMenus = \App\Models\MstMenu::with('children')

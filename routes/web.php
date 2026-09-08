@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\WilayahController;
 use App\Http\Controllers\Admin\TimKerjaController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\VisualisasiController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluasiController;
 
 Route::get('/', function () {
@@ -33,17 +33,12 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 // Grup Rute dengan Middleware Auth (Umum)
 Route::middleware(['auth'])->group(function () {
     
+    // Halaman Dashboard (Sebelumnya Visualisasi Data)
     // Halaman Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Rute Pelaporan
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
-    Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
-
-    // Rute Visualisasi Data
-    Route::get('/visualisasi', [VisualisasiController::class, 'index'])->name('visualisasi.index');
 
     // Rute Evaluasi Kegiatan
     Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
