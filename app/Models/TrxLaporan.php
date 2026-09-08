@@ -10,7 +10,7 @@ class TrxLaporan extends Model
     protected $primaryKey = 'id_laporan';
     protected $fillable = [
         'id_target', 'id_user', 'tanggal_lapor', 
-        'realisasi_kuantiti', 'link_bukti', 
+        'realisasi_kuantiti', 'link_bukti', 'file_bukti',
         'status_laporan', 'catatan_verifikator'
     ];
 
