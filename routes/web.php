@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\WilayahController;
 use App\Http\Controllers\Admin\TimKerjaController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\VisualisasiController;
+use App\Http\Controllers\EvaluasiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,15 +30,24 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
-// Halaman Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');
-
-// Rute Pelaporan
+// Grup Rute dengan Middleware Auth (Umum)
 Route::middleware(['auth'])->group(function () {
+    
+    // Halaman Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Rute Pelaporan
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
     Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
+
+    // Rute Visualisasi Data
+    Route::get('/visualisasi', [VisualisasiController::class, 'index'])->name('visualisasi.index');
+
+    // Rute Evaluasi Kegiatan
+    Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
+
 });
 
 // Grup Rute Admin BPS Riau
@@ -102,6 +113,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/user-bulk', [UserController::class, 'bulkDestroy'])->name('user.bulkDestroy');
 
     // Master Data: Role
-    Route::post('/master/role/{id}/permissions', [\App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])->name('role.permissions');
     Route::resource('/master/role', \App\Http\Controllers\Admin\RoleController::class);
+
+    // Master Data: Menu (Otomatis terhubung ke Hak Akses)
+    Route::resource('/master/menu', \App\Http\Controllers\Admin\MenuController::class);
+    
 });

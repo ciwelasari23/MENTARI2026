@@ -21,7 +21,8 @@ class PelaporanController extends Controller
             
         $targets = TrxTarget::with(['proses', 'wilayah'])->get();
         
-        return view('pelaporan.index', compact('laporan', 'targets'));
+        // UBAH BARIS INI: dari pelaporan.index menjadi pelaporan.pelaporan
+        return view('pelaporan.pelaporan', compact('laporan', 'targets'));
     }
 
     public function store(Request $request)

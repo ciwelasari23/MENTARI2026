@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreWilayahRequest;
+use App\Http\Requests\UpdateWilayahRequest;
 use App\Models\MstWilayah;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class WilayahController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Menampilkan daftar wilayah dengan fitur pencarian.
+     */
+    public function index(Request $request): View
     {
         $search = $request->input('search');
         $query = MstWilayah::query();
@@ -22,50 +30,81 @@ class WilayahController extends Controller
         return view('admin.master.wilayah', compact('wilayahs'));
     }
 
-    public function store(Request $request)
+    /**
+     * Menyimpan data wilayah baru ke database.
+     */
+    public function store(StoreWilayahRequest $request): RedirectResponse
     {
-        // 1. Validasi tanpa kode_wilayah
-        $request->validate([
-            'id_wilayah' => 'required|string|max:16|unique:mst_wilayah,id_wilayah',
-            'nama_wilayah' => 'required|string|max:100',
-            'level_wilayah' => 'required|integer',
-        ]);
+        try {
+            MstWilayah::create($request->validated());
 
-        // 2. Simpan ke database
-        MstWilayah::create([
-            'id_wilayah' => $request->id_wilayah,
-            'nama_wilayah' => $request->nama_wilayah,
-            'level_wilayah' => $request->level_wilayah,
-        ]);
+            return redirect()->route('admin.wilayah.index')
+                ->with('success', 'Wilayah berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan wilayah: ' . $e->getMessage());
 
-        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil ditambahkan.');
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan sistem saat menyimpan data.');
+        }
     }
 
-    public function update(Request $request, string $id)
+    /**
+     * Memperbarui data wilayah yang ada.
+     */
+    public function update(UpdateWilayahRequest $request, string $id): RedirectResponse
     {
-        $request->validate([
-            'nama_wilayah' => 'required|string|max:100',
-            'level_wilayah' => 'required|integer',
-        ]);
+        try {
+            $wilayah = MstWilayah::findOrFail($id);
+            $wilayah->update($request->validated());
 
-        MstWilayah::findOrFail($id)->update([
-            'nama_wilayah' => $request->nama_wilayah,
-            'level_wilayah' => $request->level_wilayah,
-        ]);
+            return redirect()->route('admin.wilayah.index')
+                ->with('success', 'Wilayah berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Gagal memperbarui wilayah ID ' . $id . ': ' . $e->getMessage());
 
-        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil diperbarui.');
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan sistem saat memperbarui data.');
+        }
     }
 
-    public function destroy(string $id)
+    /**
+     * Menghapus data wilayah berdasarkan ID.
+     */
+    public function destroy(string $id): RedirectResponse
     {
-        MstWilayah::findOrFail($id)->delete();
-        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah berhasil dihapus.');
+        try {
+            $wilayah = MstWilayah::findOrFail($id);
+            $wilayah->delete();
+
+            return redirect()->route('admin.wilayah.index')
+                ->with('success', 'Wilayah berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus wilayah ID ' . $id . ': ' . $e->getMessage());
+
+            return redirect()->route('admin.wilayah.index')
+                ->with('error', 'Gagal menghapus wilayah karena kendala sistem.');
+        }
     }
 
-    public function bulkDestroy(Request $request)
+    /**
+     * Menghapus beberapa data wilayah sekaligus.
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
     {
         $request->validate(['ids' => 'required|array']);
-        MstWilayah::whereIn('id_wilayah', $request->ids)->delete();
-        return redirect()->route('admin.wilayah.index')->with('success', 'Wilayah terpilih berhasil dihapus.');
+
+        try {
+            MstWilayah::whereIn('id_wilayah', $request->ids)->delete();
+
+            return redirect()->route('admin.wilayah.index')
+                ->with('success', 'Wilayah terpilih berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal melakukan bulk delete wilayah: ' . $e->getMessage());
+
+            return redirect()->route('admin.wilayah.index')
+                ->with('error', 'Terjadi kesalahan saat menghapus data terpilih.');
+        }
     }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Form Pelaporan Lapangan')
 @section('header', 'Pelaporan Realisasi Pekerjaan')
@@ -17,7 +17,7 @@
             @csrf
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Pilih Target Kegiatan Wilayah</label>
-                <select name="id_target" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none text-sm">
+                <select name="id_target" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
                     <option value="">-- Pilih Pekerjaan --</option>
                     @foreach($targets as $t)
                         <option value="{{ $t->id_target }}">{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
@@ -26,18 +26,18 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tanggal Lapor</label>
-                <input type="date" name="tanggal_lapor" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none text-sm">
+                <input type="date" name="tanggal_lapor" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Realisasi Kuantiti</label>
-                <input type="number" name="realisasi_kuantiti" min="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none text-sm">
+                <input type="number" name="realisasi_kuantiti" min="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tautan Bukti Dukung (G-Drive / Link)</label>
-                <input type="url" name="link_bukti" placeholder="https://..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none text-sm">
+                <input type="url" name="link_bukti" placeholder="https://..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
             </div>
             <div class="md:col-span-2 flex justify-end">
-                <button type="submit" class="bg-[#14B8A6] text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-teal-600 transition-colors">
+                <button type="submit" class="bg-[#005A9C] text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-[#004070] transition-colors shadow">
                     Kirim Laporan
                 </button>
             </div>
@@ -65,7 +65,7 @@
                         {{ $item->target->proses->nama_proses ?? '-' }}<br>
                         <span class="text-xs text-gray-500 font-normal">{{ $item->target->wilayah->nama_wilayah ?? '-' }}</span>
                     </td>
-                    <td class="p-3 font-medium text-[#14B8A6]">{{ $item->realisasi_kuantiti }} {{ $item->target->proses->satuan_target ?? '' }}</td>
+                    <td class="p-3 font-medium text-[#005A9C]">{{ $item->realisasi_kuantiti }} {{ $item->target->proses->satuan_target ?? '' }}</td>
                     <td class="p-3">
                         @if($item->status_laporan == 'pending')
                             <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold uppercase">Pending</span>

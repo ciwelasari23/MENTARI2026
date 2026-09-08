@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             WilayahSeeder::class,
-            PermissionSeeder::class, // Tambahkan baris ini
+            MenuSeeder::class,
         ]);
     }
 }

@@ -11,7 +11,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        // PERBAIKAN: Gunakan eager loading 'with' agar relasi terbaca di Blade
+        // Gunakan eager loading 'with' agar relasi terbaca di Blade
         $roles = MstRole::with('permissions')->get();
         
         // Ambil semua data permissions untuk ditampilkan di modal
@@ -20,7 +20,7 @@ class RoleController extends Controller
         return view('admin.master.role', compact('roles', 'permissions'));
     }
 
-public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'nama_role' => 'required|string|max:50',
@@ -42,25 +42,31 @@ public function store(Request $request)
 
     public function update(Request $request, int|string $id)
     {
-        $request->validate(['nama_role' => 'required|string|max:50']);
-        MstRole::findOrFail($id)->update(['nama_role' => $request->nama_role]);
-        return redirect()->route('admin.role.index')->with('success', 'Role diperbarui.');
+        $request->validate([
+            'nama_role' => 'required|string|max:255',
+            'permissions' => 'nullable|array' // Tambahkan validasi permissions
+        ]);
+
+        $role = MstRole::findOrFail($id);
+        $role->update([
+            'nama_role' => $request->nama_role
+        ]);
+
+        // Sinkronisasi hak akses
+        if ($request->has('permissions')) {
+            // Sync akan menghapus yang tidak dicentang dan menambah yang dicentang
+            $role->permissions()->sync($request->permissions);
+        } else {
+            // Jika tidak ada yang dicentang, hapus semua akses
+            $role->permissions()->detach();
+        }
+
+        return redirect()->route('admin.role.index')->with('success', 'Role dan hak akses berhasil diperbarui.');
     }
 
     public function destroy(int|string $id)
     {
         MstRole::findOrFail($id)->delete();
         return redirect()->route('admin.role.index')->with('success', 'Role dihapus.');
-    }
-
-    // Fungsi baru untuk menyimpan hak akses (permissions) pilihan Super Admin
-    public function updatePermissions(Request $request, int|string $id)
-    {
-        $role = MstRole::findOrFail($id);
-        
-        // Sinkronisasi data checkbox permissions yang dikirim dari form
-        $role->permissions()->sync($request->input('permissions', []));
-
-        return redirect()->route('admin.role.index')->with('success', 'Hak akses untuk role ' . $role->nama_role . ' berhasil diperbarui.');
     }
 }
