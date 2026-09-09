@@ -4,164 +4,179 @@
 @section('header', 'Pelaporan Realisasi Pekerjaan')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Form Input Laporan -->
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Kirim Laporan Baru</h3>
-        
-        @if(session('success'))
-            <div class="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm">{{ session('success') }}</div>
-        @endif
+<div class="space-y-6" x-data="{ modalTambah: false, modalDetail: false, activeLaporan: {} }">
+    
+    <!-- Bagian Header Tombol Aksi -->
+    <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div>
+            <h3 class="text-base font-bold text-gray-800">Daftar Laporan Lapangan</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola pelaporan realisasi pekerjaan Anda.</p>
+        </div>
+        <button @click="modalTambah = true" class="bg-[#005A9C] hover:bg-[#004070] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Buat Laporan
+        </button>
+    </div>
 
-        <form action="{{ route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @csrf
-            <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Pilih Target Kegiatan Wilayah</label>
-                <select name="id_target" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
-                    <option value="">-- Pilih Pekerjaan --</option>
-                    @foreach($targets as $t)
-                        <option value="{{ $t->id_target }}">{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
-                    @endforeach
-                </select>
+    <!-- Notifikasi Sukses -->
+    @if(session('success'))
+        <div x-data="{ show: true }" 
+             x-init="setTimeout(() => show = false, 3000)" 
+             x-show="show" 
+             x-transition.duration.500ms
+             class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm p-4 rounded-xl shadow-sm flex justify-between items-center">
+            <span>{{ session('success') }}</span>
+            <button @click="show = false" class="text-emerald-600 hover:text-emerald-800 font-bold">&times;</button>
+        </div>
+    @endif
+
+    <!-- Tabel Data Laporan -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-gray-600 font-semibold">
+                        <th class="p-4 text-center w-16">No</th>
+                        <th class="p-4">Tanggal Lapor</th>
+                        <th class="p-4">Pekerjaan & Wilayah</th>
+                        <th class="p-4 text-center">Capaian</th>
+                        <th class="p-4 text-center">Status</th>
+                        <th class="p-4 text-center w-32">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700">
+                    @forelse($laporan as $index => $item)
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 text-center font-medium text-gray-500">{{ $index + 1 }}</td>
+                        <td class="p-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($item->tanggal_lapor)->format('d/m/Y') }}</td>
+                        <td class="p-4">
+                            <span class="font-bold text-gray-800">{{ $item->target->proses->nama_proses ?? '-' }}</span><br>
+                            <span class="text-xs text-gray-500 font-normal">{{ $item->target->wilayah->nama_wilayah ?? '-' }}</span>
+                        </td>
+                        <td class="p-4 text-center font-bold text-[#005A9C]">
+                            {{ $item->realisasi_kuantiti }} {{ $item->target->proses->satuan_target ?? '' }}
+                        </td>
+                        <td class="p-4 text-center">
+                            @if($item->status_laporan == 'pending')
+                                <span class="bg-amber-50 text-amber-600 border border-amber-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Menunggu</span>
+                            @elseif($item->status_laporan == 'approved')
+                                <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Disetujui</span>
+                            @else
+                                <span class="bg-red-50 text-red-600 border border-red-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Ditolak</span>
+                            @endif
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button @click="activeLaporan = {{ json_encode($item) }}; modalDetail = true" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors">
+                                    Detail
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-400 italic">
+                            Belum ada riwayat laporan Anda.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Form Tambah Laporan -->
+    <div x-show="modalTambah" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" style="display: none;" x-transition.opacity>
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4" @click.away="modalTambah = false" x-transition.scale>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="text-base font-bold text-gray-800">Kirim Laporan Baru</h3>
+                <button @click="modalTambah = false" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tanggal Lapor</label>
-                <input type="date" name="tanggal_lapor" required value="{{ date('Y-m-d') }}" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Realisasi Kuantiti</label>
-                <input type="number" name="realisasi_kuantiti" min="1" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tautan Bukti Dukung (G-Drive / Link)</label>
-                <input type="url" name="link_bukti" placeholder="https://..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#005A9C] outline-none text-sm">
-                <p class="text-xs text-gray-500 mt-1">*Opsional, isi jika bukti berupa link/tautan</p>
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Upload Bukti Dukung (File)</label>
-                <div id="dropzone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-[#005A9C] transition-colors relative bg-gray-50">
-                    <div class="space-y-1 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <div class="flex text-sm text-gray-600 justify-center items-center">
-                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-[#005A9C] hover:text-[#004070] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#005A9C] px-2 py-1">
-                                <span>Klik untuk upload</span>
-                                <input id="file-upload" name="file_bukti" type="file" class="sr-only" accept=".jpg,.jpeg,.png,.pdf">
-                            </label>
-                            <p class="pl-1">atau seret file ke sini</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">
-                            Format JPG, PNG, PDF Maks 1MB
-                        </p>
-                        <p id="file-name-display" class="text-xs text-[#005A9C] font-semibold mt-2 hidden"></p>
-                    </div>
+            <form action="{{ route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @csrf
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Pilih Target Kegiatan Wilayah</label>
+                    <select name="id_target" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                        <option value="">-- Pilih Pekerjaan --</option>
+                        @foreach($targets as $t)
+                            <option value="{{ $t->id_target }}">{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
+                        @endforeach
+                    </select>
                 </div>
-                @error('file_bukti')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div class="md:col-span-2 flex justify-end">
-                <button type="submit" class="bg-[#005A9C] text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-[#004070] transition-colors shadow">
-                    Kirim Laporan
-                </button>
-            </div>
-        </form>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Tanggal Lapor</label>
+                    <input type="date" name="tanggal_lapor" required value="{{ date('Y-m-d') }}" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Realisasi Kuantiti</label>
+                    <input type="number" name="realisasi_kuantiti" min="1" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Tautan Bukti Dukung (G-Drive / Link) - Opsional</label>
+                    <input type="url" name="link_bukti" placeholder="https://..." class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Upload Bukti Dukung (File JPG/PNG/PDF)</label>
+                    <input type="file" name="file_bukti" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                </div>
+                
+                <div class="md:col-span-2 flex justify-end gap-2 pt-4 border-t border-gray-100">
+                    <button type="button" @click="modalTambah = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-[#005A9C] hover:bg-[#004070] text-white rounded-lg text-sm font-semibold shadow">Kirim Laporan</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Riwayat Laporan -->
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">Riwayat Laporan Anda</h3>
-        <table class="w-full text-left border-collapse text-sm">
-            <thead>
-                <tr class="bg-gray-50 border-b text-gray-600">
-                    <th class="p-3">Tanggal</th>
-                    <th class="p-3">Pekerjaan & Wilayah</th>
-                    <th class="p-3">Capaian</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3">Catatan Verifikator</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($laporan as $item)
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 whitespace-nowrap">{{ $item->tanggal_lapor }}</td>
-                    <td class="p-3 font-semibold text-gray-800">
-                        {{ $item->target->proses->nama_proses ?? '-' }}<br>
-                        <span class="text-xs text-gray-500 font-normal">{{ $item->target->wilayah->nama_wilayah ?? '-' }}</span>
-                    </td>
-                    <td class="p-3 font-medium text-[#005A9C]">{{ $item->realisasi_kuantiti }} {{ $item->target->proses->satuan_target ?? '' }}</td>
-                    <td class="p-3">
-                        @if($item->status_laporan == 'pending')
-                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold uppercase">Pending</span>
-                        @elseif($item->status_laporan == 'approved')
-                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold uppercase">Disetujui</span>
-                        @else
-                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">Ditolak</span>
-                        @endif
-                    </td>
-                    <td class="p-3 text-gray-600 text-xs italic">{{ $item->catatan_verifikator ?? '-' }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="p-4 text-center text-gray-400">Belum ada riwayat laporan.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Modal Detail Laporan -->
+    <div x-show="modalDetail" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" style="display: none;" x-transition.opacity>
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4" @click.away="modalDetail = false" x-transition.scale>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="text-base font-bold text-gray-800">Detail Laporan</h3>
+                <button @click="modalDetail = false" class="text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">Tanggal Lapor</span>
+                    <span class="font-bold text-gray-800" x-text="activeLaporan.tanggal_lapor"></span>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">Pekerjaan & Wilayah</span>
+                    <span class="text-gray-800 font-bold block" x-text="activeLaporan.target?.proses?.nama_proses || '-'"></span>
+                    <span class="text-xs text-gray-500" x-text="activeLaporan.target?.wilayah?.nama_wilayah || '-'"></span>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">Capaian (Realisasi)</span>
+                    <span class="font-bold text-[#005A9C]" x-text="activeLaporan.realisasi_kuantiti + ' ' + (activeLaporan.target?.proses?.satuan_target || '')"></span>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">Tautan Bukti</span>
+                    <template x-if="activeLaporan.link_bukti">
+                        <a :href="activeLaporan.link_bukti" target="_blank" class="text-blue-600 hover:underline break-all" x-text="activeLaporan.link_bukti"></a>
+                    </template>
+                    <template x-if="!activeLaporan.link_bukti">
+                        <span class="text-gray-500 italic">Tidak ada tautan</span>
+                    </template>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">File Bukti</span>
+                    <template x-if="activeLaporan.file_bukti">
+                        <a :href="'/' + activeLaporan.file_bukti" target="_blank" class="text-blue-600 hover:underline">Lihat Dokumen / Gambar</a>
+                    </template>
+                    <template x-if="!activeLaporan.file_bukti">
+                        <span class="text-gray-500 italic">Tidak ada file lampiran</span>
+                    </template>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400 font-semibold">Catatan Verifikator</span>
+                    <span class="text-gray-700 italic block p-2 bg-gray-50 rounded border border-gray-100" x-text="activeLaporan.catatan_verifikator || 'Belum ada catatan.'"></span>
+                </div>
+            </div>
+            <div class="flex justify-end pt-4 border-t border-gray-100">
+                <button type="button" @click="modalDetail = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold">Tutup</button>
+            </div>
+        </div>
     </div>
+
 </div>
-<script>
-    const fileUpload = document.getElementById('file-upload');
-    const display = document.getElementById('file-name-display');
-    const dropzone = document.getElementById('dropzone');
-
-    function updateFileName(fileName) {
-        if(fileName) {
-            display.textContent = 'File terpilih: ' + fileName;
-            display.classList.remove('hidden');
-        } else {
-            display.classList.add('hidden');
-        }
-    }
-
-    fileUpload.addEventListener('change', function(e) {
-        var fileName = e.target.files[0] ? e.target.files[0].name : '';
-        updateFileName(fileName);
-    });
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropzone.addEventListener(eventName, () => {
-            dropzone.classList.add('border-[#005A9C]', 'bg-blue-50');
-            dropzone.classList.remove('border-gray-300', 'bg-gray-50');
-        }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, () => {
-            dropzone.classList.remove('border-[#005A9C]', 'bg-blue-50');
-            dropzone.classList.add('border-gray-300', 'bg-gray-50');
-        }, false);
-    });
-
-    dropzone.addEventListener('drop', function(e) {
-        let dt = e.dataTransfer;
-        let files = dt.files;
-
-        if (files && files.length > 0) {
-            fileUpload.files = files;
-            var fileName = files[0].name;
-            updateFileName(fileName);
-        }
-    });
-</script>
 @endsection

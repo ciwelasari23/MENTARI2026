@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rute Pelaporan
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
+    Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
 
     // Rute Evaluasi Kegiatan
     Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
