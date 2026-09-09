@@ -71,7 +71,7 @@
         <div class="bg-white p-6 rounded-lg max-w-md w-full space-y-4">
             <h3 class="text-lg font-bold text-gray-800">Proses Verifikasi Laporan</h3>
             
-            <form :action="'/admin/verifikasi-laporan/' + currentId" method="POST" class="space-y-4">
+            <form x-bind:action="currentId ? '{{ route('admin.verifikasi.update', ['id' => '__ID__']) }}'.replace('__ID__', currentId) : '#'" method="POST" class="space-y-4">
                 @csrf
                 @method('PUT')
                 
