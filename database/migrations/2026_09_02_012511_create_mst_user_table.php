@@ -31,6 +31,15 @@ return new class extends Migration
             $table->foreign('id_role')->references('id_role')->on('mst_role')->onDelete('set null');
             $table->foreign('id_team')->references('id_team')->on('mst_team')->onDelete('set null');
         });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
     }
     /**
      * Reverse the migrations.
@@ -38,5 +47,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('mst_user');
+        Schema::dropIfExists('sessions');
     }
 };
