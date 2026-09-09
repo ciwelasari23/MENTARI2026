@@ -27,7 +27,7 @@ class PelaporanController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'id_target' => 'required|exists:trx_target,id_target',
             'tanggal_lapor' => 'required|date',
             'realisasi_kuantiti' => 'required|integer|min:1',
@@ -35,18 +35,20 @@ class PelaporanController extends Controller
             'file_bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:1024',
         ]);
 
-        $data = $request->all();
-        $data['id_user'] = Auth::user()->id_user ?? Auth::id(); // Ambil ID user otomatis
-        $data['status_laporan'] = 'pending'; // Default saat pertama kali lapor
+        $userId = Auth::id();
+        abort_unless($userId, 403);
+
+        $validated['id_user'] = $userId;
+        $validated['status_laporan'] = 'pending';
 
         if ($request->hasFile('file_bukti')) {
             $file = $request->file('file_bukti');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/bukti'), $filename);
-            $data['file_bukti'] = 'uploads/bukti/' . $filename;
+            $validated['file_bukti'] = 'uploads/bukti/' . $filename;
         }
 
-        TrxLaporan::create($data);
+        TrxLaporan::create($validated);
 
         return redirect()->route('pelaporan.index')->with('success', 'Laporan berhasil dikirim dan menunggu verifikasi.');
     }

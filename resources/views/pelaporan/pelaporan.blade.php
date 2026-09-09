@@ -4,7 +4,7 @@
 @section('header', 'Pelaporan Realisasi Pekerjaan')
 
 @section('content')
-<div class="space-y-6" x-data="{ modalTambah: false, modalDetail: false, activeLaporan: {} }">
+<div class="space-y-6" x-data="{ modalTambah: {{ $errors->any() ? 'true' : 'false' }}, modalDetail: false, activeLaporan: {} }">
     
     <!-- Bagian Header Tombol Aksi -->
     <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -27,6 +27,17 @@
              class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm p-4 rounded-xl shadow-sm flex justify-between items-center">
             <span>{{ session('success') }}</span>
             <button @click="show = false" class="text-emerald-600 hover:text-emerald-800 font-bold">&times;</button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-red-50 border border-red-200 text-red-800 text-sm p-4 rounded-xl shadow-sm">
+            <p class="font-semibold">Laporan belum dapat dikirim:</p>
+            <ul class="list-disc list-inside mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -99,21 +110,21 @@
                     <select name="id_target" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
                         <option value="">-- Pilih Pekerjaan --</option>
                         @foreach($targets as $t)
-                            <option value="{{ $t->id_target }}">{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
+                            <option value="{{ $t->id_target }}" @selected(old('id_target') == $t->id_target)>{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Tanggal Lapor</label>
-                    <input type="date" name="tanggal_lapor" required value="{{ date('Y-m-d') }}" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                    <input type="date" name="tanggal_lapor" required value="{{ old('tanggal_lapor', date('Y-m-d')) }}" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Realisasi Kuantiti</label>
-                    <input type="number" name="realisasi_kuantiti" min="1" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                    <input type="number" name="realisasi_kuantiti" min="1" required value="{{ old('realisasi_kuantiti') }}" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-gray-700 mb-1">Tautan Bukti Dukung (G-Drive / Link) - Opsional</label>
-                    <input type="url" name="link_bukti" placeholder="https://..." class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                    <input type="url" name="link_bukti" placeholder="https://..." value="{{ old('link_bukti') }}" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-gray-700 mb-1">Upload Bukti Dukung (File JPG/PNG/PDF)</label>
