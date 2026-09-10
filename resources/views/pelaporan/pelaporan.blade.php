@@ -6,7 +6,6 @@
 @section('content')
 <div class="space-y-6" x-data="{ modalTambah: {{ $errors->any() ? 'true' : 'false' }}, modalDetail: false, activeLaporan: {} }">
     
-    <!-- Bagian Header Tombol Aksi -->
     <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div>
             <h3 class="text-base font-bold text-gray-800">Daftar Laporan Lapangan</h3>
