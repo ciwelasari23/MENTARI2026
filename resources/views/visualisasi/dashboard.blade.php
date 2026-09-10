@@ -27,13 +27,13 @@
             <!-- Label periode terpilih -->
             <div class="text-right hidden sm:block">
                 <p class="text-xs text-gray-400">Periode Dipilih</p>
-                <p class="text-sm font-bold text-[#005A9C]" id="label-periode">Semua Periode</p>
+                <p class="text-sm font-bold text-[#005A9C]" id="label-periode">September 2026</p>
             </div>
             <!-- Input Kalender Flatpickr -->
             <div class="relative">
-                <input
-                    type="text"
-                    id="filterKalender"
+                <input 
+                    type="text" 
+                    id="filterKalender" 
                     placeholder="Pilih Bulan & Tahun"
                     readonly
                     class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#005A9C] cursor-pointer w-48"
@@ -41,65 +41,65 @@
                 <!-- Ikon Kalender -->
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-[#005A9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
             </div>
             <!-- Tombol Reset -->
-            <button
-                onclick="resetFilter()"
+            <button 
+                onclick="resetFilter()" 
                 title="Tampilkan semua periode"
                 class="p-2 border border-gray-200 rounded-lg text-gray-400 hover:text-[#005A9C] hover:border-[#005A9C] transition-colors"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
             </button>
         </div>
     </div>
 
-    <!-- Summary Cards — Data dari Controller -->
+    <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card 1: Total Kegiatan -->
+        <!-- Card 1 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Total Kegiatan</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalKegiatan }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">124</h4>
             </div>
         </div>
-        <!-- Card 2: Selesai -->
+        <!-- Card 2 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Selesai</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalSelesai }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">86</h4>
             </div>
         </div>
-        <!-- Card 3: Dalam Proses -->
+        <!-- Card 3 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Dalam Proses</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalProses }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">32</h4>
             </div>
         </div>
-        <!-- Card 4: Terlambat -->
+        <!-- Card 4 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Terlambat</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalTerlambat }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">6</h4>
             </div>
         </div>
     </div>
@@ -107,7 +107,7 @@
     <!-- Area Grafik: Grid 2 Kolom (Bar Chart + Pie Chart) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        <!-- Grafik Bar (kiri, 2/3 lebar) — Data dari Controller -->
+        <!-- Grafik Bar (kiri, 2/3 lebar) -->
         <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 class="text-base font-bold text-gray-800 mb-4">Grafik Rata-rata Capaian per Kabupaten/Kota (%)</h3>
             <div class="relative h-72 w-full">
@@ -115,14 +115,14 @@
             </div>
         </div>
 
-        <!-- Pie Chart Distribusi Status Kegiatan (kanan, 1/3 lebar) — Data dari Controller -->
+        <!-- Pie Chart Distribusi Status Kegiatan (kanan, 1/3 lebar) -->
         <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
             <h3 class="text-base font-bold text-gray-800 mb-4">Distribusi Status Kegiatan</h3>
             <div class="relative flex-1 flex items-center justify-center" style="min-height: 220px;">
                 <canvas id="statusPieChart"></canvas>
                 <!-- Label Total di tengah Donut -->
                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="text-2xl font-extrabold text-gray-800 leading-none">{{ $totalKegiatan }}</span>
+                    <span class="text-2xl font-extrabold text-gray-800 leading-none" id="pie-total">124</span>
                     <span class="text-xs font-semibold text-gray-400 mt-0.5">Total Kegiatan</span>
                 </div>
             </div>
@@ -131,28 +131,28 @@
                 <div>
                     <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mb-1"></span>
                     <p class="font-semibold text-gray-700">Selesai</p>
-                    <p class="text-lg font-bold text-emerald-600">{{ $totalSelesai }}</p>
+                    <p class="text-lg font-bold text-emerald-600" id="pie-selesai">86</p>
                 </div>
                 <div>
                     <span class="inline-block w-3 h-3 rounded-full bg-amber-500 mb-1"></span>
                     <p class="font-semibold text-gray-700">Dalam Proses</p>
-                    <p class="text-lg font-bold text-amber-600">{{ $totalProses }}</p>
+                    <p class="text-lg font-bold text-amber-600" id="pie-proses">32</p>
                 </div>
                 <div>
                     <span class="inline-block w-3 h-3 rounded-full bg-red-500 mb-1"></span>
                     <p class="font-semibold text-gray-700">Terlambat</p>
-                    <p class="text-lg font-bold text-red-600">{{ $totalTerlambat }}</p>
+                    <p class="text-lg font-bold text-red-600" id="pie-terlambat">6</p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Tabel Top 5: Data dari Controller -->
+    <!-- Tabel Progres Kegiatan Terbaru -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 class="text-base font-bold text-gray-800">Status Progres Kegiatan (Top 5)</h3>
-            <a href="{{ route('pelaporan.index') }}" class="text-sm font-semibold text-[#005A9C] hover:underline">Lihat Semua</a>
+            <a href="#" class="text-sm font-semibold text-[#005A9C] hover:underline">Lihat Semua</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
@@ -167,52 +167,58 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @forelse ($top5Targets as $item)
+                    
+                    <!-- Dummy Data 1 -->
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="p-4 font-bold text-gray-800">{{ $item['nama_proses'] }}</td>
-                        <td class="p-4">{{ $item['nama_wilayah'] }}</td>
-                        <td class="p-4 text-center">{{ number_format($item['target']) }}</td>
-                        <td class="p-4 text-center">{{ number_format($item['realisasi']) }}</td>
+                        <td class="p-4 font-bold text-gray-800">Data Usaha Konstruksi</td>
+                        <td class="p-4">Kab. Kepulauan Meranti</td>
+                        <td class="p-4 text-center">123</td>
+                        <td class="p-4 text-center">123</td>
                         <td class="p-4">
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                @php
-                                    $barColor = match($item['status']) {
-                                        'Selesai'      => 'bg-emerald-500',
-                                        'Terlambat'    => 'bg-red-500',
-                                        default        => 'bg-amber-500',
-                                    };
-                                @endphp
-                                <div class="{{ $barColor }} h-2.5 rounded-full" style="width: {{ $item['pct'] }}%"></div>
+                                <div class="bg-emerald-500 h-2.5 rounded-full" style="width: 100%"></div>
                             </div>
-                            @php
-                                $textColor = match($item['status']) {
-                                    'Selesai'   => 'text-emerald-600',
-                                    'Terlambat' => 'text-red-600',
-                                    default     => 'text-amber-600',
-                                };
-                            @endphp
-                            <div class="text-xs text-right mt-1 font-semibold {{ $textColor }}">{{ $item['pct'] }}%</div>
+                            <div class="text-xs text-right mt-1 font-semibold text-emerald-600">100%</div>
                         </td>
                         <td class="p-4 text-center">
-                            @if ($item['status'] === 'Selesai')
-                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-xs">Selesai</span>
-                            @elseif ($item['status'] === 'Terlambat')
-                                <span class="bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full text-xs">Terlambat</span>
-                            @else
-                                <span class="bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full text-xs">Dalam Proses</span>
-                            @endif
+                            <span class="bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-xs">Selesai</span>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-gray-400">
-                            <svg class="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Belum ada data kegiatan.
+
+                    <!-- Dummy Data 2 -->
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 font-bold text-gray-800">Survei Angkatan Kerja Nasional</td>
+                        <td class="p-4">Kota Pekanbaru</td>
+                        <td class="p-4 text-center">500</td>
+                        <td class="p-4 text-center">350</td>
+                        <td class="p-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 70%"></div>
+                            </div>
+                            <div class="text-xs text-right mt-1 font-semibold text-blue-600">70%</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded-full text-xs">Proses</span>
                         </td>
                     </tr>
-                    @endforelse
+
+                    <!-- Dummy Data 3 -->
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 font-bold text-gray-800">Sensus Pertanian 2026</td>
+                        <td class="p-4">Kab. Kampar</td>
+                        <td class="p-4 text-center">200</td>
+                        <td class="p-4 text-center">50</td>
+                        <td class="p-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-amber-500 h-2.5 rounded-full" style="width: 25%"></div>
+                            </div>
+                            <div class="text-xs text-right mt-1 font-semibold text-amber-600">25%</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full text-xs">Diajukan</span>
+                        </td>
+                    </tr>
+
                 </tbody>
             </table>
         </div>
@@ -243,7 +249,9 @@
             }
         });
 
-        // Fungsi Reset Filter
+        // =============================================
+        // Fungsi Reset Filter Kalender
+        // =============================================
         window.resetFilter = function() {
             const fp = document.querySelector("#filterKalender")._flatpickr;
             fp.clear();
@@ -251,30 +259,30 @@
             document.getElementById('filterKalender').placeholder = 'Pilih Bulan & Tahun';
         };
 
-        // =============================================
-        // Grafik Bar: Data dari Controller via Blade
-        // =============================================
         const ctx = document.getElementById('capaianChart').getContext('2d');
-
+        
+        // Data Dummy untuk Kabupaten/Kota (Nantinya diganti dengan variabel dari Controller)
         const chartData = {
-            labels: {!! json_encode($grafikLabels) !!},
+            labels: ['Pekanbaru', 'Dumai', 'Kampar', 'Bengkalis', 'Siak', 'Pelalawan', 'Rokan Hulu', 'Rokan Hilir', 'Inhu', 'Inhil', 'Kuansing', 'Kep. Meranti'],
             datasets: [{
                 label: 'Rata-rata Capaian (%)',
-                data: {!! json_encode($grafikData) !!},
-                backgroundColor: '#005A9C',
+                data: [85, 90, 65, 75, 95, 60, 80, 70, 88, 77, 62, 100],
+                backgroundColor: '#005A9C', // Warna biru MENTARI
                 borderRadius: 4,
                 barThickness: 24
             }]
         };
 
-        new Chart(ctx, {
+        const config = {
             type: 'bar',
             data: chartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: false
+                    },
                     tooltip: {
                         backgroundColor: '#0B1E40',
                         titleFont: { family: 'Inter', size: 13 },
@@ -292,8 +300,14 @@
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: { stepSize: 20, font: { family: 'Inter', size: 12 } },
-                        grid: { color: '#f3f4f6', drawBorder: false }
+                        ticks: {
+                            stepSize: 20,
+                            font: { family: 'Inter', size: 12 }
+                        },
+                        grid: {
+                            color: '#f3f4f6',
+                            drawBorder: false
+                        }
                     },
                     x: {
                         ticks: {
@@ -302,35 +316,47 @@
                             maxRotation: 45,
                             minRotation: 45
                         },
-                        grid: { display: false }
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        });
+        };
+
+        new Chart(ctx, config);
 
         // =============================================
-        // Donut Chart: Data dari Controller via Blade
+        // Donut Chart: Distribusi Status Kegiatan
         // =============================================
         const ctxPie = document.getElementById('statusPieChart').getContext('2d');
 
-        new Chart(ctxPie, {
+        const pieData = {
+            labels: ['Selesai', 'Dalam Proses', 'Terlambat'],
+            datasets: [{
+                data: [86, 32, 6],
+                backgroundColor: [
+                    '#10b981', // emerald-500 - Selesai
+                    '#f59e0b', // amber-500   - Dalam Proses
+                    '#ef4444'  // red-500     - Terlambat
+                ],
+                borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                borderWidth: 3,
+                hoverOffset: 8
+            }]
+        };
+
+        const pieConfig = {
             type: 'doughnut',
-            data: {
-                labels: ['Selesai', 'Dalam Proses', 'Terlambat'],
-                datasets: [{
-                    data: [{{ $totalSelesai }}, {{ $totalProses }}, {{ $totalTerlambat }}],
-                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                    borderColor: ['#ffffff', '#ffffff', '#ffffff'],
-                    borderWidth: 3,
-                    hoverOffset: 8
-                }]
-            },
+            data: pieData,
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 cutout: '65%',
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: false // Legend ditampilkan manual di bawah chart
+                    },
                     tooltip: {
                         backgroundColor: '#0B1E40',
                         titleFont: { family: 'Inter', size: 13 },
@@ -339,14 +365,16 @@
                         callbacks: {
                             label: function(context) {
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const pct = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                const pct = ((context.parsed / total) * 100).toFixed(1);
                                 return context.label + ': ' + context.parsed + ' (' + pct + '%)';
                             }
                         }
                     }
                 }
             }
-        });
+        };
+
+        new Chart(ctxPie, pieConfig);
     });
 </script>
 @endsection

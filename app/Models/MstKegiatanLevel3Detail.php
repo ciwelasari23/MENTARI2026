@@ -23,4 +23,10 @@ class MstKegiatanLevel3Detail extends Model
     {
         return $this->belongsTo(MstKegiatanLevel2Kegiatan::class, 'id_kegiatan', 'id_kegiatan');
     }
+
+    // Relasi ke Level 4 (Proses/Tahapan)
+    public function prosesAll()
+    {
+        return $this->hasMany(MstKegiatanLevel4Proses::class, 'id_keg_detail', 'id_keg_detail');
+    }
 }
