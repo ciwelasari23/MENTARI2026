@@ -17,8 +17,15 @@ class MstKegiatanLevel4Proses extends Model
         'target_total_provinsi'
     ];
 
+    // Relasi ke Level 3 (Detail Kegiatan)
     public function detail()
     {
         return $this->belongsTo(MstKegiatanLevel3Detail::class, 'id_keg_detail', 'id_keg_detail');
+    }
+
+    // Relasi ke TrxTarget (target per wilayah)
+    public function targets()
+    {
+        return $this->hasMany(TrxTarget::class, 'id_proses', 'id_proses');
     }
 }
