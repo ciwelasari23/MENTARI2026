@@ -6,22 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('trx_laporan', function (Blueprint $table) {
-            $table->string('file_bukti', 255)->nullable()->after('link_bukti');
+        Schema::table('trx_laporan_progres', function (Blueprint $table) {
+            // Hapus ->after('link_bukti') karena kolom tersebut tidak ada
+            $table->string('file_bukti', 255)->nullable(); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('trx_laporan', function (Blueprint $table) {
+        Schema::table('trx_laporan_progres', function (Blueprint $table) {
             $table->dropColumn('file_bukti');
         });
     }

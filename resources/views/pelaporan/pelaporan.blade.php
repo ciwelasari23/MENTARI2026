@@ -95,17 +95,17 @@
     </div>
 
     <!-- Modal Form Tambah Laporan -->
-    <div x-show="modalTambah" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" style="display: none;" x-transition.opacity>
-        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4" @click.away="modalTambah = false" x-transition.scale>
+    <div x-show="modalTambah" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition.opacity>
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4 relative z-10" @click.stop x-transition.scale>
             <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                 <h3 class="text-base font-bold text-gray-800">Kirim Laporan Baru</h3>
-                <button @click="modalTambah = false" class="text-gray-400 hover:text-gray-600">&times;</button>
+                <button type="button" @click="modalTambah = false" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             </div>
             <form action="{{ route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @csrf
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-gray-700 mb-1">Pilih Target Kegiatan Wilayah</label>
-                    <select name="id_target" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C]">
+                    <select name="id_target" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C] bg-white">
                         <option value="">-- Pilih Pekerjaan --</option>
                         @foreach($targets as $t)
                             <option value="{{ $t->id_target }}" @selected(old('id_target') == $t->id_target)>{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
@@ -136,7 +136,6 @@
             </form>
         </div>
     </div>
-
     <!-- Modal Detail Laporan -->
     <div x-show="modalDetail" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" style="display: none;" x-transition.opacity>
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4" @click.away="modalDetail = false" x-transition.scale>

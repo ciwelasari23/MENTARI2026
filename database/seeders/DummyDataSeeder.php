@@ -10,7 +10,8 @@ use App\Models\MstKegiatanLevel1Output;
 use App\Models\MstKegiatanLevel2Kegiatan;
 use App\Models\MstKegiatanLevel3Detail;
 use App\Models\MstKegiatanLevel4Proses;
-use App\Models\TrxTarget;
+use App\Models\TrxTargetWilayah; 
+use App\Models\User;
 
 class DummyDataSeeder extends Seeder
 {
@@ -19,18 +20,34 @@ class DummyDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Data Wilayah (Dummy) - Jika Belum Ada
+        // 1. Data Wilayah (Dummy) - Disesuaikan dengan kolom migrasi mst_wilayah
         $wilayah1 = MstWilayah::firstOrCreate(
             ['id_wilayah' => '1400'],
-            ['nama_wilayah' => 'Provinsi Riau', 'level_wilayah' => 1]
+            [
+                'level_wilayah' => 1, 
+                'kode_wilayah' => '14', 
+                'nama_provinsi' => 'Provinsi Riau'
+            ]
         );
+        
         $wilayah2 = MstWilayah::firstOrCreate(
             ['id_wilayah' => '1471'],
-            ['nama_wilayah' => 'Kota Pekanbaru', 'level_wilayah' => 2, 'id_parent_wilayah' => '1400']
+            [
+                'level_wilayah' => 2, 
+                'kode_wilayah' => '14.71', 
+                'nama_provinsi' => 'Provinsi Riau',
+                'kode_nama_kabkota' => 'Kota Pekanbaru'
+            ]
         );
+        
         $wilayah3 = MstWilayah::firstOrCreate(
             ['id_wilayah' => '1401'],
-            ['nama_wilayah' => 'Kabupaten Kampar', 'level_wilayah' => 2, 'id_parent_wilayah' => '1400']
+            [
+                'level_wilayah' => 2, 
+                'kode_wilayah' => '14.01', 
+                'nama_provinsi' => 'Provinsi Riau',
+                'kode_nama_kabkota' => 'Kabupaten Kampar'
+            ]
         );
 
         // 2. Data Team (Dummy) - Jika Belum Ada
@@ -80,29 +97,46 @@ class DummyDataSeeder extends Seeder
             'target_total_provinsi' => 10000
         ]);
 
+        // Buat User Dummy disesuaikan dengan struktur migrasi mst_user
+        $user = User::firstOrCreate(
+            ['id_user' => 1], 
+            [
+                'id_wilayah'    => $wilayah2->id_wilayah,
+                'nip_nik'       => '199001012024011001',
+                'nama_lengkap'  => 'Admin Dummy',
+                'email'         => 'admin@example.com',
+                'kategori_user' => 'Pegawai',
+                'password_hash' => bcrypt('password'),
+            ]
+        );
+
         // 7. Target Wilayah
-        TrxTarget::create([
+        TrxTargetWilayah::create([
             'id_proses' => $proses1->id_proses,
             'id_wilayah' => $wilayah2->id_wilayah, // Kota Pekanbaru
-            'target_kuantiti' => 2500
+            'target_daerah' => 2500, 
+            'created_by' => $user->id_user 
         ]);
 
-        TrxTarget::create([
+        TrxTargetWilayah::create([
             'id_proses' => $proses1->id_proses,
             'id_wilayah' => $wilayah3->id_wilayah, // Kabupaten Kampar
-            'target_kuantiti' => 3500
+            'target_daerah' => 3500,
+            'created_by' => $user->id_user
         ]);
 
-        TrxTarget::create([
+        TrxTargetWilayah::create([
             'id_proses' => $proses2->id_proses,
             'id_wilayah' => $wilayah2->id_wilayah, // Kota Pekanbaru
-            'target_kuantiti' => 2500
+            'target_daerah' => 2500,
+            'created_by' => $user->id_user
         ]);
         
-        TrxTarget::create([
+        TrxTargetWilayah::create([
             'id_proses' => $proses2->id_proses,
             'id_wilayah' => $wilayah3->id_wilayah, // Kabupaten Kampar
-            'target_kuantiti' => 3500
+            'target_daerah' => 3500,
+            'created_by' => $user->id_user
         ]);
     }
 }

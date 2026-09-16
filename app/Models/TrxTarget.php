@@ -19,4 +19,10 @@ class TrxTarget extends Model
     {
         return $this->belongsTo(MstWilayah::class, 'id_wilayah', 'id_wilayah');
     }
+
+    // Diubah merujuk ke TrxLaporanProgres sesuai tabel aktif
+    public function laporans()
+    {
+        return $this->hasMany(TrxLaporanProgres::class, 'id_target_wilayah', 'id_target');
+    }
 }

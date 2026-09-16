@@ -3,78 +3,169 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\MstKegiatanLevel2Kegiatan;
-use App\Models\MstKegiatanLevel3Detail;
-use App\Models\MstKegiatanLevel4Proses;
-use App\Models\TrxTarget;
-use App\Models\TrxLaporan;
+use App\Models\TrxTargetWilayah; // Perbaikan di sini
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class EvaluasiController extends Controller
 {
+    /**
+     * Tampilkan halaman utama evaluasi kegiatan beserta rekap scoring per wilayah.
+     */
     public function index()
     {
-        // Ambil semua proses kegiatan beserta relasi induknya
-        $prosesAll = MstKegiatanLevel4Proses::with([
-            'detail.kegiatan.output'
+        $dataEvaluasi = $this->getEvaluasiData();
+
+        return view('evaluasi.evaluasi', [
+            'evaluasiData'      => $dataEvaluasi['evaluasiData'],
+            'rataPersentase'    => $dataEvaluasi['rataPersentase'],
+            'ratingKeseluruhan' => $dataEvaluasi['ratingKeseluruhan'],
+        ]);
+    }
+
+    /**
+     * Export rekapitulasi evaluasi kegiatan ke format PDF.
+     */
+    public function exportPdf()
+    {
+        $dataEvaluasi = $this->getEvaluasiData();
+
+        $pdf = Pdf::loadView('evaluasi.pdf_template', [
+            'evaluasiData'      => $dataEvaluasi['evaluasiData'],
+            'rataPersentase'    => $dataEvaluasi['rataPersentase'],
+            'ratingKeseluruhan' => $dataEvaluasi['ratingKeseluruhan'],
+            'tanggalCetak'      => now()->translatedFormat('d F Y'),
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('Rekap_Evaluasi_MENTARI_' . date('Ymd_His') . '.pdf');
+    }
+
+    /**
+     * Mengambil data evaluasi berdasarkan per-target wilayah (id_target_wilayah).
+     */
+    private function getEvaluasiData(): array
+    {
+        // Perbaikan di sini menggunakan TrxTargetWilayah
+        $targets = TrxTargetWilayah::with([
+            'proses.detail.kegiatan.output',
+            'wilayah',
+            'laporans'
         ])->get();
 
         $evaluasiData = [];
 
-        foreach ($prosesAll as $proses) {
-            // Hitung total target dari semua wilayah untuk proses ini
-            $totalTarget = TrxTarget::where('id_proses', $proses->id_proses)
-                ->sum('target_kuantiti');
-
-            // Hitung total realisasi yang sudah disetujui (approved)
-            $totalRealisasi = TrxLaporan::whereHas('target', function ($q) use ($proses) {
-                    $q->where('id_proses', $proses->id_proses);
-                })
-                ->where('status_laporan', 'approved')
-                ->sum('realisasi_kuantiti');
-
-            // Hitung persentase capaian (max 100 untuk bintang, bisa >100 untuk angka)
-            $persentase = ($totalTarget > 0)
-                ? round(($totalRealisasi / $totalTarget) * 100, 1)
-                : 0;
-
-            // Konversi persentase ke rating bintang (1–5)
-            $rating = $this->hitungRating($persentase);
-
-            $evaluasiData[] = [
-                'proses'         => $proses,
-                'nama_kegiatan'  => $proses->detail->kegiatan->nama_kegiatan ?? '-',
-                'nama_detail'    => $proses->detail->nama_keg_detail ?? '-',
-                'total_target'   => $totalTarget,
-                'total_realisasi'=> $totalRealisasi,
-                'persentase'     => $persentase,
-                'rating'         => $rating,
-            ];
+        foreach ($targets as $target) {
+            if (!$target->proses) {
+                continue;
+            }
+            $evaluasiData[] = $this->kalkulasiSkorTarget($target);
         }
 
-        // Hitung rating keseluruhan (rata-rata persentase semua proses)
         $rataPersentase = count($evaluasiData) > 0
-            ? round(collect($evaluasiData)->avg('persentase'), 1)
+            ? (float) round(collect($evaluasiData)->avg('total_skor'), 1)
             : 0;
-        $ratingKeseluruhan = $this->hitungRating($rataPersentase);
 
-        return view('evaluasi.evaluasi', compact('evaluasiData', 'rataPersentase', 'ratingKeseluruhan'));
+        $ratingKeseluruhan = $this->hitungRating((int) round($rataPersentase));
+
+        return [
+            'evaluasiData'      => $evaluasiData,
+            'rataPersentase'    => $rataPersentase,
+            'ratingKeseluruhan' => $ratingKeseluruhan,
+        ];
     }
 
     /**
-     * Hitung rating bintang (1–5) berdasarkan persentase capaian.
-     * ≥100% → 5 bintang
-     * 85–99% → 4 bintang
-     * 70–84% → 3 bintang
-     * 50–69% → 2 bintang
-     * <50%   → 1 bintang
+     * Helper untuk menghitung skor per 1 baris target wilayah.
+     * 
+     * @param TrxTargetWilayah $target
+     * @return array
      */
-    private function hitungRating(float $persentase): int
+    private function kalkulasiSkorTarget(TrxTargetWilayah $target): array
     {
-        if ($persentase >= 100) return 5;
-        if ($persentase >= 85)  return 4;
-        if ($persentase >= 70)  return 3;
-        if ($persentase >= 50)  return 2;
+        $proses = $target->proses;
+        $totalTarget = (int) $target->target_kuantiti;
+
+        // Ambil laporan yang hanya terkait dengan target wilayah ini
+        $laporanList = $target->laporans;
+        $laporanApproved = $laporanList->where('status_laporan', 'approved');
+        $totalRealisasi = (int) $laporanApproved->sum('realisasi_kuantiti');
+
+        $persentase = ($totalTarget > 0)
+            ? round(($totalRealisasi / $totalTarget) * 100, 1)
+            : 0;
+
+        // 1. Parameter Kualitas (40%)
+        $skorKualitas = (int) min(100, round($persentase));
+
+        // 2. Parameter Responsivitas (30%)
+        $skorResponsivitas = 100;
+        if ($laporanList->count() > 0) {
+            $skorResponsivitas = (int) round(($laporanApproved->count() / $laporanList->count()) * 100);
+        } elseif ($totalTarget > 0) {
+            $skorResponsivitas = 0;
+        }
+
+        // 3. Parameter Kecepatan (30%)
+        $skorKecepatan = 100;
+        if ($laporanApproved->count() > 0) {
+            $laporanTepatWaktu = 0;
+            $deadline = $proses->tanggal_selesai ?? null;
+            foreach ($laporanApproved as $laporan) {
+                if ($deadline && $laporan->created_at <= $deadline) {
+                    $laporanTepatWaktu++;
+                } elseif (!$deadline) {
+                    $laporanTepatWaktu++;
+                }
+            }
+            $skorKecepatan = (int) round(($laporanTepatWaktu / $laporanApproved->count()) * 100);
+        } elseif ($totalTarget > 0) {
+            $skorKecepatan = 0;
+        }
+
+        // 4. Verifikasi Bukti Dukung (Menyesuaikan dengan nama kolom spasi/path)
+        $buktiLengkap = false;
+        if ($laporanApproved->count() > 0) {
+            $buktiAda = $laporanApproved->filter(function ($lap) {
+                return !empty($lap->{'path bukti dukung'}) || !empty($lap->link_bukti) || !empty($lap->file_bukti) || !empty($lap->bukti_dukung);
+            })->count();
+            $buktiLengkap = ($buktiAda === $laporanApproved->count());
+        }
+
+        // Total Skor Terbobot
+        $skorTerbobot = ($skorKualitas * 0.40) + ($skorResponsivitas * 0.30) + ($skorKecepatan * 0.30);
+        if (!$buktiLengkap && $totalTarget > 0) {
+            $skorTerbobot -= 10; // Penalti -10 jika bukti dukung tidak lengkap
+        }
+
+        $totalSkor = (int) max(0, min(100, round($skorTerbobot)));
+        $namaWilayah = $target->wilayah->nama_wilayah ?? 'Semua Wilayah';
+
+        return [
+            'proses'              => $proses,
+            'nama_kegiatan'       => $proses->detail->kegiatan->nama_kegiatan ?? '-',
+            'nama_detail'         => $proses->detail->nama_keg_detail ?? '-',
+            'wilayah'             => $namaWilayah,
+            'total_target'        => $totalTarget,
+            'total_realisasi'     => $totalRealisasi,
+            'persentase'          => $persentase,
+            'skor_kualitas'       => $skorKualitas,
+            'skor_responsivitas'  => $skorResponsivitas,
+            'skor_kecepatan'      => $skorKecepatan,
+            'bukti_lengkap'       => $buktiLengkap,
+            'total_skor'          => $totalSkor,
+            'rating'              => $this->hitungRating($totalSkor),
+        ];
+    }
+
+    /**
+     * Konversi nilai total skor (0–100) ke skala bintang (1–5).
+     */
+    private function hitungRating(int $skor): int
+    {
+        if ($skor >= 90) return 5;
+        if ($skor >= 75) return 4;
+        if ($skor >= 60) return 3;
+        if ($skor >= 40) return 2;
         return 1;
     }
 }

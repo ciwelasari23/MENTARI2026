@@ -19,21 +19,24 @@ class TrxTargetWilayah extends Model
         'created_by',
     ];
 
-    // Relasi ke MstWilayah
     public function wilayah()
     {
         return $this->belongsTo(MstWilayah::class, 'id_wilayah', 'id_wilayah');
     }
 
-    // Relasi ke Proses Kegiatan Level 4 (mst_kegiatan_level4_proses)
     public function proses()
     {
         return $this->belongsTo(MstKegiatanLevel4Proses::class, 'id_proses', 'id_proses');
     }
 
-    // Relasi ke User pembuat target
     public function pembuat()
     {
         return $this->belongsTo(User::class, 'created_by', 'id_user');
+    }
+
+    // Diubah menggunakan TrxLaporanProgres dan foreign key id_target_wilayah
+    public function laporans()
+    {
+        return $this->hasMany(TrxLaporanProgres::class, 'id_target_wilayah', 'id_target_wilayah');
     }
 }

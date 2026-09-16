@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TrxTarget;
-use App\Models\TrxLaporan;
+use App\Models\TrxTargetWilayah;
+use App\Models\TrxLaporanProgres;
 use App\Models\MstKegiatanLevel4Proses;
 use App\Models\MstWilayah;
 use Illuminate\Support\Facades\DB;
@@ -17,25 +17,25 @@ class DashboardController extends Controller
         $today = Carbon::today();
 
         // ============================================================
-        // Ambil semua target beserta relasi proses & laporan approved
+        // Ambil semua target wilayah beserta relasi proses & wilayah
         // ============================================================
-        $targets = TrxTarget::with([
+        $targets = TrxTargetWilayah::with([
             'proses',
             'wilayah',
         ])->get();
 
         // ============================================================
-        // Hitung realisasi per target (jumlah laporan approved)
+        // Hitung realisasi per target wilayah (jumlah laporan approved)
         // ============================================================
-        $realisasiPerTarget = TrxLaporan::where('status_laporan', 'approved')
-            ->select('id_target', DB::raw('SUM(realisasi_kuantiti) as total_realisasi'))
-            ->groupBy('id_target')
-            ->pluck('total_realisasi', 'id_target');
+        $realisasiPerTarget = TrxLaporanProgres::where('status_laporan', 'approved')
+            ->select('id_target_wilayah', DB::raw('SUM(realisasi_saat_ini) as total_realisasi'))
+            ->groupBy('id_target_wilayah')
+            ->pluck('total_realisasi', 'id_target_wilayah');
 
         // ============================================================
         // Klasifikasi Status setiap target:
-        //   Selesai    = realisasi >= target_kuantiti
-        //   Terlambat  = belum selesai DAN tanggal_selesai sudah lewat
+        //   Selesai      = realisasi >= target_daerah
+        //   Terlambat    = belum selesai DAN tanggal_selesai sudah lewat
         //   Dalam Proses = belum selesai DAN masih dalam waktu
         // ============================================================
         $totalKegiatan = 0;
@@ -44,9 +44,9 @@ class DashboardController extends Controller
         $totalTerlambat = 0;
 
         foreach ($targets as $target) {
-            $realisasi   = $realisasiPerTarget[$target->id_target] ?? 0;
-            $targetValue = $target->target_kuantiti;
-            $deadline    = $target->proses ? Carbon::parse($target->proses->tanggal_selesai) : null;
+            $realisasi   = $realisasiPerTarget[$target->id_target_wilayah] ?? 0;
+            $targetValue = $target->target_daerah;
+            $deadline    = $target->proses && isset($target->proses->tanggal_selesai) ? Carbon::parse($target->proses->tanggal_selesai) : null;
 
             $totalKegiatan++;
 
@@ -76,9 +76,9 @@ class DashboardController extends Controller
             $count        = 0;
 
             foreach ($targetsWilayah as $t) {
-                if ($t->target_kuantiti > 0) {
-                    $real = $realisasiPerTarget[$t->id_target] ?? 0;
-                    $pct  = min(100, round(($real / $t->target_kuantiti) * 100, 1));
+                if ($t->target_daerah > 0) {
+                    $real = $realisasiPerTarget[$t->id_target_wilayah] ?? 0;
+                    $pct  = min(100, round(($real / $t->target_daerah) * 100, 1));
                     $totalCapaian += $pct;
                     $count++;
                 }
@@ -93,13 +93,13 @@ class DashboardController extends Controller
         // ============================================================
         // Tabel Top 5: Target dengan capaian terbaru
         // ============================================================
-        $top5Targets = TrxTarget::with(['proses.detail', 'wilayah'])
+        $top5Targets = TrxTargetWilayah::with(['proses.detail', 'wilayah'])
             ->get()
             ->map(function ($target) use ($realisasiPerTarget, $today) {
-                $realisasi   = $realisasiPerTarget[$target->id_target] ?? 0;
-                $targetValue = $target->target_kuantiti;
+                $realisasi   = $realisasiPerTarget[$target->id_target_wilayah] ?? 0;
+                $targetValue = $target->target_daerah;
                 $pct         = $targetValue > 0 ? min(100, round(($realisasi / $targetValue) * 100, 1)) : 0;
-                $deadline    = $target->proses ? Carbon::parse($target->proses->tanggal_selesai) : null;
+                $deadline    = $target->proses && isset($target->proses->tanggal_selesai) ? Carbon::parse($target->proses->tanggal_selesai) : null;
 
                 if ($realisasi >= $targetValue && $targetValue > 0) {
                     $status = 'Selesai';

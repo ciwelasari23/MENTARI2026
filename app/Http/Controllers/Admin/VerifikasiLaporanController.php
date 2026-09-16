@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\TrxLaporan;
+use App\Models\TrxLaporanProgres;
+use Illuminate\Support\Facades\Auth;
 
 class VerifikasiLaporanController extends Controller
 {
     public function index()
     {
-        $laporans = TrxLaporan::with(['target.proses', 'target.wilayah', 'user'])
+        // Menggunakan TrxLaporanProgres dan relasi yang sesuai (targetWilayah, pelapor)
+        $laporans = TrxLaporanProgres::with(['targetWilayah.proses', 'targetWilayah.wilayah', 'pelapor'])
             ->orderBy('created_at', 'desc')
             ->get();
             
@@ -24,10 +26,15 @@ class VerifikasiLaporanController extends Controller
             'catatan_verifikator' => 'nullable|string|max:255',
         ]);
 
-        $laporan = TrxLaporan::findOrFail($id);
+        $userId = Auth::user()->id_user ?? Auth::id();
+
+        $laporan = TrxLaporanProgres::findOrFail($id);
+        
+        // Menyesuaikan dengan nama kolom di database (menggunakan spasi untuk 'catatan verifikasi')
         $laporan->update([
             'status_laporan' => $request->status_laporan,
-            'catatan_verifikator' => $request->catatan_verifikator,
+            'id_user_verifikator' => $userId,
+            'catatan verifikasi' => $request->catatan_verifikator,
         ]);
 
         return redirect()->route('admin.verifikasi.index')->with('success', 'Status laporan berhasil diperbarui.');

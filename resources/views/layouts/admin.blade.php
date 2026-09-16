@@ -44,16 +44,13 @@
 
         <nav class="sidebar-nav p-4 space-y-1.5 flex-1 overflow-y-auto overflow-x-hidden text-sm font-semibold" x-data="{ currentUrl: window.location.href }">
 
-        <!-- Dashboard -->
-            @if($user->hasPermission('Dashboard') || $user->hasPermission('Visualisasi Data'))
+            <!-- Dashboard -->
             <a href="{{ url('/dashboard') }}" class="nav-item" :class="currentUrl.includes('/dashboard') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 Dashboard
             </a>
-            @endif
 
             <!-- Master Data -->
-            @if($user->hasPermission('Master Data'))
             <div x-data="{ openMaster: window.location.href.includes('/master') }">
                 <button type="button" @click="openMaster = !openMaster" class="nav-item w-full flex justify-between items-center" 
                         :class="currentUrl.includes('/master') ? 'custom-active' : (openMaster ? 'bg-blue-50 text-[#005A9C]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800')">
@@ -71,10 +68,8 @@
                     <a href="{{ url('/admin/master/user') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/user') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">User</a>
                 </div>
             </div>
-            @endif
 
             <!-- Kelola Kegiatan -->
-            @if($user->hasPermission('Kelola Kegiatan'))
             <div x-data="{ openKelola: window.location.href.includes('/kegiatan') }">
                 <button type="button" @click="openKelola = !openKelola" class="nav-item w-full flex justify-between items-center" 
                         :class="currentUrl.includes('/kegiatan') ? 'custom-active' : (openKelola ? 'bg-blue-50 text-[#005A9C]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800')">
@@ -91,46 +86,35 @@
                     <a href="{{ url('/admin/kegiatan/level4') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/level4') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Proses</a>
                 </div>
             </div>
-            @endif
 
             <!-- Target Wilayah -->
-            @if($user->hasPermission('Target Wilayah'))
             <a href="{{ url('/admin/target') }}" class="nav-item" :class="currentUrl.includes('/target') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Target Wilayah
             </a>
-            @endif
 
             <!-- Form Pelaporan -->
-            @if($user->hasPermission('Form Pelaporan'))
             <a href="{{ url('/pelaporan') }}" class="nav-item" :class="currentUrl.includes('/pelaporan') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 Form Pelaporan
             </a>
-            @endif
             
             <!-- Verifikasi Laporan -->
-            @if($user->hasPermission('Verifikasi Laporan'))
             <a href="{{ url('/admin/verifikasi') }}" class="nav-item" :class="currentUrl.includes('/verifikasi') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Verifikasi Laporan
             </a>
-            @endif
 
             <!-- Evaluasi Kegiatan -->
-            @if($user->hasPermission('Evaluasi Kegiatan'))
             <a href="{{ url('/evaluasi') }}" class="nav-item" :class="currentUrl.includes('/evaluasi') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                 <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                 Evaluasi Kegiatan
             </a>
-            @endif
 
-            <!-- MENU DINAMIS / MODUL TAMBAHAN (DENGAN DUKUNGAN SUBMENU) -->
+            <!-- MENU DINAMIS / MODUL TAMBAHAN -->
             @php
-                // Menambahkan 'Dashboard' dan 'Visualisasi Data' ke daftar pengecualian
                 $hardcodedMenus = ['Dashboard', 'Visualisasi Data', 'Master Data', 'Kelola Kegiatan', 'Target Wilayah', 'Form Pelaporan', 'Verifikasi Laporan', 'Evaluasi Kegiatan'];
                 
-                // Ambil menu induk (parent_id is null) yang bukan menu bawaan sistem
                 $dynamicMenus = \App\Models\MstMenu::with('children')
                     ->whereNull('parent_id')
                     ->whereNotIn('nama_menu', $hardcodedMenus)
@@ -143,44 +127,29 @@
                 <div class="px-3 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Modul Tambahan</div>
                 
                 @foreach($dynamicMenus as $menu)
-                    <!-- Jika menu ini memiliki submenu (anak) -->
                     @if($menu->children->count() > 0)
-                        @php
-                            $hasChildAccess = $menu->children->filter(function($child) use ($user) {
-                                return $user->hasPermission($child->nama_menu);
-                            })->isNotEmpty();
-                        @endphp
-                        
-                        @if($user->hasPermission($menu->nama_menu) || $hasChildAccess)
-                            <div x-data="{ openDynamic_{{ $menu->id_menu }}: window.location.href.includes('{{ $menu->url }}') }">
-                                <button type="button" @click="openDynamic_{{ $menu->id_menu }} = !openDynamic_{{ $menu->id_menu }}" class="nav-item w-full flex justify-between items-center" 
-                                        :class="openDynamic_{{ $menu->id_menu }} ? 'bg-blue-50 text-[#005A9C]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
-                                    <div class="flex items-center gap-3">
-                                        <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                        {{ $menu->nama_menu }}
-                                    </div>
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="openDynamic_{{ $menu->id_menu }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
-                                <div x-show="openDynamic_{{ $menu->id_menu }}" x-transition class="pl-4 ml-6 my-1 space-y-1 border-l-2 border-blue-100" style="display: none;">
-                                    @foreach($menu->children as $child)
-                                        @if($user->hasPermission($child->nama_menu))
-                                            <a href="{{ url($child->url) }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('{{ $child->url }}') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">
-                                                {{ $child->nama_menu }}
-                                            </a>
-                                        @endif
-                                    @endforeach
+                        <div x-data="{ openDynamic_{{ $menu->id_menu }}: window.location.href.includes('{{ $menu->url }}') }">
+                            <button type="button" @click="openDynamic_{{ $menu->id_menu }} = !openDynamic_{{ $menu->id_menu }}" class="nav-item w-full flex justify-between items-center" 
+                                    :class="openDynamic_{{ $menu->id_menu }} ? 'bg-blue-50 text-[#005A9C]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
+                                <div class="flex items-center gap-3">
+                                    <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    {{ $menu->nama_menu }}
                                 </div>
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="openDynamic_{{ $menu->id_menu }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div x-show="openDynamic_{{ $menu->id_menu }}" x-transition class="pl-4 ml-6 my-1 space-y-1 border-l-2 border-blue-100" style="display: none;">
+                                @foreach($menu->children as $child)
+                                    <a href="{{ url($child->url) }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('{{ $child->url }}') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">
+                                        {{ $child->nama_menu }}
+                                    </a>
+                                @endforeach
                             </div>
-                        @endif
-
-                    <!-- Jika menu tunggal (tanpa submenu) -->
+                        </div>
                     @else
-                        @if($user->hasPermission($menu->nama_menu))
                         <a href="{{ url($menu->url) }}" class="nav-item" :class="currentUrl.includes('{{ $menu->url }}') ? 'custom-active' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                             <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             {{ $menu->nama_menu }}
                         </a>
-                        @endif
                     @endif
                 @endforeach
             @endif

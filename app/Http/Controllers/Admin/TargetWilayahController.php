@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\TrxTargetWilayah;
+use App\Models\TrxTargetWilayah; // Ubah ke TrxTargetWilayah
 use App\Models\MstWilayah;
 use App\Models\MstKegiatanLevel4Proses;
 
@@ -16,7 +16,7 @@ class TargetWilayahController extends Controller
         $wilayahs = MstWilayah::all();
         $prosesList = MstKegiatanLevel4Proses::all();
 
-        return view('target.index', compact('targets', 'wilayahs', 'prosesList'));
+        return view('admin.target.index', compact('targets', 'wilayahs', 'prosesList'));
     }
 
     public function store(Request $request)
@@ -24,20 +24,19 @@ class TargetWilayahController extends Controller
         $request->validate([
             'id_wilayah' => 'required',
             'id_proses' => 'required|integer',
-            'target_daerah' => 'required|integer|min:1',
+            'target_daerah' => 'required|integer|min:1', // Sesuaikan dengan form & database
         ]);
 
         TrxTargetWilayah::create([
             'id_wilayah' => $request->id_wilayah,
             'id_proses' => $request->id_proses,
             'target_daerah' => $request->target_daerah,
-            'created_by' => auth()->id(),
+            'created_by' => auth()->id(), // Mencatat siapa yang membuat
         ]);
 
         return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil ditetapkan.');
     }
 
-    // Tambahkan method update untuk menangani aksi Edit
     public function update(Request $request, int|string $id)
     {
         $request->validate([
