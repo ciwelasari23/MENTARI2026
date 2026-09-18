@@ -85,7 +85,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/target/{id}', [TargetWilayahController::class, 'update'])->name('target.update');
     Route::delete('/target/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
     Route::delete('/target-bulk', [TargetWilayahController::class, 'bulkDestroy'])->name('target.bulkDestroy');     
-    
+
     // Verifikasi Laporan
     Route::get('/verifikasi', [VerifikasiLaporanController::class, 'index'])->name('verifikasi.index');
     Route::put('/verifikasi/{id}', [VerifikasiLaporanController::class, 'update'])->name('verifikasi.update');
@@ -97,7 +97,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/master/wilayah-bulk', [WilayahController::class, 'bulkDestroy'])->name('wilayah.bulkDestroy');
     Route::put('/master/wilayah/{id}', [WilayahController::class, 'update'])->name('wilayah.update');
     Route::delete('/master/wilayah/{id}', [WilayahController::class, 'destroy'])->name('wilayah.destroy');
-    
+
     // Master Data: Tim Kerja
     Route::get('/master/timkerja', [TimKerjaController::class, 'index'])->name('timkerja.index');
     Route::post('/master/timkerja', [TimKerjaController::class, 'store'])->name('timkerja.store');
