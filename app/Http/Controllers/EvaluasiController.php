@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TrxTargetWilayah; // Perbaikan di sini
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class EvaluasiController extends Controller
@@ -28,7 +27,7 @@ class EvaluasiController extends Controller
     {
         $dataEvaluasi = $this->getEvaluasiData();
 
-        $pdf = Pdf::loadView('evaluasi.pdf_template', [
+        $pdf = app('dompdf.wrapper')->loadView('evaluasi.pdf_template', [
             'evaluasiData'      => $dataEvaluasi['evaluasiData'],
             'rataPersentase'    => $dataEvaluasi['rataPersentase'],
             'ratingKeseluruhan' => $dataEvaluasi['ratingKeseluruhan'],
