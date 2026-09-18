@@ -14,13 +14,14 @@ class TrxLaporanProgres extends Model
         'id_user_pelapor', 
         'id_user_verifikator',
         'tanggal_lapor',
-        'realisasi saat ini', 
-        'catatan over target', 
-        'is selesai',
+        'realisasi_saat_ini', 
+        'catatan_over_target', 
+        'is_selesai',
         'status_laporan', 
-        'path bukti dukung', 
+        'path_bukti_dukung', 
         'link_bukti',
-        'catatan verifikasi'
+        'catatan_verifikasi',
+        'file_bukti'
     ];
 
     // Relasi ke TrxTargetWilayah sesuai ERD

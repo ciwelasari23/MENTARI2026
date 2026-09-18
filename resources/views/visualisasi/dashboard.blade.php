@@ -105,48 +105,60 @@
     </div>
 
 
-    <!-- Area Grafik: Grid 2 Kolom (Bar Chart + Pie Chart) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Area Grafik: Grid 2 Kolom (Bar Chart + Pie Chart Laporan) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
 
         <!-- Grafik Bar (kiri, 2/3 lebar) -->
         <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 class="text-base font-bold text-gray-800 mb-4">Grafik Rata-rata Capaian per Kabupaten/Kota (%)</h3>
-            <div class="relative h-72 w-full">
+            <div class="relative w-full" style="height: 320px;">
                 <canvas id="capaianChart"></canvas>
             </div>
         </div>
 
-        <!-- Pie Chart Distribusi Status Kegiatan (kanan, 1/3 lebar) -->
+        <!-- Pie Chart Status Laporan Masuk (kanan, 1/3 lebar) -->
         <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-            <h3 class="text-base font-bold text-gray-800 mb-4">Distribusi Status Kegiatan</h3>
+            <h3 class="text-base font-bold text-gray-800 mb-4">Status Laporan Masuk</h3>
             <div class="relative flex-1 flex items-center justify-center" style="min-height: 220px;">
-                <canvas id="statusPieChart"></canvas>
+                <canvas id="laporanPieChart"></canvas>
                 <!-- Label Total di tengah Donut -->
                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="text-2xl font-extrabold text-gray-800 leading-none" id="pie-total">{{ $totalKegiatan }}</span>
-                    <span class="text-xs font-semibold text-gray-400 mt-0.5">Total Kegiatan</span>
+                    <span class="text-2xl font-extrabold text-gray-800 leading-none">{{ array_sum($laporanPieData) }}</span>
+                    <span class="text-xs font-semibold text-gray-400 mt-0.5">Total Laporan</span>
                 </div>
             </div>
             <!-- Legend Manual -->
-            <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="mt-4 grid grid-cols-4 gap-1 text-center text-xs">
                 <div>
-                    <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mb-1"></span>
-                    <p class="font-semibold text-gray-700">Selesai</p>
-                    <p class="text-lg font-bold text-emerald-600" id="pie-selesai">{{ $totalSelesai }}</p>
+                    <div class="flex items-center justify-center gap-1 mb-1">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                        <p class="font-semibold text-gray-700 truncate">Diajukan</p>
+                    </div>
+                    <p class="text-base font-bold text-yellow-600">{{ $laporanPieData[0] }}</p>
                 </div>
                 <div>
-                    <span class="inline-block w-3 h-3 rounded-full bg-amber-500 mb-1"></span>
-                    <p class="font-semibold text-gray-700">Dalam Proses</p>
-                    <p class="text-lg font-bold text-amber-600" id="pie-proses">{{ $totalProses }}</p>
+                    <div class="flex items-center justify-center gap-1 mb-1">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <p class="font-semibold text-gray-700 truncate">Disetujui</p>
+                    </div>
+                    <p class="text-base font-bold text-emerald-600">{{ $laporanPieData[1] }}</p>
                 </div>
                 <div>
-                    <span class="inline-block w-3 h-3 rounded-full bg-red-500 mb-1"></span>
-                    <p class="font-semibold text-gray-700">Terlambat</p>
-                    <p class="text-lg font-bold text-red-600" id="pie-terlambat">{{ $totalTerlambat }}</p>
+                    <div class="flex items-center justify-center gap-1 mb-1">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                        <p class="font-semibold text-gray-700 truncate">Revisi</p>
+                    </div>
+                    <p class="text-base font-bold text-blue-600">{{ $laporanPieData[2] }}</p>
+                </div>
+                <div>
+                    <div class="flex items-center justify-center gap-1 mb-1">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <p class="font-semibold text-gray-700 truncate">Ditolak</p>
+                    </div>
+                    <p class="text-base font-bold text-red-600">{{ $laporanPieData[3] }}</p>
                 </div>
             </div>
         </div>
-
 
     </div>
 
@@ -305,25 +317,27 @@
 
         new Chart(ctx, config);
 
-        // =============================================
-        // Donut Chart: Data dari Controller (Dinamis)
-        // =============================================
-        const ctxPie = document.getElementById('statusPieChart').getContext('2d');
 
-        const pieData = {
-            labels: ['Selesai', 'Dalam Proses', 'Terlambat'],
+
+        // =============================================
+        // Donut Chart 2: Status Laporan Masuk
+        // =============================================
+        const ctxLaporan = document.getElementById('laporanPieChart').getContext('2d');
+
+        const laporanData = {
+            labels: ['Diajukan', 'Disetujui', 'Perlu Revisi', 'Ditolak'],
             datasets: [{
-                data: [{{ $totalSelesai }}, {{ $totalProses }}, {{ $totalTerlambat }}],
-                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                data: [{{ $laporanPieData[0] }}, {{ $laporanPieData[1] }}, {{ $laporanPieData[2] }}, {{ $laporanPieData[3] }}],
+                backgroundColor: ['#facc15', '#10b981', '#3b82f6', '#ef4444'], // yellow, emerald, blue, red
+                borderColor: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'],
                 borderWidth: 3,
                 hoverOffset: 8
             }]
         };
 
-        const pieConfig = {
+        const laporanConfig = {
             type: 'doughnut',
-            data: pieData,
+            data: laporanData,
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -347,7 +361,7 @@
             }
         };
 
-        new Chart(ctxPie, pieConfig);
+        new Chart(ctxLaporan, laporanConfig);
     });
 </script>
 @endsection

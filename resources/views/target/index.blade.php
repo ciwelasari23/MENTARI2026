@@ -12,7 +12,7 @@
             <h3 class="text-base font-bold text-gray-800">Daftar Target Beban Wilayah (Kabupaten/Kota)</h3>
             <p class="text-xs text-gray-500 mt-0.5">Kelola penetapan target beban kegiatan untuk masing-masing wilayah.</p>
         </div>
-        <button @click="modalTambah = true" class="bg-[#005A9C] hover:bg-[#004070] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-2">
+        <button @click="modalTambah = true" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-md text-sm font-semibold transition flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Tetapkan Target
         </button>
@@ -66,13 +66,9 @@
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Tombol Detail -->
-                                <button @click="activeTarget = {{ json_encode($target) }}; modalDetail = true" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors">
-                                    Detail
-                                </button>
+                                <button @click="activeTarget = {{ json_encode($target) }}; modalDetail = true" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors" title="Detail"><i class="fas fa-eye"></i></button>
                                 <!-- Tombol Edit -->
-                                <button @click="activeTarget = {{ json_encode($target) }}; modalEdit = true" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors">
-                                    Edit
-                                </button>
+                                <button @click="activeTarget = {{ json_encode($target) }}; modalEdit = true" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors" title="Edit"><i class="fas fa-edit"></i></button>
                                 <!-- Tombol Hapus -->
                                 <form action="{{ route('admin.target.destroy', $target->id_target_wilayah) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus target wilayah ini?')" class="inline-block">
                                     @csrf 
@@ -212,3 +208,5 @@
 
 </div>
 @endsection
+
+

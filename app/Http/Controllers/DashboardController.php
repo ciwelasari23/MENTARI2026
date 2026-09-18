@@ -85,7 +85,7 @@ class DashboardController extends Controller
             }
 
             if ($count > 0) {
-                $grafikLabels[] = $wilayah->nama_wilayah;
+                $grafikLabels[] = $wilayah->kode_nama_kabkota ?? 'Wilayah ' . $wilayah->id_wilayah;
                 $grafikData[]   = round($totalCapaian / $count, 1);
             }
         }
@@ -111,7 +111,7 @@ class DashboardController extends Controller
 
                 return [
                     'nama_proses'  => $target->proses->nama_proses ?? '-',
-                    'nama_wilayah' => $target->wilayah->nama_wilayah ?? '-',
+                    'nama_wilayah' => isset($target->wilayah) ? trim(($target->wilayah->nama_provinsi ?? '') . ' ' . ($target->wilayah->kode_nama_kabkota ?? '')) : '-',
                     'target'       => $targetValue,
                     'realisasi'    => $realisasi,
                     'pct'          => $pct,
@@ -122,6 +122,20 @@ class DashboardController extends Controller
             ->take(5)
             ->values();
 
+        // ============================================================
+        // Hitung statistik status laporan untuk Pie Chart
+        // ============================================================
+        $statusLaporan = TrxLaporanProgres::select('status_laporan', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->groupBy('status_laporan')
+            ->pluck('total', 'status_laporan');
+
+        $laporanPieData = [
+            $statusLaporan['pending'] ?? 0,   // Diajukan
+            $statusLaporan['approved'] ?? 0,  // Disetujui
+            $statusLaporan['revision'] ?? 0,  // Perlu Revisi
+            $statusLaporan['rejected'] ?? 0,  // Ditolak
+        ];
+
         return view('visualisasi.dashboard', compact(
             'totalKegiatan',
             'totalSelesai',
@@ -129,7 +143,8 @@ class DashboardController extends Controller
             'totalTerlambat',
             'grafikLabels',
             'grafikData',
-            'top5Targets'
+            'top5Targets',
+            'laporanPieData'
         ));
     }
 }
