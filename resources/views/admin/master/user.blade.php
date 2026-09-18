@@ -12,7 +12,9 @@
         <div class="flex items-center gap-2">
             <form action="{{ route('admin.user.index') }}" method="GET" class="flex gap-2 mr-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama/email/NIP..." class="form-input w-48">
-                <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-700 shadow-sm">Cari</button>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm flex items-center justify-center transition-colors" title="Cari">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
                 @if(request('search'))
                     <a href="{{ route('admin.user.index') }}" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 flex items-center">Reset</a>
                 @endif

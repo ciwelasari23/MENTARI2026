@@ -11,6 +11,7 @@
     editData: {}, 
     detailData: {},
     searchQuery: '',
+    searchInput: '',
     selected: [],
     selectAll: false,
     allIds: {{ json_encode(collect($targets)->pluck('id_target_wilayah')) }},
@@ -25,8 +26,12 @@
 
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end">
 
-            <div class="relative w-full sm:w-64">
-                <input type="text" x-model="searchQuery" class="form-input block w-full px-4 py-2 text-sm border rounded-lg bg-white" placeholder="Cari wilayah atau proses...">
+            <div class="relative w-full sm:w-auto flex gap-2">
+                <input type="text" x-model="searchInput" @keydown.enter.prevent="searchQuery = searchInput" class="form-input block w-full sm:w-64 px-4 py-2 text-sm border rounded-lg bg-white" placeholder="Cari wilayah atau proses...">
+                <button type="button" @click="searchQuery = searchInput" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm flex items-center justify-center transition-colors" title="Cari">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+                <button type="button" x-show="searchQuery !== ''" @click="searchInput = ''; searchQuery = ''" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 flex items-center" style="display: none;">Reset</button>
             </div>
 
             <div x-show="selected.length > 0" x-transition style="display: none;">

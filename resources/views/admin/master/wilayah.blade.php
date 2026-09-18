@@ -2,10 +2,9 @@
 
 @section('title', 'Master Data Wilayah')
 
+@section('header', 'Master Data Wilayah')
+
 @section('content')
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-[#1e293b]">Master Data Wilayah</h1>
-</div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -26,9 +25,12 @@
             <!-- FORM PENCARIAN TEKS -->
             <form action="{{ route('admin.wilayah.index') }}" method="GET" class="flex items-center gap-2">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari wilayah..." class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button type="submit" class="bg-[#1e293b] hover:bg-slate-800 text-white px-4 py-1.5 rounded-md text-sm font-semibold transition">
-                    Cari
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-semibold transition flex items-center justify-center" title="Cari">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </button>
+                @if(request('search'))
+                    <a href="{{ route('admin.wilayah.index') }}" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-300 transition flex items-center">Reset</a>
+                @endif
             </form>
 
             <button onclick="openModal('modalTambah')" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-md text-sm font-semibold transition flex items-center gap-2">
