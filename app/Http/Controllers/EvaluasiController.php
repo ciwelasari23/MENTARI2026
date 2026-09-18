@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class EvaluasiController extends Controller
 {
-    /**
-     * Tampilkan halaman utama evaluasi kegiatan beserta rekap scoring per wilayah.
-     */
+
     public function index()
     {
         $dataEvaluasi = $this->getEvaluasiData();

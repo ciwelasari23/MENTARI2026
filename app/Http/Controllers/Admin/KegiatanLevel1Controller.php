@@ -21,7 +21,6 @@ public function index(Request $request)
         $outputs = $query->get();
         $teams = MstTeam::all();
         
-        // Ubah titik di sini agar mengarah ke folder level1/index.blade.php
         return view('admin.kegiatan.level1.level1', compact('outputs', 'teams', 'search'));
     }
     public function store(Request $request)

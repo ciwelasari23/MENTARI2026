@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\TrxTargetWilayah; // Ubah ke TrxTargetWilayah
+use App\Models\TrxTargetWilayah;
 use App\Models\MstWilayah;
 use App\Models\MstKegiatanLevel4Proses;
 
@@ -24,14 +24,14 @@ class TargetWilayahController extends Controller
         $request->validate([
             'id_wilayah' => 'required',
             'id_proses' => 'required|integer',
-            'target_daerah' => 'required|integer|min:1', // Sesuaikan dengan form & database
+            'target_daerah' => 'required|integer|min:1',
         ]);
 
         TrxTargetWilayah::create([
             'id_wilayah' => $request->id_wilayah,
             'id_proses' => $request->id_proses,
             'target_daerah' => $request->target_daerah,
-            'created_by' => auth()->id(), // Mencatat siapa yang membuat
+            'created_by' => auth()->id(),
         ]);
 
         return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil ditetapkan.');
@@ -59,5 +59,23 @@ class TargetWilayahController extends Controller
     {
         TrxTargetWilayah::findOrFail($id)->delete();
         return redirect()->route('admin.target.index')->with('success', 'Target wilayah berhasil dihapus.');
+    }
+
+    /**
+     * Menghapus beberapa target wilayah sekaligus (Bulk Delete)
+     */
+    public function bulkDestroy(Request $request)
+    {
+        // Validasi input berupa array ID
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:trx_target_wilayah,id_target_wilayah' 
+        ]);
+
+        // Hapus data berdasarkan array ID yang dikirim
+        TrxTargetWilayah::whereIn('id_target_wilayah', $request->ids)->delete();
+
+        // Redirect kembali dengan pesan sukses beserta jumlah data yang dihapus
+        return redirect()->route('admin.target.index')->with('success', count($request->ids) . ' target wilayah berhasil dihapus secara massal.');
     }
 }

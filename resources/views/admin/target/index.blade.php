@@ -4,14 +4,45 @@
 @section('header', 'Pengelolaan Target Wilayah')
 
 @section('content')
-<div class="space-y-6" x-data="{ modalTambah: false, modalEdit: false, modalDetail: false, editData: {}, detailData: {} }">
-    
-    <div class="flex flex-wrap gap-4 justify-between items-center card-container">
-        <h3 class="text-lg font-bold text-gray-800">Daftar Target Wilayah</h3>
+<div class="space-y-6" x-data="{ 
+    modalTambah: false, 
+    modalEdit: false, 
+    modalDetail: false, 
+    editData: {}, 
+    detailData: {},
+    searchQuery: '',
+    selected: [],
+    selectAll: false,
+    allIds: {{ json_encode(collect($targets)->pluck('id_target_wilayah')) }},
+    toggleAll() {
+        this.selected = this.selectAll ? this.allIds : [];
+    }
+}">
+
+    <div class="flex flex-col xl:flex-row gap-4 justify-between items-center card-container">
         
-        <div class="flex items-center gap-2">
-            <!-- Tombol Tambah -->
-            <button @click="modalTambah = true" class="btn-teal">
+        <h3 class="text-lg font-bold text-gray-800 w-full xl:w-auto">Daftar Target Wilayah</h3>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end">
+
+            <div class="relative w-full sm:w-64">
+                <input type="text" x-model="searchQuery" class="form-input block w-full px-4 py-2 text-sm border rounded-lg bg-white" placeholder="Cari wilayah atau proses...">
+            </div>
+
+            <div x-show="selected.length > 0" x-transition style="display: none;">
+                <form action="{{ route('admin.target.bulkDestroy') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ' + selected.length + ' data terpilih?')">
+                    @csrf
+                    @method('DELETE')
+                    <template x-for="id in selected">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <button type="submit" class="btn-action-delete text-sm px-4 py-2 rounded-lg flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
+                        Hapus Terpilih (<span x-text="selected.length"></span>)
+                    </button>
+                </form>
+            </div>
+
+            <button @click="modalTambah = true" class="btn-teal whitespace-nowrap w-full sm:w-auto flex justify-center">
                 + Tambah Target Wilayah
             </button>
         </div>
@@ -37,6 +68,9 @@
         <table class="w-full text-left border-collapse text-sm">
             <thead>
                 <tr class="bg-gray-50 border-b text-gray-600">
+                    <th class="p-3 text-center w-12">
+                        <input type="checkbox" x-model="selectAll" @change="toggleAll" class="w-4 h-4 text-teal-600 bg-white border-gray-300 rounded focus:ring-teal-500">
+                    </th>
                     <th class="p-3 w-16 text-center">No</th>
                     <th class="p-3">Nama Proses (Kegiatan)</th>
                     <th class="p-3">Wilayah</th>
@@ -46,7 +80,14 @@
             </thead>
             <tbody>
                 @forelse($targets as $index => $item)
-                <tr class="border-b hover:bg-gray-50" x-data="{ modalHapus: false }">
+                <tr class="border-b hover:bg-gray-50" 
+                    x-data="{ modalHapus: false }"
+                    x-show="searchQuery === '' || $el.textContent.toLowerCase().includes(searchQuery.toLowerCase())">
+                    
+                    <td class="p-3 text-center">
+                        <input type="checkbox" :value="{{ $item->id_target_wilayah }}" x-model="selected" class="w-4 h-4 text-teal-600 bg-white border-gray-300 rounded focus:ring-teal-500">
+                    </td>
+
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
                     <td class="p-3 font-medium text-gray-800">{{ $item->proses->nama_proses ?? 'Proses tidak ditemukan' }}</td>
                     <td class="p-3 font-medium text-gray-600">
@@ -62,7 +103,6 @@
                     </td>
                     <td class="p-3 font-semibold text-gray-800 text-center">{{ $item->target_daerah }}</td>
                     <td class="p-3 text-center whitespace-nowrap space-x-1">
-                        <!-- Tombol Detail -->
                         <button @click="detailData = {
                             nama_proses: '{{ $item->proses->nama_proses ?? '-' }}',
                             provinsi: '{{ $item->wilayah->nama_provinsi ?? '-' }}',
@@ -76,7 +116,6 @@
                             Detail
                         </button>
 
-                        <!-- Tombol Edit -->
                         <button @click="editData = {
                             id: '{{ $item->id_target_wilayah }}',
                             id_proses: '{{ $item->id_proses }}',
@@ -86,10 +125,8 @@
                             Edit
                         </button>
 
-                        <!-- Tombol Hapus -->
-                        <button @click="modalHapus = true" class="btn-action-delete">Hapus</button>
+                        <button @click="modalHapus = true" class="btn-action-delete px-3 py-1.5 text-xs">Hapus</button>
 
-                        <!-- Modal Hapus -->
                         <div x-show="modalHapus" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-center whitespace-normal" style="display: none;">
                             <div class="card-container max-w-sm w-full shadow-xl" @click.away="modalHapus = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-2 mt-2">Konfirmasi Hapus</h3>
@@ -104,7 +141,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="p-6 text-center text-gray-400">Belum ada data target wilayah.</td></tr>
+                <tr><td colspan="6" class="p-6 text-center text-gray-400">Belum ada data target wilayah.</td></tr>
                 @endforelse
             </tbody>
         </table>

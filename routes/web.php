@@ -84,7 +84,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/target', [TargetWilayahController::class, 'store'])->name('target.store');
     Route::put('/target/{id}', [TargetWilayahController::class, 'update'])->name('target.update');
     Route::delete('/target/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
-
+    Route::delete('/target-bulk', [TargetWilayahController::class, 'bulkDestroy'])->name('target.bulkDestroy');     
+    
     // Verifikasi Laporan
     Route::get('/verifikasi', [VerifikasiLaporanController::class, 'index'])->name('verifikasi.index');
     Route::put('/verifikasi/{id}', [VerifikasiLaporanController::class, 'update'])->name('verifikasi.update');
