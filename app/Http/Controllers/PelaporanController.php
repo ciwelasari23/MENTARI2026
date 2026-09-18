@@ -40,7 +40,7 @@ class PelaporanController extends Controller
             'id_target_wilayah' => $request->id_target_wilayah,
             'id_user_pelapor' => $userId,
             'tanggal_lapor' => $request->tanggal_lapor,
-            'realisasi saat ini' => $request->realisasi_kuantiti,
+            'realisasi_saat_ini' => $request->realisasi_kuantiti,
             'link_bukti' => $request->link_bukti,
             'status_laporan' => 'pending',
         ];
@@ -49,7 +49,8 @@ class PelaporanController extends Controller
             $file = $request->file('file_bukti');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/bukti'), $filename);
-            $dataSimpan['path bukti dukung'] = 'uploads/bukti/' . $filename;
+            $dataSimpan['path_bukti_dukung'] = 'uploads/bukti/' . $filename;
+            $dataSimpan['file_bukti'] = $filename;
         }
 
         TrxLaporanProgres::create($dataSimpan);

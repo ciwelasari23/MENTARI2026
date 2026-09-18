@@ -187,14 +187,22 @@
                     <td class="p-4 text-gray-600">{{ $item->kode_nama_desa ?? '-' }}</td>
                     <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sls ?? '-' }}</td>
                     <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sub_sls ?? '-' }}</td>
-                    <td class="p-4 flex items-center justify-center gap-2">
-                        <button type="button" class="bg-[#3b82f6] hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-semibold btn-detail" data-item='@json($item)'>Detail</button>
-                        <button type="button" class="bg-[#eab308] hover:bg-yellow-500 text-white px-3 py-1.5 rounded text-xs font-semibold btn-edit" data-item='@json($item)'>Edit</button>
-                        <form action="{{ route('admin.wilayah.destroy', $item->id_wilayah) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data wilayah ini?');">
-                            @csrf 
-                            @method('DELETE')
-                            <button type="submit" class="bg-[#ef4444] hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-semibold">Hapus</button>
-                        </form>
+                    <td class="p-4">
+                        <div class="flex items-center justify-center gap-1">
+                            <button type="button" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded-md transition-colors btn-detail" data-item='@json($item)' title="Detail">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </button>
+                            <button type="button" class="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-md transition-colors btn-edit" data-item='@json($item)' title="Edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </button>
+                            <form action="{{ route('admin.wilayah.destroy', $item->id_wilayah) }}" method="POST" class="inline m-0" onsubmit="return confirm('Yakin ingin menghapus data wilayah ini?');">
+                                @csrf 
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-md transition-colors" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty

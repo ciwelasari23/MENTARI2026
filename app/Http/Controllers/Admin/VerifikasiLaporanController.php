@@ -22,7 +22,7 @@ class VerifikasiLaporanController extends Controller
     public function update(Request $request, int|string $id)
     {
         $request->validate([
-            'status_laporan' => 'required|in:approved,rejected',
+            'status_laporan' => 'required|in:pending,approved,revision,rejected',
             'catatan_verifikator' => 'nullable|string|max:255',
         ]);
 
@@ -30,11 +30,11 @@ class VerifikasiLaporanController extends Controller
 
         $laporan = TrxLaporanProgres::findOrFail($id);
         
-        // Menyesuaikan dengan nama kolom di database (menggunakan spasi untuk 'catatan verifikasi')
+        // Menyesuaikan dengan nama kolom di database
         $laporan->update([
             'status_laporan' => $request->status_laporan,
             'id_user_verifikator' => $userId,
-            'catatan verifikasi' => $request->catatan_verifikator,
+            'catatan_verifikasi' => $request->catatan_verifikator,
         ]);
 
         return redirect()->route('admin.verifikasi.index')->with('success', 'Status laporan berhasil diperbarui.');

@@ -11,7 +11,7 @@
             <h3 class="text-base font-bold text-gray-800">Daftar Laporan Lapangan</h3>
             <p class="text-xs text-gray-500 mt-0.5">Kelola pelaporan realisasi pekerjaan Anda.</p>
         </div>
-        <button @click="modalTambah = true" class="bg-[#005A9C] hover:bg-[#004070] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-2">
+        <button @click="modalTambah = true" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-md text-sm font-semibold transition flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Buat Laporan
         </button>
@@ -59,25 +59,27 @@
                         <td class="p-4 text-center font-medium text-gray-500">{{ $index + 1 }}</td>
                         <td class="p-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($item->tanggal_lapor)->format('d/m/Y') }}</td>
                         <td class="p-4">
-                            <span class="font-bold text-gray-800">{{ $item->target->proses->nama_proses ?? '-' }}</span><br>
-                            <span class="text-xs text-gray-500 font-normal">{{ $item->target->wilayah->nama_wilayah ?? '-' }}</span>
+                            <span class="font-bold text-gray-800">{{ $item->targetWilayah->proses->nama_proses ?? '-' }}</span><br>
+                            <span class="text-xs text-gray-500 font-normal">{{ $item->targetWilayah->wilayah->nama_provinsi ?? '-' }} {{ $item->targetWilayah->wilayah->kode_nama_kabkota ?? '-' }}</span>
                         </td>
                         <td class="p-4 text-center font-bold text-[#005A9C]">
-                            {{ $item->realisasi_kuantiti }} {{ $item->target->proses->satuan_target ?? '' }}
+                            {{ $item->realisasi_saat_ini }} {{ $item->targetWilayah->proses->satuan_target ?? '' }}
                         </td>
                         <td class="p-4 text-center">
                             @if($item->status_laporan == 'pending')
-                                <span class="bg-amber-50 text-amber-600 border border-amber-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Menunggu</span>
+                                <span class="bg-amber-50 text-amber-600 border border-amber-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Diajukan</span>
                             @elseif($item->status_laporan == 'approved')
                                 <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Disetujui</span>
+                            @elseif($item->status_laporan == 'revision')
+                                <span class="bg-blue-50 text-blue-600 border border-blue-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Perlu Revisi</span>
                             @else
                                 <span class="bg-red-50 text-red-600 border border-red-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Ditolak</span>
                             @endif
                         </td>
                         <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button @click="activeLaporan = {{ json_encode($item) }}; modalDetail = true" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1.5 rounded shadow transition-colors">
-                                    Detail
+                            <div class="flex items-center justify-center gap-1">
+                                <button @click="activeLaporan = {{ json_encode($item) }}; modalDetail = true" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded-md transition-colors" title="Detail">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </button>
                             </div>
                         </td>
@@ -105,10 +107,10 @@
                 @csrf
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-gray-700 mb-1">Pilih Target Kegiatan Wilayah</label>
-                    <select name="id_target" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C] bg-white">
+                    <select name="id_target_wilayah" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005A9C] bg-white">
                         <option value="">-- Pilih Pekerjaan --</option>
                         @foreach($targets as $t)
-                            <option value="{{ $t->id_target }}" @selected(old('id_target') == $t->id_target)>{{ $t->wilayah->nama_wilayah ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_kuantiti }})</option>
+                            <option value="{{ $t->id_target_wilayah }}" @selected(old('id_target_wilayah') == $t->id_target_wilayah)>{{ $t->wilayah->nama_provinsi ?? '' }} {{ $t->wilayah->kode_nama_kabkota ?? '' }} - {{ $t->proses->nama_proses ?? '' }} (Target: {{ $t->target_daerah }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -150,12 +152,12 @@
                 </div>
                 <div>
                     <span class="block text-xs text-gray-400 font-semibold">Pekerjaan & Wilayah</span>
-                    <span class="text-gray-800 font-bold block" x-text="activeLaporan.target?.proses?.nama_proses || '-'"></span>
-                    <span class="text-xs text-gray-500" x-text="activeLaporan.target?.wilayah?.nama_wilayah || '-'"></span>
+                    <span class="text-gray-800 font-bold block" x-text="activeLaporan.target_wilayah?.proses?.nama_proses || '-'"></span>
+                    <span class="text-xs text-gray-500" x-text="(activeLaporan.target_wilayah?.wilayah?.nama_provinsi || '') + ' ' + (activeLaporan.target_wilayah?.wilayah?.kode_nama_kabkota || '')"></span>
                 </div>
                 <div>
                     <span class="block text-xs text-gray-400 font-semibold">Capaian (Realisasi)</span>
-                    <span class="font-bold text-[#005A9C]" x-text="activeLaporan.realisasi_kuantiti + ' ' + (activeLaporan.target?.proses?.satuan_target || '')"></span>
+                    <span class="font-bold text-[#005A9C]" x-text="activeLaporan.realisasi_saat_ini + ' ' + (activeLaporan.target_wilayah?.proses?.satuan_target || '')"></span>
                 </div>
                 <div>
                     <span class="block text-xs text-gray-400 font-semibold">Tautan Bukti</span>
@@ -188,3 +190,5 @@
 
 </div>
 @endsection
+
+
