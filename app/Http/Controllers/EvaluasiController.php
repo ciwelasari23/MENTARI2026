@@ -80,12 +80,12 @@ class EvaluasiController extends Controller
     private function kalkulasiSkorTarget(TrxTargetWilayah $target): array
     {
         $proses = $target->proses;
-        $totalTarget = (int) $target->target_kuantiti;
+        $totalTarget = (int) $target->target_daerah;
 
         // Ambil laporan yang hanya terkait dengan target wilayah ini
         $laporanList = $target->laporans;
         $laporanApproved = $laporanList->where('status_laporan', 'approved');
-        $totalRealisasi = (int) $laporanApproved->sum('realisasi_kuantiti');
+        $totalRealisasi = (int) $laporanApproved->sum('realisasi_saat_ini');
 
         $persentase = ($totalTarget > 0)
             ? round(($totalRealisasi / $totalTarget) * 100, 1)
@@ -119,11 +119,11 @@ class EvaluasiController extends Controller
             $skorKecepatan = 0;
         }
 
-        // 4. Verifikasi Bukti Dukung (Menyesuaikan dengan nama kolom spasi/path)
+        // 4. Verifikasi Bukti Dukung (Menyesuaikan dengan nama kolom)
         $buktiLengkap = false;
         if ($laporanApproved->count() > 0) {
             $buktiAda = $laporanApproved->filter(function ($lap) {
-                return !empty($lap->{'path bukti dukung'}) || !empty($lap->link_bukti) || !empty($lap->file_bukti) || !empty($lap->bukti_dukung);
+                return !empty($lap->path_bukti_dukung) || !empty($lap->link_bukti) || !empty($lap->file_bukti);
             })->count();
             $buktiLengkap = ($buktiAda === $laporanApproved->count());
         }
@@ -135,7 +135,14 @@ class EvaluasiController extends Controller
         }
 
         $totalSkor = (int) max(0, min(100, round($skorTerbobot)));
-        $namaWilayah = $target->wilayah->nama_wilayah ?? 'Semua Wilayah';
+        $namaWilayah = 'Semua Wilayah';
+        if ($target->wilayah) {
+            $namaWilayah = trim(($target->wilayah->nama_provinsi ?? '') . ' ' . ($target->wilayah->kode_nama_kabkota ?? ''));
+            // Jika kosong setelah trim, kembalikan ke default
+            if (empty($namaWilayah)) {
+                $namaWilayah = $target->wilayah->id_wilayah ?? 'Semua Wilayah';
+            }
+        }
 
         return [
             'proses'              => $proses,
