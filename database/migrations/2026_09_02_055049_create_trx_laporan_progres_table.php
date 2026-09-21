@@ -14,6 +14,13 @@ return new class extends Migration
             
             // Ubah ke integer biasa agar kompatibel dengan mst_user.id_user
             $table->integer('id_user_pelapor');
+            
+            // --- Kolom yang ditambahkan ---
+            $table->date('tanggal_lapor')->nullable();
+            $table->string('link_bukti', 255)->nullable();
+            $table->string('file_bukti', 255)->nullable();
+            // ------------------------------
+
             $table->integer('id_user_verifikator')->nullable();
             
             $table->integer('realisasi_saat_ini');
