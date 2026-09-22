@@ -1,66 +1,105 @@
 /* =================================================================
-   PAGINATION MODERN, KECIL, & COMPACT STYLING
+   PAGINATION MODERN & CLEAN STYLING
    ================================================================= */
 
-/* Wrapper utama pagination di sebelah kanan */
+/* Wrapper utama pagination */
 .custom-pagination nav {
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
 
-/* Sembunyikan elemen teks info bawaan Laravel yang tidak terpakai */
-.custom-pagination nav div:nth-child(1) {
+/* Sembunyikan elemen info teks bawaan Laravel (menampilkan baris - dari -) */
+.custom-pagination nav > div:nth-child(1),
+.custom-pagination nav > div:nth-child(2) > div:nth-child(1) {
     display: none !important;
 }
 
-.custom-pagination nav div.hidden.md\:flex {
+/* Pastikan div kontainer tombol mengisi dan rata kanan */
+.custom-pagination nav > div:last-child {
     display: flex !important;
-    width: 100%;
     justify-content: flex-end;
+    width: 100%;
 }
 
-.custom-pagination nav div.hidden.md\:flex > div:nth-child(1) {
-    display: none !important;
+/* Hilangkan bayangan box (shadow) bawaan yang terkadang menyatu di tailwind */
+.custom-pagination nav .shadow-sm {
+    box-shadow: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem; /* Memberikan jarak antar tombol */
+    border: none !important;
+    background: transparent !important;
 }
 
-/* Memperkecil dan merapatkan kotak tombol angka dan panah pagination */
-.custom-pagination nav span, 
-.custom-pagination nav a {
+/* 
+  Targetkan hanya a dan span bagian dalam (yang membungkus angka/ikon),
+  Jangan targetkan span container utama agar tidak turun ke baris baru (layout pecah)
+*/
+.custom-pagination nav .shadow-sm > a,
+.custom-pagination nav .shadow-sm > span[aria-disabled="true"] > span,
+.custom-pagination nav .shadow-sm > span[aria-current="page"] > span {
     position: relative;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    padding: 0.2rem 0.45rem !important; /* Kotak sangat ringkas dan kecil */
-    font-size: 0.7rem !important;
-    line-height: 1rem !important;
-    font-weight: 500;
-    color: #374151;
+    min-width: 32px !important;
+    height: 32px !important;
+    padding: 0 0.5rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600;
+    line-height: 1 !important;
+    color: #4b5563; 
     background-color: #ffffff;
-    border: 1px solid #d1d5db !important;
-    border-radius: 0.25rem !important;
-    margin-left: -1px;
+    border: 1px solid #e5e7eb !important; 
+    border-radius: 0.375rem !important; 
+    margin: 0 !important; 
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
-/* Efek hover pada tombol pagination */
-.custom-pagination nav a:hover {
-    background-color: #f3f4f6 !important;
-    color: #111827;
-    border-color: #9ca3af !important;
+/* Pastikan wrapper span (seperti span panah atau span current) tidak merusak layout */
+.custom-pagination nav .shadow-sm > span {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Efek hover pada tombol pagination yang bisa diklik */
+.custom-pagination nav .shadow-sm > a:hover {
+    background-color: #f9fafb !important;
+    color: #10b981; 
+    border-color: #d1d5db !important;
     z-index: 10;
 }
 
 /* Styling untuk halaman yang sedang aktif */
-.custom-pagination nav span[aria-current="page"] {
-    background-color: #10b981 !important; /* Hijau emerald */
+.custom-pagination nav .shadow-sm > span[aria-current="page"] > span {
+    background-color: #10b981 !important; 
     color: #ffffff !important;
     border-color: #10b981 !important;
     z-index: 20;
 }
 
-/* Memperkecil ukuran ikon panah di tombol pagination */
+/* Styling untuk panah yang disabled (misal sedang di halaman pertama) */
+.custom-pagination nav .shadow-sm > span[aria-disabled="true"] > span {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed;
+    border-color: #e5e7eb !important;
+}
+
+/* Khusus titik-titik (ellipsis) dibuat tanpa border/background transparan */
+.custom-pagination nav .shadow-sm > span[aria-disabled="true"]:not(:has(svg)) > span {
+    background-color: transparent !important;
+    border: none !important;
+    color: #6b7280 !important;
+    min-width: 20px !important;
+}
+
+/* Sesuaikan ukuran ikon panah di tombol pagination */
 .custom-pagination nav svg {
-    width: 0.7rem !important;
-    height: 0.7rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
 }

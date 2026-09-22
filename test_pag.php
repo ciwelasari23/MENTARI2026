@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; \ = require_once 'bootstrap/app.php'; \->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); \ = App\Models\MstWilayah::paginate(15); \->onEachSide(-1); print_r(Illuminate\Pagination\UrlWindow::make(\));

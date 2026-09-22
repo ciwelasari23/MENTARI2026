@@ -38,6 +38,7 @@ class WilayahSeeder extends Seeder
                             'kode_nama_desa'      => isset($row[13]) ? trim($row[13]) : null, 
                             'kode_nama_sls'       => isset($row[3]) ? trim($row[3]) : null, 
                             'kode_nama_sub_sls'   => isset($row[15]) ? trim($row[15]) : null, 
+                            'jumlah_kk'           => isset($row[17]) && is_numeric(trim($row[17])) ? (int) trim($row[17]) : 0,
                             'created_at'          => now(),
                             'updated_at'          => now(),
                         ];

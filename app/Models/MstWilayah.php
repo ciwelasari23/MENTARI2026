@@ -25,7 +25,8 @@ class MstWilayah extends Model
         'kode_nama_kecamatan',
         'kode_nama_desa',
         'kode_nama_sls',
-        'kode_nama_sub_sls'
+        'kode_nama_sub_sls',
+        'jumlah_kk'
     ];
 
     /**
