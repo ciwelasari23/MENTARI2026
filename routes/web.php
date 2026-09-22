@@ -91,6 +91,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/verifikasi/{id}', [VerifikasiLaporanController::class, 'update'])->name('verifikasi.update');
 
     // Master Data: Wilayah
+    Route::get('/master/wilayah/export', [WilayahController::class, 'exportCsv'])->name('wilayah.export');
     Route::get('/master/wilayah', [WilayahController::class, 'index'])->name('wilayah.index');
     Route::post('/master/wilayah', [WilayahController::class, 'store'])->name('wilayah.store');
     Route::post('/master/wilayah/import', [WilayahController::class, 'import'])->name('wilayah.import');
