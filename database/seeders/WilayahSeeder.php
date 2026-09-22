@@ -9,15 +9,54 @@ class WilayahSeeder extends Seeder
 {
     public function run(): void
     {
-        $data = [
-            ['id_wilayah' => '1473', 'kode_wilayah' => '14.73', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KOTA DUMAI'],
-            ['id_wilayah' => '1471', 'kode_wilayah' => '14.71', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KOTA PEKANBARU'],
-            ['id_wilayah' => '1410', 'kode_wilayah' => '14.10', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KAB. ROKAN HILIR'],
-            ['id_wilayah' => '1409', 'kode_wilayah' => '14.09', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KAB. ROKAN HULU'],
-            ['id_wilayah' => '1408', 'kode_wilayah' => '14.08', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KAB. BENGKALIS'],
-            ['id_wilayah' => '1407', 'kode_wilayah' => '14.07', 'nama_provinsi' => 'RIAU', 'kode_nama_kabkota' => 'KAB. KEPULAUAN MERANTI'],
-        ];
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('mst_wilayah')->delete();
 
-        DB::table('mst_wilayah')->insert($data);
+        // Arahkan langsung ke folder database/seeders/data_wilayah.csv
+        $csvFile = database_path('seeders/data_wilayah.csv');
+        
+        if (file_exists($csvFile) && is_readable($csvFile)) {
+            $header = true;
+            $batchData = [];
+            $batchSize = 1000;
+
+            if (($handle = fopen($csvFile, 'r')) !== FALSE) {
+                while (($row = fgetcsv($handle, 2000, ';')) !== FALSE) {
+                    // Lewati baris pertama (header)
+                    if ($header) {
+                        $header = false;
+                        continue;
+                    }
+
+                    // Pastikan index kolom idsubsls (index ke-2) ada
+                    if (isset($row[2]) && !empty(trim($row[2]))) {
+                        $batchData[] = [
+                            'id_wilayah'          => trim($row[2]), 
+                            'nama_provinsi'       => isset($row[7]) ? trim($row[7]) : null, 
+                            'kode_nama_kabkota'   => isset($row[9]) ? trim($row[9]) : null, 
+                            'kode_nama_kecamatan' => isset($row[11]) ? trim($row[11]) : null, 
+                            'kode_nama_desa'      => isset($row[13]) ? trim($row[13]) : null, 
+                            'kode_nama_sls'       => isset($row[3]) ? trim($row[3]) : null, 
+                            'kode_nama_sub_sls'   => isset($row[15]) ? trim($row[15]) : null, 
+                            'created_at'          => now(),
+                            'updated_at'          => now(),
+                        ];
+
+                        if (count($batchData) >= $batchSize) {
+                            DB::table('mst_wilayah')->insert($batchData);
+                            $batchData = [];
+                        }
+                    }
+                }
+                
+                if (!empty($batchData)) {
+                    DB::table('mst_wilayah')->insert($batchData);
+                }
+
+                fclose($handle);
+            }
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

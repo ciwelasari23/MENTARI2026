@@ -15,9 +15,9 @@ class WilayahController extends Controller
     /**
      * Menampilkan daftar master Wilayah dengan fitur filter per kolom dan paginasi.
      */
-    public function index(Request $request): View
+   public function index(Request $request): View
     {
-        $search = $request->input('search'); // Tangkap input search
+        $search = $request->input('search');
         $kabkota = $request->input('kabkota');
         $kecamatan = $request->input('kecamatan');
         $desa = $request->input('desa');
@@ -26,7 +26,6 @@ class WilayahController extends Controller
 
         $query = MstWilayah::query();
 
-        // 1. Logika Filter Pencarian Global (Search Box)
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('id_wilayah', 'LIKE', "%{$search}%")
@@ -40,7 +39,6 @@ class WilayahController extends Controller
             });
         }
 
-        // 2. Logika Filter Berdasarkan Kolom Dropdown
         if ($kabkota) {
             $query->where('kode_nama_kabkota', $kabkota);
         }
@@ -57,7 +55,6 @@ class WilayahController extends Controller
             $query->where('kode_nama_sub_sls', $subSls);
         }
 
-        // 3. Ambil daftar unik untuk opsi dropdown filter di setiap header kolom Blade
         $listKabkota = MstWilayah::select('kode_nama_kabkota')
             ->whereNotNull('kode_nama_kabkota')
             ->where('kode_nama_kabkota', '!=', '')
@@ -93,6 +90,9 @@ class WilayahController extends Controller
             ->orderBy('kode_nama_sub_sls', 'asc')
             ->get();
 
+        // Menghitung total keseluruhan KK
+        $totalKK = (clone $query)->sum('jumlah_kk');
+
         $wilayahs = $query->paginate(15)->withQueryString();
 
         return view('admin.master.wilayah', compact(
@@ -101,7 +101,8 @@ class WilayahController extends Controller
             'listKecamatan', 
             'listDesa', 
             'listSls', 
-            'listSubSls'
+            'listSubSls',
+            'totalKK'
         ));
     }
     /**
@@ -118,6 +119,7 @@ class WilayahController extends Controller
             'kode_nama_desa'      => $request->input('kode_nama_desa') ?? $request->input('desa'),
             'kode_nama_sls'       => $request->input('kode_nama_sls') ?? $request->input('sls'),
             'kode_nama_sub_sls'   => $request->input('kode_nama_sub_sls') ?? $request->input('sub_sls'),
+            'jumlah_kk'           => $request->input('jumlah_kk') ?? 0,
         ];
 
         $validator = Validator::make($data, [
@@ -129,6 +131,7 @@ class WilayahController extends Controller
             'kode_nama_desa'      => 'nullable|string|max:150',
             'kode_nama_sls'       => 'nullable|string|max:150',
             'kode_nama_sub_sls'   => 'nullable|string|max:150',
+            'jumlah_kk'           => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -165,6 +168,7 @@ class WilayahController extends Controller
             'kode_nama_desa'      => 'nullable|string|max:150',
             'kode_nama_sls'       => 'nullable|string|max:150',
             'kode_nama_sub_sls'   => 'nullable|string|max:150',
+            'jumlah_kk'           => 'nullable|numeric',
         ]);
 
         try {

@@ -4,6 +4,9 @@
 @section('header', 'Dashboard Monitoring Utama')
 
 @section('content')
+<!-- Panggil file CSS yang sudah dipisah -->
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+
 <!-- Library Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -14,6 +17,24 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+<!-- Mengambil Parameter URL untuk Label -->
+@php
+    $periodeValue = request('periode');
+    if ($periodeValue) {
+        $periodeLabel = \Carbon\Carbon::createFromFormat('Y-m', $periodeValue)->translatedFormat('F Y');
+    } else {
+        $periodeLabel = 'Semua Periode';
+    }
+@endphp
+
+<!-- Wadah Data Tersembunyi untuk Javascript -->
+<div id="chart-data-container" 
+     data-labels="{{ json_encode($grafikLabels ?? []) }}" 
+     data-bar="{{ json_encode($grafikData ?? []) }}" 
+     data-pie="{{ json_encode($laporanPieData ?? [0,0,0,0]) }}" 
+     class="hidden" style="display: none;">
+</div>
 
 <div class="space-y-6">
 
@@ -27,7 +48,7 @@
             <!-- Label periode terpilih -->
             <div class="text-right hidden sm:block">
                 <p class="text-xs text-gray-400">Periode Dipilih</p>
-                <p class="text-sm font-bold text-[#005A9C]" id="label-periode">September 2026</p>
+                <p class="text-sm font-bold text-[#005A9C]" id="label-periode">{{ $periodeLabel }}</p>
             </div>
             <!-- Input Kalender Flatpickr -->
             <div class="relative">
@@ -38,7 +59,6 @@
                     readonly
                     class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#005A9C] cursor-pointer w-48"
                 >
-                <!-- Ikon Kalender -->
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-[#005A9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -69,7 +89,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Total Kegiatan</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalKegiatan }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">{{ $totalKegiatan ?? 0 }}</h4>
             </div>
         </div>
         <!-- Card 2 -->
@@ -79,7 +99,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Selesai</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalSelesai }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">{{ $totalSelesai ?? 0 }}</h4>
             </div>
         </div>
         <!-- Card 3 -->
@@ -89,7 +109,7 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Dalam Proses</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalProses }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">{{ $totalProses ?? 0 }}</h4>
             </div>
         </div>
         <!-- Card 4 -->
@@ -99,11 +119,10 @@
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-500">Terlambat</p>
-                <h4 class="text-2xl font-bold text-gray-800">{{ $totalTerlambat }}</h4>
+                <h4 class="text-2xl font-bold text-gray-800">{{ $totalTerlambat ?? 0 }}</h4>
             </div>
         </div>
     </div>
-
 
     <!-- Area Grafik: Grid 2 Kolom (Bar Chart + Pie Chart Laporan) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
@@ -123,7 +142,7 @@
                 <canvas id="laporanPieChart"></canvas>
                 <!-- Label Total di tengah Donut -->
                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="text-2xl font-extrabold text-gray-800 leading-none">{{ array_sum($laporanPieData) }}</span>
+                    <span class="text-2xl font-extrabold text-gray-800 leading-none">{{ is_array($laporanPieData) ? array_sum($laporanPieData) : 0 }}</span>
                     <span class="text-xs font-semibold text-gray-400 mt-0.5">Total Laporan</span>
                 </div>
             </div>
@@ -134,28 +153,28 @@
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
                         <p class="font-semibold text-gray-700 truncate">Diajukan</p>
                     </div>
-                    <p class="text-base font-bold text-yellow-600">{{ $laporanPieData[0] }}</p>
+                    <p class="text-base font-bold text-yellow-600">{{ $laporanPieData[0] ?? 0 }}</p>
                 </div>
                 <div>
                     <div class="flex items-center justify-center gap-1 mb-1">
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                         <p class="font-semibold text-gray-700 truncate">Disetujui</p>
                     </div>
-                    <p class="text-base font-bold text-emerald-600">{{ $laporanPieData[1] }}</p>
+                    <p class="text-base font-bold text-emerald-600">{{ $laporanPieData[1] ?? 0 }}</p>
                 </div>
                 <div>
                     <div class="flex items-center justify-center gap-1 mb-1">
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500"></span>
                         <p class="font-semibold text-gray-700 truncate">Revisi</p>
                     </div>
-                    <p class="text-base font-bold text-blue-600">{{ $laporanPieData[2] }}</p>
+                    <p class="text-base font-bold text-blue-600">{{ $laporanPieData[2] ?? 0 }}</p>
                 </div>
                 <div>
                     <div class="flex items-center justify-center gap-1 mb-1">
                         <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span>
                         <p class="font-semibold text-gray-700 truncate">Ditolak</p>
                     </div>
-                    <p class="text-base font-bold text-red-600">{{ $laporanPieData[3] }}</p>
+                    <p class="text-base font-bold text-red-600">{{ $laporanPieData[3] ?? 0 }}</p>
                 </div>
             </div>
         </div>
@@ -180,7 +199,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @forelse($top5Targets as $row)
+                    @forelse($top5Targets ?? [] as $row)
                     @php
                         $barColor = match($row['status']) {
                             'Selesai'     => 'bg-emerald-500',
@@ -204,8 +223,9 @@
                         <td class="p-4 text-center">{{ number_format($row['target']) }}</td>
                         <td class="p-4 text-center">{{ number_format($row['realisasi']) }}</td>
                         <td class="p-4">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="{{ $barColor }} h-2.5 rounded-full" style="width: {{ $row['pct'] }}%"></div>
+                            <!-- Menggunakan atribut data-width untuk menghindari linter CSS editor -->
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                <div class="{{ $barColor }} h-2.5 rounded-full progress-bar-item" data-width="{{ $row['pct'] }}"></div>
                             </div>
                             <div class="text-xs text-right mt-1 font-semibold {{ $pctColor }}">{{ $row['pct'] }}%</div>
                         </td>
@@ -228,46 +248,45 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        // =============================================
-        // Inisialisasi Flatpickr - Kalender Bulan/Tahun
-        // =============================================
+        // Mengatur lebar progress bar secara dinamis via JS (Bebas dari linter CSS)
+        document.querySelectorAll('.progress-bar-item').forEach(function(el) {
+            const width = el.getAttribute('data-width');
+            el.style.width = width + '%';
+        });
+
+        const dataContainer = document.getElementById('chart-data-container');
+        const parsedLabels = JSON.parse(dataContainer.dataset.labels || '[]');
+        const parsedBarData = JSON.parse(dataContainer.dataset.bar || '[]');
+        const parsedPieData = JSON.parse(dataContainer.dataset.pie || '[0,0,0,0]');
+
         flatpickr("#filterKalender", {
             locale: "id",
             plugins: [
                 new monthSelectPlugin({
                     shorthand: false,
-                    dateFormat: "F Y",
-                    altFormat: "F Y",
+                    dateFormat: "Y-m", 
+                    altFormat: "F Y",  
                     theme: "material_blue"
                 })
             ],
-            defaultDate: new Date(),
+            defaultDate: "{{ request('periode', '') }}",
             disableMobile: true,
             onChange: function(selectedDates, dateStr) {
-                document.getElementById('label-periode').textContent = dateStr;
+                window.location.href = window.location.pathname + "?periode=" + dateStr;
             }
         });
 
-        // =============================================
-        // Fungsi Reset Filter Kalender
-        // =============================================
         window.resetFilter = function() {
-            const fp = document.querySelector("#filterKalender")._flatpickr;
-            fp.clear();
-            document.getElementById('label-periode').textContent = 'Semua Periode';
-            document.getElementById('filterKalender').placeholder = 'Pilih Bulan & Tahun';
+            window.location.href = window.location.pathname;
         };
 
-        // =============================================
-        // Grafik Bar: Data dari Controller (Dinamis)
-        // =============================================
         const ctx = document.getElementById('capaianChart').getContext('2d');
 
         const chartData = {
-            labels: {!! json_encode($grafikLabels) !!},
+            labels: parsedLabels,
             datasets: [{
                 label: 'Rata-rata Capaian (%)',
-                data: {!! json_encode($grafikData) !!},
+                data: parsedBarData,
                 backgroundColor: '#005A9C',
                 borderRadius: 4,
                 barThickness: 24
@@ -317,18 +336,13 @@
 
         new Chart(ctx, config);
 
-
-
-        // =============================================
-        // Donut Chart 2: Status Laporan Masuk
-        // =============================================
         const ctxLaporan = document.getElementById('laporanPieChart').getContext('2d');
 
         const laporanData = {
             labels: ['Diajukan', 'Disetujui', 'Perlu Revisi', 'Ditolak'],
             datasets: [{
-                data: [{{ $laporanPieData[0] }}, {{ $laporanPieData[1] }}, {{ $laporanPieData[2] }}, {{ $laporanPieData[3] }}],
-                backgroundColor: ['#facc15', '#10b981', '#3b82f6', '#ef4444'], // yellow, emerald, blue, red
+                data: parsedPieData,
+                backgroundColor: ['#facc15', '#10b981', '#3b82f6', '#ef4444'], 
                 borderColor: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'],
                 borderWidth: 3,
                 hoverOffset: 8

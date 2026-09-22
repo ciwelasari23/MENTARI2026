@@ -6,314 +6,202 @@
 
 @section('content')
 
+<!-- Tambahkan CDN DataTables & CSS Kustom Wilayah -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+<link rel="stylesheet" href="{{ asset('css/wilayah.css') }}">
+
+<!-- CARD FILTER UTAMA DI ATAS -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="mb-4">
+        <h2 class="text-base font-bold text-gray-800">Filter & Pencarian Wilayah</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Saring data wilayah berdasarkan Kabupaten/Kota, Kecamatan, atau kata kunci tertentu.</p>
+    </div>
+
+    <form action="{{ route('admin.wilayah.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <!-- Filter Kab/Kota -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Kabupaten/Kota</label>
+            <select name="kabkota" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="">Semua Kab/Kota</option>
+                <?php if(isset($listKabkota)): ?>
+                    <?php foreach($listKabkota as $kab): ?>
+                        <?php if(!empty($kab->kode_nama_kabkota)): ?>
+                            <option value="{{ $kab->kode_nama_kabkota }}" {{ request('kabkota') == $kab->kode_nama_kabkota ? 'selected' : '' }}>
+                                {{ $kab->kode_nama_kabkota }}
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <!-- Filter Kecamatan -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Kecamatan</label>
+            <select name="kecamatan" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="">Semua Kecamatan</option>
+                <?php if(isset($listKecamatan)): ?>
+                    <?php foreach($listKecamatan as $kec): ?>
+                        <?php if(!empty($kec->kode_nama_kecamatan)): ?>
+                            <option value="{{ $kec->kode_nama_kecamatan }}" {{ request('kecamatan') == $kec->kode_nama_kecamatan ? 'selected' : '' }}>
+                                {{ $kec->kode_nama_kecamatan }}
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <!-- Filter Desa/Kel -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Desa/Kel</label>
+            <select name="desa" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="">Semua Desa</option>
+                <?php if(isset($listDesa)): ?>
+                    <?php foreach($listDesa as $ds): ?>
+                        <?php if(!empty($ds->kode_nama_desa)): ?>
+                            <option value="{{ $ds->kode_nama_desa }}" {{ request('desa') == $ds->kode_nama_desa ? 'selected' : '' }}>
+                                {{ $ds->kode_nama_desa }}
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+
+        <!-- Pencarian Teks Bebas -->
+        <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Cari Wilayah / ID</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <!-- Tombol Aksi Filter (Terapkan & Reset) -->
+        <div class="lg:col-span-4 flex items-center justify-end gap-2 pt-2">
+            <button type="submit" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition shadow-sm flex items-center gap-1.5">
+                Terapkan
+            </button>
+            <?php if(request('kabkota') || request('kecamatan') || request('desa') || request('search')): ?>
+                <a href="{{ route('admin.wilayah.index') }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
+                    Reset
+                </a>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
+<!-- KOTAK STATISTIK RINGKASAN DATA DI ATAS TABEL -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Total Data</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ method_exists($wilayahs, 'total') ? number_format($wilayahs->total(), 0, ',', '.') : count($wilayahs) }}</h3>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Provinsi</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">1</h3>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Kabupaten/Kota</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ isset($listKabkota) ? count($listKabkota) : 0 }}</h3>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Kecamatan</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ isset($listKecamatan) ? count($listKecamatan) : 0 }}</h3>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Desa/Kelurahan</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ isset($listDesa) ? count($listDesa) : 0 }}</h3>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <span class="text-xs font-semibold text-gray-400 uppercase">Total KK</span>
+        <h3 class="text-xl font-bold text-gray-800 mt-1">{{ isset($totalKK) ? number_format($totalKK, 0, ',', '.') : '-' }}</h3>
+    </div>
+</div>
+
+<!-- KONTEN TABEL & DAFTAR WILAYAH -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h2 class="text-lg font-bold text-gray-800">Daftar Wilayah</h2>
-        
-        <div class="flex items-center gap-3">
-            <div id="bulkDeleteContainer" class="hidden">
-                <form id="bulkDeleteForm" action="{{ route('admin.wilayah.bulkDestroy') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name="ids" id="selectedIds">
-                    <button type="button" onclick="confirmBulkDelete()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold transition">
-                        Hapus Terpilih (<span id="selectedCount">0</span>)
-                    </button>
-                </form>
-            </div>
-
-            <!-- FORM PENCARIAN TEKS -->
-            <form action="{{ route('admin.wilayah.index') }}" method="GET" class="flex items-center gap-2">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari wilayah..." class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-semibold transition flex items-center justify-center" title="Cari">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
-                @if(request('search'))
-                    <a href="{{ route('admin.wilayah.index') }}" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-300 transition flex items-center">Reset</a>
-                @endif
-            </form>
-
-            <button onclick="openModal('modalTambah')" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-md text-sm font-semibold transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Tambah Wilayah
-            </button>
+        <div>
+            <h2 class="text-lg font-bold text-gray-800">Daftar Wilayah Administrasi</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola data wilayah secara interaktif melalui tabel di bawah ini.</p>
+        </div>
+        <div>
+            <a href="#" onclick="alert('Fitur Ekspor CSV'); return false;" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 border border-gray-200 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export CSV
+            </a>
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert-box bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-sm transition-opacity duration-500">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-box bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm transition-opacity duration-500">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <div class="overflow-x-auto border border-gray-100 rounded-lg mt-2 min-h-[300px]">
-        <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+    <div class="overflow-x-auto border border-gray-100 rounded-lg mt-2">
+        <table id="wilayahTable" class="w-full text-left border-collapse text-sm whitespace-nowrap">
             <thead>
-                <tr class="bg-gray-50 border-b text-gray-600 font-semibold">
-                    <th class="p-4 w-12 text-center">
-                        <input type="checkbox" id="checkAll" class="rounded border-gray-300 text-blue-600 cursor-pointer">
-                    </th>
-                    <th class="p-4 text-center">No</th>
-                    <th class="p-4">ID</th>
+                <tr class="bg-gray-50 border-b text-gray-600 font-semibold text-xs uppercase tracking-wider">
+                    <th class="p-4 text-center w-16">No</th>
+                    <th class="p-4">IDSubSls</th>
                     <th class="p-4">Provinsi</th>
-                    
-                    <!-- Filter Kab/Kota -->
-                    <th class="p-4 relative">
-                        <div class="flex items-center justify-between gap-2">
-                            <span>Kab/Kota</span>
-                            <button type="button" onclick="toggleDropdown(event, 'filterKabkota')" class="text-gray-500 hover:text-blue-600 focus:outline-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </div>
-                        <div id="filterKabkota" class="hidden absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                            <a href="{{ route('admin.wilayah.index') }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">Pilih Semua</a>
-                            @if(isset($listKabkota))
-                                @foreach($listKabkota as $kab)
-                                    @if(!empty($kab->kode_nama_kabkota))
-                                        <a href="{{ route('admin.wilayah.index', ['kabkota' => $kab->kode_nama_kabkota]) }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">
-                                            {{ $kab->kode_nama_kabkota }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </th>
-
-                    <!-- Filter Kecamatan -->
-                    <th class="p-4 relative">
-                        <div class="flex items-center justify-between gap-2">
-                            <span>Kecamatan</span>
-                            <button type="button" onclick="toggleDropdown(event, 'filterKecamatan')" class="text-gray-500 hover:text-blue-600 focus:outline-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </div>
-                        <div id="filterKecamatan" class="hidden absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                            <a href="{{ route('admin.wilayah.index') }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">Pilih Semua</a>
-                            @if(isset($listKecamatan))
-                                @foreach($listKecamatan as $kec)
-                                    @if(!empty($kec->kode_nama_kecamatan))
-                                        <a href="{{ route('admin.wilayah.index', ['kecamatan' => $kec->kode_nama_kecamatan]) }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">
-                                            {{ $kec->kode_nama_kecamatan }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </th>
-
-                    <!-- Filter Desa/Kel -->
-                    <th class="p-4 relative">
-                        <div class="flex items-center justify-between gap-2">
-                            <span>Desa/Kel</span>
-                            <button type="button" onclick="toggleDropdown(event, 'filterDesa')" class="text-gray-500 hover:text-blue-600 focus:outline-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </div>
-                        <div id="filterDesa" class="hidden absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                            <a href="{{ route('admin.wilayah.index') }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">Pilih Semua</a>
-                            @if(isset($listDesa))
-                                @foreach($listDesa as $ds)
-                                    @if(!empty($ds->kode_nama_desa))
-                                        <a href="{{ route('admin.wilayah.index', ['desa' => $ds->kode_nama_desa]) }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">
-                                            {{ $ds->kode_nama_desa }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </th>
-
-                    <!-- Filter SLS -->
-                    <th class="p-4 relative">
-                        <div class="flex items-center justify-between gap-2">
-                            <span>SLS/RT/RW</span>
-                            <button type="button" onclick="toggleDropdown(event, 'filterSls')" class="text-gray-500 hover:text-blue-600 focus:outline-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </div>
-                        <div id="filterSls" class="hidden absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                            <a href="{{ route('admin.wilayah.index') }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">Pilih Semua</a>
-                            @if(isset($listSls))
-                                @foreach($listSls as $sls)
-                                    @if(!empty($sls->kode_nama_sls))
-                                        <a href="{{ route('admin.wilayah.index', ['sls' => $sls->kode_nama_sls]) }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">
-                                            {{ $sls->kode_nama_sls }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </th>
-
-                    <!-- Filter Sub SLS -->
-                    <th class="p-4 relative">
-                        <div class="flex items-center justify-between gap-2">
-                            <span>Sub SLS</span>
-                            <button type="button" onclick="toggleDropdown(event, 'filterSubSls')" class="text-gray-500 hover:text-blue-600 focus:outline-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </div>
-                        <div id="filterSubSls" class="hidden absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 max-h-48 overflow-y-auto">
-                            <a href="{{ route('admin.wilayah.index') }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">Pilih Semua</a>
-                            @if(isset($listSubSls))
-                                @foreach($listSubSls as $sub)
-                                    @if(!empty($sub->kode_nama_sub_sls))
-                                        <a href="{{ route('admin.wilayah.index', ['sub_sls' => $sub->kode_nama_sub_sls]) }}" class="block px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 rounded">
-                                            {{ $sub->kode_nama_sub_sls }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </th>
-
+                    <th class="p-4">Kab/Kota</th>
+                    <th class="p-4">Kecamatan</th>
+                    <th class="p-4">Desa/Kel</th>
+                    <th class="p-4">SLS/RT/RW</th>
+                    <th class="p-4">Sub SLS</th>
+                    <th class="p-4 text-center">KK</th>
                     <th class="p-4 text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                @forelse($wilayahs as $index =>$item)
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4 text-center">
-                        <input type="checkbox" class="row-checkbox rounded border-gray-300 cursor-pointer" value="{{ $item->id_wilayah }}">
-                    </td>
-                    <td class="p-4 text-center font-medium">{{ $wilayahs->firstItem() +$index }}</td>
-                    <td class="p-4 text-gray-500 font-semibold">{{ $item->id_wilayah }}</td>
-                    <td class="p-4 font-semibold text-gray-800">{{ $item->nama_provinsi ?? '-' }}</td>
-                    <td class="p-4 text-gray-700">{{ $item->kode_nama_kabkota ?? '-' }}</td>
-                    <td class="p-4 text-gray-600">{{ $item->kode_nama_kecamatan ?? '-' }}</td>
-                    <td class="p-4 text-gray-600">{{ $item->kode_nama_desa ?? '-' }}</td>
-                    <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sls ?? '-' }}</td>
-                    <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sub_sls ?? '-' }}</td>
-                    <td class="p-4">
-                        <div class="flex items-center justify-center gap-1">
-                            <button type="button" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded-md transition-colors btn-detail" data-item='@json($item)' title="Detail">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            <tbody class="divide-y divide-gray-100">
+                <?php if(isset($wilayahs) && count($wilayahs) > 0): ?>
+                    <?php foreach($wilayahs as $index => $item): ?>
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 text-center font-medium text-gray-600">{{ method_exists($wilayahs, 'firstItem') ? $wilayahs->firstItem() + $index : $index + 1 }}</td>
+                        <td class="p-4 text-gray-600 font-mono font-semibold">{{ $item->id_wilayah }}</td>
+                        <td class="p-4 font-semibold text-gray-800">{{ $item->nama_provinsi ?? '-' }}</td>
+                        <td class="p-4 text-gray-700">{{ $item->kode_nama_kabkota ?? '-' }}</td>
+                        <td class="p-4 text-gray-600">{{ $item->kode_nama_kecamatan ?? '-' }}</td>
+                        <td class="p-4 text-gray-600">{{ $item->kode_nama_desa ?? '-' }}</td>
+                        <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sls ?? '-' }}</td>
+                        <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sub_sls ?? '-' }}</td>
+                        <!-- Kolom KK diisi dari kolom jumlah_kk di database/CSV -->
+                       <!-- Kolom KK pada Tabel -->
+                        <td class="p-4 text-center font-mono text-gray-700">
+                            {{ isset($item->jumlah_kk) ? number_format($item->jumlah_kk, 0, ',', '.') : '-' }}
+                        </td>
+                        <td class="p-4 text-center">
+                            <button type="button" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 px-3 py-1 rounded text-xs font-semibold transition btn-detail" data-item='@json($item)'>
+                                Lihat Peta
                             </button>
-                            <button type="button" class="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-md transition-colors btn-edit" data-item='@json($item)' title="Edit">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            </button>
-                            <form action="{{ route('admin.wilayah.destroy', $item->id_wilayah) }}" method="POST" class="inline m-0" onsubmit="return confirm('Yakin ingin menghapus data wilayah ini?');">
-                                @csrf 
-                                @method('DELETE')
-                                <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-md transition-colors" title="Hapus">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10" class="p-8 text-center text-gray-400">Belum ada data wilayah. Silahkan tambah data.</td>
-                </tr>
-                @endforelse
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="10" class="p-8 text-center text-gray-400">Belum ada data wilayah.</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
     
-    <div class="mt-4">
-        {{ $wilayahs->links() }}
+    <!-- PAGINATION RINGKAS & KECIL -->
+    <div class="mt-4 pt-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div class="text-gray-500 text-[11px]">
+            @if(method_exists($wilayahs, 'total'))
+                Menampilkan <span class="font-semibold text-gray-700">{{ $wilayahs->firstItem() ?? 0 }}</span> - <span class="font-semibold text-gray-700">{{ $wilayahs->lastItem() ?? 0 }}</span> dari <span class="font-semibold text-gray-700">{{ number_format($wilayahs->total(), 0, ',', '.') }}</span> data
+            @endif
+        </div>
+        <div class="custom-pagination">
+            {{ method_exists($wilayahs, 'onEachSide') ? $wilayahs->onEachSide(1)->links() : '' }}
+        </div>
     </div>
 </div>
 
-<!-- MODAL TAMBAH DATA -->
-<div id="modalTambah" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-lg font-bold mb-4">Tambah Master Wilayah</h3>
-        <form action="{{ route('admin.wilayah.store') }}" method="POST">
-            @csrf
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                    <label class="block font-medium mb-1">ID Wilayah *</label>
-                    <input type="text" name="id_wilayah" placeholder="1401010005000101" required class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Provinsi *</label>
-                    <input type="text" name="nama_provinsi" placeholder="RIAU" required class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kab/Kota</label>
-                    <input type="text" name="kode_nama_kabkota" placeholder="KUANTAN SINGINGI" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kecamatan</label>
-                    <input type="text" name="kode_nama_kecamatan" placeholder="KUANTAN MUDIK" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Desa/Kel</label>
-                    <input type="text" name="kode_nama_desa" placeholder="PANTAI" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kode SLS / RT / RW</label>
-                    <input type="text" name="kode_nama_sls" placeholder="0001" class="w-full border rounded p-2 font-mono">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kode Sub SLS</label>
-                    <input type="text" name="kode_nama_sub_sls" placeholder="00" class="w-full border rounded p-2 font-mono">
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal('modalTambah')" class="px-4 py-2 border rounded text-gray-600">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-[#10b981] text-white rounded font-semibold">Simpan</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL EDIT DATA -->
-<div id="modalEdit" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-lg font-bold mb-4">Edit Master Wilayah</h3>
-        <form id="formEdit" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                    <label class="block font-medium mb-1">Provinsi *</label>
-                    <input type="text" id="edit_nama_provinsi" name="nama_provinsi" required class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kab/Kota</label>
-                    <input type="text" id="edit_kode_nama_kabkota" name="kode_nama_kabkota" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kecamatan</label>
-                    <input type="text" id="edit_kode_nama_kecamatan" name="kode_nama_kecamatan" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Desa/Kel</label>
-                    <input type="text" id="edit_kode_nama_desa" name="kode_nama_desa" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kode SLS / RT / RW</label>
-                    <input type="text" id="edit_kode_nama_sls" name="kode_nama_sls" class="w-full border rounded p-2 font-mono">
-                </div>
-                <div>
-                    <label class="block font-medium mb-1">Kode Sub SLS</label>
-                    <input type="text" id="edit_kode_nama_sub_sls" name="kode_nama_sub_sls" class="w-full border rounded p-2 font-mono">
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal('modalEdit')" class="px-4 py-2 border rounded text-gray-600">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-[#eab308] text-white rounded font-semibold">Perbarui</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL DETAIL DATA -->
+<!-- MODAL DETAIL PETA -->
 <div id="modalDetail" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h3 class="text-lg font-bold mb-4">Detail Master Wilayah</h3>
+    <div class="bg-white rounded-xl max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-xl">
+        <h3 class="text-lg font-bold mb-4 text-gray-800">Detail Peta Wilayah</h3>
         <div class="space-y-3 text-sm">
             <div class="flex border-b pb-2">
-                <span class="w-40 font-medium text-gray-500">ID Wilayah</span>
-                <span id="detail_id_wilayah" class="font-semibold text-gray-800">-</span>
+                <span class="w-40 font-medium text-gray-500">IDSubSls</span>
+                <span id="detail_id_wilayah" class="font-mono font-semibold text-gray-800">-</span>
             </div>
             <div class="flex border-b pb-2">
                 <span class="w-40 font-medium text-gray-500">Provinsi</span>
@@ -331,133 +219,42 @@
                 <span class="w-40 font-medium text-gray-500">Desa/Kel</span>
                 <span id="detail_kode_nama_desa" class="text-gray-800">-</span>
             </div>
-            <div class="flex border-b pb-2">
-                <span class="w-40 font-medium text-gray-500">SLS / RT / RW</span>
-                <span id="detail_kode_nama_sls" class="font-mono text-gray-800">-</span>
-            </div>
-            <div class="flex pb-2">
-                <span class="w-40 font-medium text-gray-500">Sub SLS</span>
-                <span id="detail_kode_nama_sub_sls" class="font-mono text-gray-800">-</span>
-            </div>
         </div>
         <div class="flex justify-end mt-6">
-            <button type="button" onclick="closeModal('modalDetail')" class="px-4 py-2 bg-gray-500 text-white rounded font-semibold">Tutup</button>
+            <button type="button" onclick="closeModal('modalDetail')" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm font-semibold transition">Tutup</button>
         </div>
     </div>
 </div>
 
+<!-- jQuery & DataTables JS CDN -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
 <script>
-    setTimeout(function() {
-        const alertBoxes = document.querySelectorAll('.alert-box');
-        alertBoxes.forEach(alertBox => {
-            alertBox.style.opacity = '0';
-            setTimeout(() => alertBox.remove(), 500);
-        });
-    }, 3000);
-
-    function toggleDropdown(e, id) {
-        e.stopPropagation();
-        const dropdown = document.getElementById(id);
-        document.querySelectorAll('[id^="filter"]').forEach(el => {
-            if (el.id !== id) el.classList.add('hidden');
-        });
-        dropdown.classList.toggle('hidden');
-    }
-
-    window.addEventListener('click', function() {
-        document.querySelectorAll('[id^="filter"]').forEach(el => {
-            el.classList.add('hidden');
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Event Listener untuk Tombol Edit
-        document.querySelectorAll('.btn-edit').forEach(button => {
-            button.addEventListener('click', function() {
-                const data = JSON.parse(this.getAttribute('data-item'));
-                openEditModal(data);
-            });
-        });
-
-        // Event Listener untuk Tombol Detail
-        document.querySelectorAll('.btn-detail').forEach(button => {
-            button.addEventListener('click', function() {
-                const data = JSON.parse(this.getAttribute('data-item'));
-                openDetailModal(data);
-            });
-        });
-
-        const checkAll = document.getElementById('checkAll');
-        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-        const bulkDeleteContainer = document.getElementById('bulkDeleteContainer');
-        const selectedCountSpan = document.getElementById('selectedCount');
-
-        if(checkAll) {
-            checkAll.addEventListener('change', function() {
-                rowCheckboxes.forEach(cb => {
-                    cb.checked = this.checked;
-                });
-                updateBulkDeleteButton();
-            });
-        }
-
-        rowCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                updateBulkDeleteButton();
-                const allChecked = Array.from(rowCheckboxes).every(c => c.checked);
-                const someChecked = Array.from(rowCheckboxes).some(c => c.checked);
-                checkAll.checked = allChecked;
-                checkAll.indeterminate = someChecked && !allChecked;
-            });
-        });
-
-        function updateBulkDeleteButton() {
-            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            if (checkedBoxes.length > 0) {
-                bulkDeleteContainer.classList.remove('hidden');
-                bulkDeleteContainer.classList.add('block');
-                selectedCountSpan.textContent = checkedBoxes.length;
-            } else {
-                bulkDeleteContainer.classList.add('hidden');
-                bulkDeleteContainer.classList.remove('block');
+    $(document).ready(function() {
+        $('#wilayahTable').DataTable({
+            "paging": false,
+            "info": false,
+            "searching": false,
+            "ordering": true,
+            "columnDefs": [
+                { "orderable": false, "targets": [0, 9] }
+            ],
+            "language": {
+                "emptyTable": "Belum ada data wilayah."
             }
-        }
+        });
+
+        $(document).on('click', '.btn-detail', function() {
+            const data = JSON.parse($(this).attr('data-item'));
+            openDetailModal(data);
+        });
     });
-
-    function confirmBulkDelete() {
-        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-        if (checkedBoxes.length === 0) return;
-
-        if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} data terpilih secara permanen?`)) {
-            const ids = Array.from(checkedBoxes).map(cb => cb.value);
-            document.getElementById('selectedIds').value = ids.join(',');
-            document.getElementById('bulkDeleteForm').submit();
-        }
-    }
-
-    function openModal(id) {
-        document.getElementById(id).classList.remove('hidden');
-        document.getElementById(id).classList.add('flex');
-    }
 
     function closeModal(id) {
         document.getElementById(id).classList.add('hidden');
         document.getElementById(id).classList.remove('flex');
-    }
-
-    function openEditModal(data) {
-        let updateUrl = "{{ route('admin.wilayah.update', ':id') }}";
-        updateUrl = updateUrl.replace(':id', data.id_wilayah);
-        
-        document.getElementById('formEdit').action = updateUrl;
-        document.getElementById('edit_nama_provinsi').value = data.nama_provinsi ?? '';
-        document.getElementById('edit_kode_nama_kabkota').value = data.kode_nama_kabkota ?? '';
-        document.getElementById('edit_kode_nama_kecamatan').value = data.kode_nama_kecamatan ?? '';
-        document.getElementById('edit_kode_nama_desa').value = data.kode_nama_desa ?? '';
-        document.getElementById('edit_kode_nama_sls').value = data.kode_nama_sls ?? '';
-        document.getElementById('edit_kode_nama_sub_sls').value = data.kode_nama_sub_sls ?? '';
-        
-        openModal('modalEdit');
     }
 
     function openDetailModal(data) {
@@ -466,10 +263,9 @@
         document.getElementById('detail_kode_nama_kabkota').innerText = data.kode_nama_kabkota ?? '-';
         document.getElementById('detail_kode_nama_kecamatan').innerText = data.kode_nama_kecamatan ?? '-';
         document.getElementById('detail_kode_nama_desa').innerText = data.kode_nama_desa ?? '-';
-        document.getElementById('detail_kode_nama_sls').innerText = data.kode_nama_sls ?? '-';
-        document.getElementById('detail_kode_nama_sub_sls').innerText = data.kode_nama_sub_sls ?? '-';
         
-        openModal('modalDetail');
+        document.getElementById('modalDetail').classList.remove('hidden');
+        document.getElementById('modalDetail').classList.add('flex');
     }
 </script>
 @endsection

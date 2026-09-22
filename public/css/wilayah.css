@@ -1,0 +1,66 @@
+/* =================================================================
+   PAGINATION MODERN, KECIL, & COMPACT STYLING
+   ================================================================= */
+
+/* Wrapper utama pagination di sebelah kanan */
+.custom-pagination nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Sembunyikan elemen teks info bawaan Laravel yang tidak terpakai */
+.custom-pagination nav div:nth-child(1) {
+    display: none !important;
+}
+
+.custom-pagination nav div.hidden.md\:flex {
+    display: flex !important;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.custom-pagination nav div.hidden.md\:flex > div:nth-child(1) {
+    display: none !important;
+}
+
+/* Memperkecil dan merapatkan kotak tombol angka dan panah pagination */
+.custom-pagination nav span, 
+.custom-pagination nav a {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem 0.45rem !important; /* Kotak sangat ringkas dan kecil */
+    font-size: 0.7rem !important;
+    line-height: 1rem !important;
+    font-weight: 500;
+    color: #374151;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.25rem !important;
+    margin-left: -1px;
+    transition: all 0.2s ease;
+}
+
+/* Efek hover pada tombol pagination */
+.custom-pagination nav a:hover {
+    background-color: #f3f4f6 !important;
+    color: #111827;
+    border-color: #9ca3af !important;
+    z-index: 10;
+}
+
+/* Styling untuk halaman yang sedang aktif */
+.custom-pagination nav span[aria-current="page"] {
+    background-color: #10b981 !important; /* Hijau emerald */
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+    z-index: 20;
+}
+
+/* Memperkecil ukuran ikon panah di tombol pagination */
+.custom-pagination nav svg {
+    width: 0.7rem !important;
+    height: 0.7rem !important;
+}
