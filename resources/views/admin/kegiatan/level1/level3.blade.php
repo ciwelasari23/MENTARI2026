@@ -7,14 +7,51 @@
 <div class="space-y-6" x-data="{ modalTambah: false, selected: [], selectAll: false }">
     
     <div class="flex flex-wrap gap-4 justify-between items-center card-container">
-        <h3 class="text-lg font-bold text-gray-800">Daftar Detail Kegiatan (Level 3)</h3>
+        <h3 class="text-lg font-bold text-gray-800">Daftar Detail Kegiatan</h3>
         
         <div class="flex items-center gap-2">
-            <form action="{{ route('admin.level3.index') }}" method="GET" class="flex gap-2 mr-4">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama detail..." class="form-input w-48">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm flex items-center justify-center transition-colors" title="Cari">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
+            <form action="{{ route('admin.level3.index') }}" method="GET" class="flex flex-wrap gap-2 items-center mr-2">
+                
+                <div class="relative" x-data="{ 
+                    open: false, 
+                    searchQuery: '{{ request('search') }}',
+                    // Mengambil semua nama unik dari data detail kegiatan yang ada di tabel
+                    items: {{ json_encode($details->pluck('nama_keg_detail')->unique()->values()) }},
+                    get filteredItems() {
+                        if (this.searchQuery === '') return this.items;
+                        return this.items.filter(i => i.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                    }
+                }" @click.away="open = false">
+                    
+                    <!-- Kotak Dropdown Utama -->
+                    <div @click="open = !open" class="form-input bg-white cursor-pointer flex items-center justify-between min-w-[280px] text-sm py-2">
+                        <span x-text="searchQuery || '-- Cari Detail Kegiatan --'" :class="{'text-gray-400': !searchQuery, 'text-gray-800 font-medium': searchQuery}"></span>
+                        <svg class="w-4 h-4 text-gray-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+
+                    <input type="hidden" name="search" x-model="searchQuery">
+                    <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+                        <input type="text" x-model="searchQuery" @keydown.enter.prevent="$el.closest('form').submit()" placeholder="Ketik nama detail..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        
+                        <ul>
+                            <li @click="searchQuery = ''; open = false; $el.closest('form').submit()" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">-- Tampilkan Semua --</li>
+                            <template x-for="item in filteredItems" :key="item">
+                                <li @click="searchQuery = item; open = false; $el.closest('form').submit()" 
+                                    class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
+                                    <span x-text="item"></span>
+                                </li>
+                            </template>
+
+                            <li x-show="searchQuery !== '' && !items.includes(searchQuery)" 
+                                @click="open = false; $el.closest('form').submit()" 
+                                class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded cursor-pointer text-sm font-semibold mt-1 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                Cari: "<span x-text="searchQuery"></span>"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 @if(request('search'))
                     <a href="{{ route('admin.level3.index') }}" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 flex items-center">Reset</a>
                 @endif
@@ -42,7 +79,6 @@
         </div>
     @endif
 
-    <!-- PENANGKAP ERROR VALIDASI -->
     @if($errors->any())
         <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-md shadow-sm">
             <div class="flex">
@@ -64,8 +100,7 @@
                 <tr class="bg-gray-50 border-b text-gray-600">
                     <th class="p-3 w-10 text-center"><input type="checkbox" x-model="selectAll" @change="selected = selectAll ? {{ json_encode($details->pluck('id_keg_detail')->map(fn($id) => (string)$id)) }} : []" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></th>
                     <th class="p-3 w-12 text-center">No</th>
-                    <th class="p-3">Kegiatan Induk (Level 2)</th>
-                    <th class="p-3">Detail Kegiatan (Level 3)</th>
+                    <th class="p-3">Detail Kegiatan</th>
                     <th class="p-3">Jadwal Pelaksanaan</th>
                     <th class="p-3">Target</th>
                     <th class="p-3 text-center">Aksi</th>
@@ -76,8 +111,20 @@
                 <tr class="border-b hover:bg-gray-50" x-data="{ modalEdit: false, modalDetail: false, modalHapus: false }">
                     <td class="p-3 text-center"><input type="checkbox" x-model="selected" value="{{ $item->id_keg_detail }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></td>
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
-                    <td class="p-3 text-gray-600">{{ $item->kegiatan->nama_kegiatan ?? '-' }}</td>
-                    <td class="p-3 font-semibold text-gray-800">{{ $item->nama_keg_detail }}</td>
+                    
+                    <!-- Kolom Kegiatan Induk digabung ke Detail Kegiatan -->
+                    <td class="p-3 font-semibold text-gray-800">
+                        {{ $item->nama_keg_detail }} 
+                        @if($item->kegiatan)
+                            <span class="text-gray-500 font-normal text-xs block mt-0.5">
+                                ({{ $item->kegiatan->nama_kegiatan ?? '-' }} 
+                                @if($item->kegiatan->output)
+                                    | {{ $item->kegiatan->output->nama_output }}
+                                @endif)
+                            </span>
+                        @endif
+                    </td>
+
                     <td class="p-3 text-xs text-gray-600">
                         {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }} - 
                         {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d M Y') }}
@@ -103,14 +150,14 @@
                         <div x-show="modalDetail" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 text-left" style="display: none;">
                             <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Informasi Detail Kegiatan Level 3</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="md:col-span-2">
-                                        <label class="form-label text-gray-500">Kegiatan Induk (Level 2)</label>
-                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->kegiatan->nama_kegiatan ?? 'Tidak ada data' }}</div>
-                                    </div>
+                                <div class="space-y-3 text-sm">
                                     <div class="md:col-span-2">
                                         <label class="form-label text-gray-500">Nama Detail Kegiatan</label>
                                         <div class="form-input bg-gray-50 font-semibold">{{ $item->nama_keg_detail }}</div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="form-label text-gray-500">Kegiatan Induk (Level 2)</label>
+                                        <div class="form-input bg-gray-50 font-semibold">{{ $item->kegiatan->nama_kegiatan ?? 'Tidak ada data' }} @if($item->kegiatan && $item->kegiatan->output) (| {{ $item->kegiatan->output->nama_output }}) @endif</div>
                                     </div>
                                     <div>
                                         <label class="form-label text-gray-500">Tanggal Mulai</label>
@@ -142,7 +189,9 @@
                                             <label class="form-label">Pilih Kegiatan Induk (Level 2)</label>
                                             <select name="id_kegiatan" required class="form-input">
                                                 @foreach($kegiatanList as $keg)
-                                                    <option value="{{ $keg->id_kegiatan }}" {{ $item->id_kegiatan == $keg->id_kegiatan ? 'selected' : '' }}>{{ $keg->nama_kegiatan }}</option>
+                                                    <option value="{{ $keg->id_kegiatan }}" {{ $item->id_kegiatan == $keg->id_kegiatan ? 'selected' : '' }}>
+                                                        {{ $keg->nama_kegiatan }} @if($keg->output) | {{ $keg->output->nama_output }} @endif
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -206,9 +255,9 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="p-6 text-center text-gray-400">
+                    <td colspan="6" class="p-6 text-center text-gray-400">
                         @if(request('search'))
-                            Pencarian "{{ request('search') }}" tidak ditemukan.
+                            Pencarian tidak ditemukan.
                         @else
                             Belum ada data detail kegiatan (Level 3).
                         @endif
@@ -219,22 +268,60 @@
         </table>
     </div>
 
-    <!-- Modal Tambah -->
+    <!-- Modal Tambah (Dengan Dropdown Interaktif Bisa Diketik) -->
     <div x-show="modalTambah" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
         <div class="card-container max-w-2xl w-full shadow-xl" @click.away="modalTambah = false">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Tambah Detail Kegiatan Level 3</h3>
+            
             <form action="{{ route('admin.level3.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
+                    
+                    <!-- Dropdown Interaktif Bisa Diketik untuk Pilih Kegiatan Induk -->
+                    <div class="md:col-span-2 relative" x-data="{ 
+                        openCreate: false, 
+                        searchCreate: '', 
+                        selectedCreateId: '',
+                        selectedCreateLabel: '-- Pilih / Cari Kegiatan Level 2 --',
+                        kegiatans: {{ json_encode($kegiatanList->map(function($k) { 
+                            return [
+                                'id_kegiatan' => $k->id_kegiatan, 
+                                'label' => $k->nama_kegiatan . ($k->output ? ' | ' . $k->output->nama_output : '')
+                            ]; 
+                        })) }},
+                        get filteredCreate() {
+                            if (this.searchCreate === '') return this.kegiatans;
+                            return this.kegiatans.filter(k => k.label.toLowerCase().includes(this.searchCreate.toLowerCase()));
+                        }
+                    }" @click.away="openCreate = false">
+                        
                         <label class="form-label">Pilih Kegiatan Induk (Level 2)</label>
-                        <select name="id_kegiatan" required class="form-input">
-                            <option value="">-- Pilih Kegiatan Level 2 --</option>
-                            @foreach($kegiatanList as $keg)
-                                <option value="{{ $keg->id_kegiatan }}">{{ $keg->nama_kegiatan }}</option>
-                            @endforeach
-                        </select>
+                        
+                        <div @click="openCreate = !openCreate" class="form-input bg-white cursor-pointer flex items-center justify-between text-sm py-2">
+                            <span x-text="selectedCreateLabel" :class="{'text-gray-400': !selectedCreateId, 'text-gray-800 font-medium': selectedCreateId}"></span>
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+
+                        <!-- Hidden input yang dikirim ke store controller -->
+                        <input type="hidden" name="id_kegiatan" x-model="selectedCreateId" required>
+
+                        <!-- Box Pilihan Dropdown -->
+                        <div x-show="openCreate" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+                            <input type="text" x-model="searchCreate" placeholder="Cari kegiatan induk..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            
+                            <ul>
+                                <template x-for="keg in filteredCreate" :key="keg.id_kegiatan">
+                                    <li @click="selectedCreateId = keg.id_kegiatan; selectedCreateLabel = keg.label; openCreate = false; searchCreate = ''" 
+                                        class="px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between border-b border-gray-50">
+                                        <span x-text="keg.label"></span>
+                                        <span x-show="selectedCreateId == keg.id_kegiatan" class="text-emerald-600 font-bold">✓</span>
+                                    </li>
+                                </template>
+                                <li x-show="filteredCreate.length === 0" class="px-3 py-2 text-sm text-gray-400 text-center">Kegiatan tidak ditemukan</li>
+                            </ul>
+                        </div>
                     </div>
+
                     <div class="md:col-span-2">
                         <label class="form-label">Nama Detail Kegiatan (Level 3)</label>
                         <input type="text" name="nama_keg_detail" required class="form-input" placeholder="Contoh: Pencacahan Lapangan Sensus...">
@@ -278,5 +365,3 @@
 
 </div>
 @endsection
-
-

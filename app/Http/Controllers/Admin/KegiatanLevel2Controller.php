@@ -11,17 +11,19 @@ class KegiatanLevel2Controller extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $outputId = $request->input('output_id');
+
         $query = MstKegiatanLevel2Kegiatan::with('output');
 
-        if ($search) {
-            $query->where('nama_kegiatan', 'like', "%{$search}%");
+        // Filter berdasarkan dropdown output induk yang dipilih
+        if ($outputId) {
+            $query->where('id_output', $outputId);
         }
 
         $kegiatan = $query->get();
         $outputs = MstKegiatanLevel1Output::all();
         
-        return view('admin.kegiatan.level1.level2', compact('kegiatan', 'outputs', 'search'));
+        return view('admin.kegiatan.level1.level2', compact('kegiatan', 'outputs', 'outputId'));
     }
 
     public function store(Request $request)

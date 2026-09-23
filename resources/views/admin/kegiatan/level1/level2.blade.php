@@ -7,14 +7,55 @@
 <div class="space-y-6" x-data="{ modalTambah: false, selected: [], selectAll: false }">
     
     <div class="flex flex-wrap gap-4 justify-between items-center card-container">
-        <h3 class="text-lg font-bold text-gray-800">Daftar Kegiatan (Level 2)</h3>
+        <h3 class="text-lg font-bold text-gray-800">Daftar Kegiatan</h3>
         
         <div class="flex items-center gap-2">
-            <form action="{{ route('admin.level2.index') }}" method="GET" class="flex gap-2 mr-4">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama kegiatan..." class="form-input w-48">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm flex items-center justify-center transition-colors" title="Cari">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
+
+            <form action="{{ route('admin.level2.index') }}" method="GET" class="flex flex-wrap gap-2 items-center mr-2">
+                
+                <div class="relative" x-data="{ 
+                    open: false, 
+                    searchQuery: '{{ request('search') }}',
+                    // Mengambil semua nama kegiatan unik dari data yang ada
+                    items: {{ json_encode($kegiatan->pluck('nama_kegiatan')->unique()->values()) }},
+                    get filteredItems() {
+                        if (this.searchQuery === '') return this.items;
+                        return this.items.filter(i => i.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                    }
+                }" @click.away="open = false">
+                    
+                    <!-- Kotak Dropdown Utama -->
+                    <div @click="open = !open" class="form-input bg-white cursor-pointer flex items-center justify-between min-w-[260px] text-sm py-2">
+                        <span x-text="searchQuery || '-- Cari Nama Kegiatan --'" :class="{'text-gray-400': !searchQuery, 'text-gray-800 font-medium': searchQuery}"></span>
+                        <svg class="w-4 h-4 text-gray-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+
+                    <input type="hidden" name="search" x-model="searchQuery">
+
+                    <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+
+                        <input type="text" x-model="searchQuery" @keydown.enter.prevent="$el.closest('form').submit()" placeholder="Ketik nama kegiatan..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        
+                        <ul>
+                            <li @click="searchQuery = ''; open = false; $el.closest('form').submit()" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">-- Tampilkan Semua --</li>
+
+                            <template x-for="item in filteredItems" :key="item">
+                                <li @click="searchQuery = item; open = false; $el.closest('form').submit()" 
+                                    class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
+                                    <span x-text="item"></span>
+                                </li>
+                            </template>
+
+                            <li x-show="searchQuery !== '' && !items.includes(searchQuery)" 
+                                @click="open = false; $el.closest('form').submit()" 
+                                class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded cursor-pointer text-sm font-semibold mt-1 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                Cari: "<span x-text="searchQuery"></span>"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 @if(request('search'))
                     <a href="{{ route('admin.level2.index') }}" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 flex items-center">Reset</a>
                 @endif
@@ -48,8 +89,7 @@
                 <tr class="bg-gray-50 border-b text-gray-600">
                     <th class="p-3 w-10 text-center"><input type="checkbox" x-model="selectAll" @change="selected = selectAll ? {{ json_encode($kegiatan->pluck('id_kegiatan')->map(fn($id) => (string)$id)) }} : []" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></th>
                     <th class="p-3 w-16 text-center">No</th>
-                    <th class="p-3">Output Induk (Level 1)</th>
-                    <th class="p-3">Nama Kegiatan (Level 2)</th>
+                    <th class="p-3">Nama Kegiatan</th>
                     <th class="p-3 text-center">Aksi</th>
                 </tr>
             </thead>
@@ -58,8 +98,9 @@
                 <tr class="border-b hover:bg-gray-50" x-data="{ modalEdit: false, modalDetail: false, modalHapus: false }">
                     <td class="p-3 text-center"><input type="checkbox" x-model="selected" value="{{ $item->id_kegiatan }}" class="w-4 h-4 text-[#14B8A6] border-gray-300 rounded cursor-pointer"></td>
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
-                    <td class="p-3 text-gray-600">{{ $item->output->nama_output ?? '-' }}</td>
-                    <td class="p-3 font-semibold text-gray-800">{{ $item->nama_kegiatan }}</td>
+                    <td class="p-3 font-semibold text-gray-800">
+                        {{ $item->nama_kegiatan }} @if($item->output && $item->output->nama_output)({{ $item->output->nama_output }})@endif
+                    </td>
                     <td class="p-3 text-center whitespace-nowrap">
                         <div class="flex items-center justify-center gap-1">
                             <button @click="modalDetail = true" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded-md transition-colors" title="Detail">
@@ -78,8 +119,7 @@
                             <div class="card-container max-w-md w-full shadow-xl" @click.away="modalDetail = false">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Kegiatan Level 2</h3>
                                 <div class="space-y-4">
-                                    <div><label class="form-label text-gray-500">Output Induk</label><div class="form-input bg-gray-50 font-semibold">{{ $item->output->nama_output ?? '-' }}</div></div>
-                                    <div><label class="form-label text-gray-500">Nama Kegiatan</label><div class="form-input bg-gray-50 font-semibold">{{ $item->nama_kegiatan }}</div></div>
+                                    <div><label class="form-label text-gray-500">Nama Kegiatan</label><div class="form-input bg-gray-50 font-semibold">{{ $item->nama_kegiatan }} @if($item->output && $item->output->nama_output)({{ $item->output->nama_output }})@endif</div></div>
                                 </div>
                                 <div class="flex justify-end mt-6"><button type="button" @click="modalDetail = false" class="bg-gray-800 text-white px-4 py-2 rounded text-sm font-bold hover:bg-gray-700">Tutup</button></div>
                             </div>
@@ -125,7 +165,11 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="p-6 text-center text-gray-400">@if(request('search')) Pencarian tidak ditemukan. @else Belum ada data. @endif</td></tr>
+                <tr>
+                    <td colspan="4" class="p-6 text-center text-gray-400">
+                        @if(request('search')) Pencarian tidak ditemukan. @else Belum ada data. @endif
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
@@ -155,5 +199,3 @@
     </div>
 </div>
 @endsection
-
-

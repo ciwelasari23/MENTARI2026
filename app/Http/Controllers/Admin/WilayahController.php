@@ -90,7 +90,7 @@ class WilayahController extends Controller
             ->orderBy('kode_nama_sub_sls', 'asc')
             ->get();
 
-        // Menghitung total keseluruhan KK
+        // Hitung total KK berdasarkan filter aktif
         $totalKK = (clone $query)->sum('jumlah_kk');
 
         $wilayahs = $query->paginate(15)->withQueryString();
@@ -105,9 +105,7 @@ class WilayahController extends Controller
             'totalKK'
         ));
     }
-    /**
-     * Menyimpan data wilayah baru ke database.
-     */
+
     public function store(Request $request): RedirectResponse
     {
         $data = [

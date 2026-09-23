@@ -1,1 +1,9 @@
-<?php require 'vendor/autoload.php'; \ = require_once 'bootstrap/app.php'; \->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); \ = App\Models\MstWilayah::paginate(15); \->onEachSide(-1); print_r(Illuminate\Pagination\UrlWindow::make(\));
+<?php
+
+use Illuminate\Contracts\Console\Kernel;
+
+require __DIR__.'/vendor/autoload.php';
+
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+$kernel = $app->make(Kernel::class);

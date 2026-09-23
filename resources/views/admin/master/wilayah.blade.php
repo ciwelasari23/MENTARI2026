@@ -6,7 +6,8 @@
 
 @section('content')
 
-<!-- Tambahkan CDN DataTables & CSS Kustom Wilayah -->
+<!-- Tambahkan CDN Alpine.js (jika belum ada di layout utama), DataTables & CSS Kustom Wilayah -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
 <link rel="stylesheet" href="{{ asset('css/wilayah.css') }}">
 
@@ -14,62 +15,108 @@
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
     <div class="mb-4">
         <h2 class="text-base font-bold text-gray-800">Filter & Pencarian Wilayah</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Saring data wilayah berdasarkan Kabupaten/Kota, Kecamatan, atau kata kunci tertentu.</p>
+        <p class="text-xs text-gray-500 mt-0.5">Saring data wilayah berdasarkan Kabupaten/Kota, Kecamatan, Desa, atau kata kunci tertentu.</p>
     </div>
 
     <form action="{{ route('admin.wilayah.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        <!-- Filter Kab/Kota -->
-        <div>
+        
+        <!-- Filter Kab/Kota (Dropdown Bisa Diketik) -->
+        <div class="relative" x-data="{ 
+            open: false, 
+            searchQuery: '{{ request('kabkota') }}', 
+            selectedVal: '{{ request('kabkota') }}',
+            items: {{ json_encode($listKabkota->pluck('kode_nama_kabkota')->filter()->values()) }},
+            get filteredItems() {
+                if (this.searchQuery === '' || this.selectedVal === this.searchQuery) return this.items;
+                return this.items.filter(i => i.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            }
+        }" @click.away="open = false">
             <label class="block text-xs font-semibold text-gray-600 mb-1">Kabupaten/Kota</label>
-            <select name="kabkota" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="">Semua Kab/Kota</option>
-                <?php if(isset($listKabkota)): ?>
-                    <?php foreach($listKabkota as $kab): ?>
-                        <?php if(!empty($kab->kode_nama_kabkota)): ?>
-                            <option value="{{ $kab->kode_nama_kabkota }}" {{ request('kabkota') == $kab->kode_nama_kabkota ? 'selected' : '' }}>
-                                {{ $kab->kode_nama_kabkota }}
-                            </option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
+            <div @click="open = !open" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white cursor-pointer flex items-center justify-between">
+                <span x-text="searchQuery || 'Semua Kab/Kota'" :class="{'text-gray-400': !searchQuery, 'text-gray-800': searchQuery}"></span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <input type="hidden" name="kabkota" x-model="selectedVal">
+
+            <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+                <input type="text" x-model="searchQuery" @input="selectedVal = searchQuery" placeholder="Cari Kab/Kota..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <ul>
+                    <li @click="selectedVal = ''; searchQuery = ''; open = false" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">Semua Kab/Kota</li>
+                    <template x-for="item in filteredItems" :key="item">
+                        <li @click="selectedVal = item; searchQuery = item; open = false" class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
+                            <span x-text="item"></span>
+                            <span x-show="selectedVal == item" class="text-emerald-600 font-bold">✓</span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
         </div>
 
-        <!-- Filter Kecamatan -->
-        <div>
+        <!-- Filter Kecamatan (Dropdown Bisa Diketik) -->
+        <div class="relative" x-data="{ 
+            open: false, 
+            searchQuery: '{{ request('kecamatan') }}', 
+            selectedVal: '{{ request('kecamatan') }}',
+            items: {{ json_encode($listKecamatan->pluck('kode_nama_kecamatan')->filter()->values()) }},
+            get filteredItems() {
+                if (this.searchQuery === '' || this.selectedVal === this.searchQuery) return this.items;
+                return this.items.filter(i => i.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            }
+        }" @click.away="open = false">
             <label class="block text-xs font-semibold text-gray-600 mb-1">Kecamatan</label>
-            <select name="kecamatan" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="">Semua Kecamatan</option>
-                <?php if(isset($listKecamatan)): ?>
-                    <?php foreach($listKecamatan as $kec): ?>
-                        <?php if(!empty($kec->kode_nama_kecamatan)): ?>
-                            <option value="{{ $kec->kode_nama_kecamatan }}" {{ request('kecamatan') == $kec->kode_nama_kecamatan ? 'selected' : '' }}>
-                                {{ $kec->kode_nama_kecamatan }}
-                            </option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
+            <div @click="open = !open" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white cursor-pointer flex items-center justify-between">
+                <span x-text="searchQuery || 'Semua Kecamatan'" :class="{'text-gray-400': !searchQuery, 'text-gray-800': searchQuery}"></span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <input type="hidden" name="kecamatan" x-model="selectedVal">
+
+            <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+                <input type="text" x-model="searchQuery" @input="selectedVal = searchQuery" placeholder="Cari Kecamatan..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <ul>
+                    <li @click="selectedVal = ''; searchQuery = ''; open = false" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">Semua Kecamatan</li>
+                    <template x-for="item in filteredItems" :key="item">
+                        <li @click="selectedVal = item; searchQuery = item; open = false" class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
+                            <span x-text="item"></span>
+                            <span x-show="selectedVal == item" class="text-emerald-600 font-bold">✓</span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
         </div>
 
-        <!-- Filter Desa/Kel -->
-        <div>
+        <!-- Filter Desa/Kel (Dropdown Bisa Diketik) -->
+        <div class="relative" x-data="{ 
+            open: false, 
+            searchQuery: '{{ request('desa') }}', 
+            selectedVal: '{{ request('desa') }}',
+            items: {{ json_encode($listDesa->pluck('kode_nama_desa')->filter()->values()) }},
+            get filteredItems() {
+                if (this.searchQuery === '' || this.selectedVal === this.searchQuery) return this.items;
+                return this.items.filter(i => i.toLowerCase().includes(this.searchQuery.toLowerCase()));
+            }
+        }" @click.away="open = false">
             <label class="block text-xs font-semibold text-gray-600 mb-1">Desa/Kel</label>
-            <select name="desa" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="">Semua Desa</option>
-                <?php if(isset($listDesa)): ?>
-                    <?php foreach($listDesa as $ds): ?>
-                        <?php if(!empty($ds->kode_nama_desa)): ?>
-                            <option value="{{ $ds->kode_nama_desa }}" {{ request('desa') == $ds->kode_nama_desa ? 'selected' : '' }}>
-                                {{ $ds->kode_nama_desa }}
-                            </option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
+            <div @click="open = !open" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white cursor-pointer flex items-center justify-between">
+                <span x-text="searchQuery || 'Semua Desa'" :class="{'text-gray-400': !searchQuery, 'text-gray-800': searchQuery}"></span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <input type="hidden" name="desa" x-model="selectedVal">
+
+            <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
+                <input type="text" x-model="searchQuery" @input="selectedVal = searchQuery" placeholder="Cari Desa/Kel..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <ul>
+                    <li @click="selectedVal = ''; searchQuery = ''; open = false" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">Semua Desa</li>
+                    <template x-for="item in filteredItems" :key="item">
+                        <li @click="selectedVal = item; searchQuery = item; open = false" class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
+                            <span x-text="item"></span>
+                            <span x-show="selectedVal == item" class="text-emerald-600 font-bold">✓</span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
         </div>
 
-        <!-- Pencarian Teks Bebas -->
+        <!-- Pencarian Teks Bebas / ID -->
         <div>
             <label class="block text-xs font-semibold text-gray-600 mb-1">Cari Wilayah / ID</label>
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -80,11 +127,11 @@
             <button type="submit" class="bg-[#10b981] hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition shadow-sm flex items-center gap-1.5">
                 Terapkan
             </button>
-            <?php if(request('kabkota') || request('kecamatan') || request('desa') || request('search')): ?>
+            @if(request('kabkota') || request('kecamatan') || request('desa') || request('search'))
                 <a href="{{ route('admin.wilayah.index') }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition">
                     Reset
                 </a>
-            <?php endif; ?>
+            @endif
         </div>
     </form>
 </div>
@@ -149,8 +196,8 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                <?php if(isset($wilayahs) && count($wilayahs) > 0): ?>
-                    <?php foreach($wilayahs as $index => $item): ?>
+                @if(isset($wilayahs) && count($wilayahs) > 0)
+                    @foreach($wilayahs as $index => $item)
                     <tr class="hover:bg-gray-50 transition">
                         <td class="p-4 text-center font-medium text-gray-600">{{ method_exists($wilayahs, 'firstItem') ? $wilayahs->firstItem() + $index : $index + 1 }}</td>
                         <td class="p-4 text-gray-600 font-mono font-semibold">{{ $item->id_wilayah }}</td>
@@ -160,8 +207,6 @@
                         <td class="p-4 text-gray-600">{{ $item->kode_nama_desa ?? '-' }}</td>
                         <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sls ?? '-' }}</td>
                         <td class="p-4 text-gray-600 font-mono">{{ $item->kode_nama_sub_sls ?? '-' }}</td>
-                        <!-- Kolom KK diisi dari kolom jumlah_kk di database/CSV -->
-                       <!-- Kolom KK pada Tabel -->
                         <td class="p-4 text-center font-mono text-gray-700">
                             {{ isset($item->jumlah_kk) ? number_format($item->jumlah_kk, 0, ',', '.') : '-' }}
                         </td>
@@ -171,12 +216,12 @@
                             </button>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
+                    @endforeach
+                @else
                     <tr>
                         <td colspan="10" class="p-8 text-center text-gray-400">Belum ada data wilayah.</td>
                     </tr>
-                <?php endif; ?>
+                @endif
             </tbody>
         </table>
     </div>
