@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Daftar kemungkinan path absolut file di storage
         $possiblePaths = [
+            public_path('uploads/bukti/' . $cleanName),
             storage_path('app/public/' . $cleanName),
             storage_path('app/public/uploads/bukti/' . $cleanName),
             storage_path('app/uploads/bukti/' . $cleanName),

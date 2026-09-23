@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->integer('id_user_verifikator')->nullable();
             
-            $table->integer('realisasi_saat_ini');
+            $table->unsignedBigInteger('realisasi_saat_ini');
             $table->text('catatan_over_target')->nullable();
             $table->boolean('is_selesai')->default(0);
             $table->string('status_laporan', 20)->default('pending');
