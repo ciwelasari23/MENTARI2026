@@ -35,4 +35,10 @@ class TrxLaporanProgres extends Model
     {
         return $this->belongsTo(User::class, 'id_user_pelapor', 'id_user'); 
     }
+
+    // Relasi ke User Verifikator (SESUAI DENGAN $fillable: id_user_verifikator)
+    public function verifikator()
+    {
+        return $this->belongsTo(User::class, 'id_user_verifikator', 'id_user');
+    }
 }

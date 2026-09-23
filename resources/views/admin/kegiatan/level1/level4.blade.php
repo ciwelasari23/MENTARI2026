@@ -10,7 +10,6 @@
         <h3 class="text-lg font-bold text-gray-800">Daftar Proses Kegiatan</h3>
         
         <div class="flex items-center gap-2">
-            <!-- Filter Dropdown Pencarian untuk Nama Proses -->
             <form action="{{ route('admin.level4.index') }}" method="GET" class="flex flex-wrap gap-2 items-center mr-2">
                 
                 <div class="relative" x-data="{ 
@@ -24,25 +23,19 @@
                     }
                 }" @click.away="open = false">
                     
-                    <!-- Kotak Dropdown Utama -->
                     <div @click="open = !open" class="form-input bg-white cursor-pointer flex items-center justify-between min-w-[280px] text-sm py-2">
                         <span x-text="searchQuery || '-- Cari Nama Proses --'" :class="{'text-gray-400': !searchQuery, 'text-gray-800 font-medium': searchQuery}"></span>
                         <svg class="w-4 h-4 text-gray-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-
-                    <!-- Value ini yang akan dikirim ke controller sebagai parameter ?search= -->
                     <input type="hidden" name="search" x-model="searchQuery">
 
-                    <!-- Dropdown List Pilihan -->
                     <div x-show="open" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
-                        
-                        <!-- Kolom ketik pencarian -->
+
                         <input type="text" x-model="searchQuery" @keydown.enter.prevent="$el.closest('form').submit()" placeholder="Ketik nama proses..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
                         
                         <ul>
                             <li @click="searchQuery = ''; open = false; $el.closest('form').submit()" class="px-3 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm text-gray-500">-- Tampilkan Semua --</li>
-                            
-                            <!-- Menampilkan daftar autocomplete -->
+
                             <template x-for="item in filteredItems" :key="item">
                                 <li @click="searchQuery = item; open = false; $el.closest('form').submit()" 
                                     class="px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded cursor-pointer text-sm text-gray-800 flex items-center justify-between">
@@ -50,7 +43,6 @@
                                 </li>
                             </template>
 
-                            <!-- Tombol ini muncul jika yang diketik belum ada di daftar (pencarian kata kunci bebas) -->
                             <li x-show="searchQuery !== '' && !items.includes(searchQuery)" 
                                 @click="open = false; $el.closest('form').submit()" 
                                 class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded cursor-pointer text-sm font-semibold mt-1 flex items-center gap-2">
@@ -66,7 +58,6 @@
                 @endif
             </form>
 
-            <!-- Tombol Hapus Massal -->
             <form action="{{ route('admin.level4.bulkDestroy') }}" method="POST" x-show="selected.length > 0" onsubmit="return confirm('Yakin ingin menghapus semua data yang dicentang?');" style="display: none;">
                 @csrf
                 @method('DELETE')
@@ -114,7 +105,6 @@
                     </td>
                     <td class="p-3 text-center">{{ $index + 1 }}</td>
                     
-                    <!-- Kolom Detail Induk digabung ke Nama Proses -->
                     <td class="p-3 font-semibold text-gray-800">
                         {{ $item->nama_proses }}
                         @if($item->detail)
@@ -329,10 +319,8 @@
                             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
 
-                        <!-- Hidden input untuk dikirim ke controller -->
                         <input type="hidden" name="id_keg_detail" x-model="selectedCreateId" required>
 
-                        <!-- Box Pilihan Dropdown -->
                         <div x-show="openCreate" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
                             <input type="text" x-model="searchCreate" placeholder="Cari detail induk..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             
@@ -375,7 +363,7 @@
                             <option value="Kecamatan">Kecamatan</option>
                             <option value="Kabupaten / Kota">Kabupaten / Kota</option>
                             <option value="Perusahaan / Usaha">Perusahaan / Usaha</option>
-                            <option value="Rumah Tangga">Rumah Tangga</option>
+                            <option value="Rumah Tangga">Rumah Tangga(KK)</option>
                             <option value="Responden">Responden</option>
                             <option value="Kegiatan">Kegiatan</option>
                             <option value="Rekomendasi">Rekomendasi</option>

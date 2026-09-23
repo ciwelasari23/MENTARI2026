@@ -16,9 +16,6 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        // ============================================================
-        // 1. Tangkap Parameter Filter Periode (Contoh format: "2026-09")
-        // ============================================================
         $periode = $request->query('periode');$startOfMonth = null;
         $endOfMonth = null;
 
@@ -27,14 +24,10 @@ class DashboardController extends Controller
             if (count($parts) == 2) {
                 $year =$parts[0];
                 $month =$parts[1];
-                // Buat rentang tanggal 1 awal bulan s/d hari terakhir bulan tersebut
+
                 $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();$endOfMonth = Carbon::createFromDate($year,$month, 1)->endOfMonth();
             }
         }
-
-        // ============================================================
-        // 2. Ambil target wilayah (Filter Kegiatan Aktif pada Bulan Terpilih)
-        // ============================================================
         $targetsQuery = TrxTargetWilayah::with([
             'proses.detail', // Langsung load detail agar tabel Top 5 tidak melakukan query ulang
             'wilayah'
@@ -50,9 +43,6 @@ class DashboardController extends Controller
 
         $targets =$targetsQuery->get();
 
-        // ============================================================
-        // 3. Hitung realisasi (Filter Laporan Progres pada Bulan Terpilih)
-        // ============================================================
         $realisasiQuery = TrxLaporanProgres::where('status_laporan', 'approved')
             ->select('id_target_wilayah', DB::raw('SUM(realisasi_saat_ini) as total_realisasi'));
 
@@ -67,9 +57,6 @@ class DashboardController extends Controller
         $realisasiPerTarget =$realisasiQuery->groupBy('id_target_wilayah')
             ->pluck('total_realisasi', 'id_target_wilayah');
 
-        // ============================================================
-        // 4. Klasifikasi Status Card (Selesai, Terlambat, Proses)
-        // ============================================================
         $totalKegiatan = 0;
         $totalSelesai  = 0;
         $totalProses   = 0;
@@ -88,9 +75,6 @@ class DashboardController extends Controller
             }
         }
 
-        // ============================================================
-        // 5. Grafik Bar: Rata-rata Capaian (%) per Kabupaten/Kota
-        // ============================================================
         $wilayahList = MstWilayah::where('level_wilayah', 2)->get(); // level 2 = Kab/Kota
 
         $grafikLabels = [];$grafikData   = [];
@@ -115,10 +99,6 @@ class DashboardController extends Controller
             }
         }
 
-        // ============================================================
-        // 6. Tabel Top 5: Target dengan capaian progres tertinggi
-        // ============================================================
-        // Karena `$targets` sudah meload relasi di atas, kita filter koleksinya (hemat query database)
         $top5Targets =$targets->map(function ($target) use ($realisasiPerTarget, $today) {$realisasi   = $realisasiPerTarget[$target->id_target_wilayah] ?? 0;
             $targetValue =$target->target_daerah;
             $pct         =$targetValue > 0 ? min(100, round(($realisasi / $targetValue) * 100, 1)) : 0;
@@ -143,9 +123,6 @@ class DashboardController extends Controller
         ->take(5)
         ->values();
 
-        // ============================================================
-        // 7. Pie Chart Status Laporan Masuk
-        // ============================================================
         $statusLaporanQuery = TrxLaporanProgres::select('status_laporan', DB::raw('count(*) as total'));
 
         if ($startOfMonth && $endOfMonth) {$statusLaporanQuery->whereBetween('created_at', [
@@ -157,8 +134,8 @@ class DashboardController extends Controller
             ->pluck('total', 'status_laporan');
 
         $laporanPieData = [
-            $statusLaporan['pending'] ?? 0,   // Diajukan$statusLaporan['approved'] ?? 0,  // Disetujui
-            $statusLaporan['revision'] ?? 0,  // Perlu Revisi$statusLaporan['rejected'] ?? 0,  // Ditolak
+            $statusLaporan['pending'] ?? 0,   
+            $statusLaporan['revision'] ?? 0,  
         ];
 
         return view('visualisasi.dashboard', compact(

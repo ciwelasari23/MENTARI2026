@@ -156,7 +156,7 @@
                                         <div class="form-input bg-gray-50 font-semibold">{{ $item->nama_keg_detail }}</div>
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="form-label text-gray-500">Kegiatan Induk (Level 2)</label>
+                                        <label class="form-label text-gray-500">Kegiatan Induk</label>
                                         <div class="form-input bg-gray-50 font-semibold">{{ $item->kegiatan->nama_kegiatan ?? 'Tidak ada data' }} @if($item->kegiatan && $item->kegiatan->output) (| {{ $item->kegiatan->output->nama_output }}) @endif</div>
                                     </div>
                                     <div>
@@ -196,7 +196,7 @@
                                             </select>
                                         </div>
                                         <div class="md:col-span-2">
-                                            <label class="form-label">Nama Detail Kegiatan (Level 3)</label>
+                                            <label class="form-label">Nama Detail Kegiatan</label>
                                             <input type="text" name="nama_keg_detail" value="{{ $item->nama_keg_detail }}" required class="form-input">
                                         </div>
                                         <div>
@@ -220,7 +220,7 @@
                                                 <option value="Kecamatan" {{ $item->satuan_target == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
                                                 <option value="Kabupaten / Kota" {{ $item->satuan_target == 'Kabupaten / Kota' ? 'selected' : '' }}>Kabupaten / Kota</option>
                                                 <option value="Perusahaan / Usaha" {{ $item->satuan_target == 'Perusahaan / Usaha' ? 'selected' : '' }}>Perusahaan / Usaha</option>
-                                                <option value="Rumah Tangga" {{ $item->satuan_target == 'Rumah Tangga' ? 'selected' : '' }}>Rumah Tangga</option>
+                                                <option value="Rumah Tangga" {{ $item->satuan_target == 'Rumah Tangga' ? 'selected' : '' }}>Rumah Tangga (KK)</option>
                                                 <option value="Responden" {{ $item->satuan_target == 'Responden' ? 'selected' : '' }}>Responden</option>
                                                 <option value="Kegiatan" {{ $item->satuan_target == 'Kegiatan' ? 'selected' : '' }}>Kegiatan</option>
                                                 <option value="Rekomendasi" {{ $item->satuan_target == 'Rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>

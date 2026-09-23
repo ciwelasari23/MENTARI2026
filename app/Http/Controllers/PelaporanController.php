@@ -20,6 +20,7 @@ class PelaporanController extends Controller
              
         $targets = TrxTargetWilayah::with(['proses', 'wilayah'])->get();
         
+        // Mengarahkan ke view pelaporan yang sesuai (pastikan nama file view benar, misal: 'pelaporan.pelaporan' atau 'admin.pelaporan')
         return view('pelaporan.pelaporan', compact('laporan', 'targets'));
     }
 

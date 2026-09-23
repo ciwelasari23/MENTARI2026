@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\KegiatanLevel1Controller;
 use App\Http\Controllers\Admin\KegiatanLevel2Controller;
@@ -41,6 +42,28 @@ Route::middleware(['auth'])->group(function () {
     // Rute Pelaporan
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
     Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
+
+// Rute Khusus untuk Mengunduh/Melihat File Bukti (Bypass 403 & 404)
+    Route::get('/laporan/file/{filename}', function ($filename) {
+        $cleanName = basename($filename);
+        
+        // Daftar kemungkinan path absolut file di storage
+        $possiblePaths = [
+            storage_path('app/public/' . $cleanName),
+            storage_path('app/public/uploads/bukti/' . $cleanName),
+            storage_path('app/uploads/bukti/' . $cleanName),
+            storage_path('app/' . $cleanName),
+            public_path('storage/' . $cleanName)
+        ];
+
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path)) {
+                return response()->file($path);
+            }
+        }
+
+        abort(404, 'File bukti tidak ditemukan di server.');
+    })->name('laporan.file');
 
     // Rute Evaluasi Kegiatan
     Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
@@ -84,7 +107,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/target', [TargetWilayahController::class, 'store'])->name('target.store');
     Route::put('/target/{id}', [TargetWilayahController::class, 'update'])->name('target.update');
     Route::delete('/target/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
-    Route::delete('/target-bulk', [TargetWilayahController::class, 'bulkDestroy'])->name('target.bulkDestroy');     
+    Route::delete('/target-bulk', [TargetWilayahController::class, 'bulkDestroy'])->name('target.bulkDestroy');    
 
     // Verifikasi Laporan
     Route::get('/verifikasi', [VerifikasiLaporanController::class, 'index'])->name('verifikasi.index');

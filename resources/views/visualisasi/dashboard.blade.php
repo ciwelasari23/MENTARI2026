@@ -127,13 +127,13 @@
     <!-- Area Grafik: Grid 2 Kolom (Bar Chart + Pie Chart Laporan) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
 
-        <!-- Grafik Bar (kiri, 2/3 lebar) -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-base font-bold text-gray-800 mb-4">Grafik Rata-rata Capaian per Kabupaten/Kota (%)</h3>
-            <div class="relative w-full" style="height: 320px;">
-                <canvas id="capaianChart"></canvas>
+            <!-- Grafik Bar (kiri, 2/3 lebar) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                <h3 class="text-base font-bold text-gray-800 mb-4">Grafik Rata-rata Capaian per Kabupaten/Kota (%)</h3>
+                <div class="relative flex-1 w-full" style="min-height: 300px; height: 300px;">
+                    <canvas id="capaianChart"></canvas>
+                </div>
             </div>
-        </div>
 
         <!-- Pie Chart Status Laporan Masuk (kanan, 1/3 lebar) -->
         <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
