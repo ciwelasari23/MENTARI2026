@@ -75,28 +75,35 @@ class DashboardController extends Controller
             }
         }
 
-        $wilayahList = MstWilayah::where('level_wilayah', 2)->get(); // level 2 = Kab/Kota
+        $kabKotaList = MstWilayah::select('kode_nama_kabkota')->whereNotNull('kode_nama_kabkota')->distinct()->orderBy('kode_nama_kabkota')->get();
 
-        $grafikLabels = [];$grafikData   = [];
+        $grafikLabels = [];
+        $grafikData   = [];
 
-        foreach ($wilayahList as $wilayah) {$targetsWilayah = $targets->where('id_wilayah',$wilayah->id_wilayah);
-
-            if ($targetsWilayah->isEmpty()) continue;
+        foreach ($kabKotaList as $kabkota) {
+            $namaKabKota = $kabkota->kode_nama_kabkota;
+            
+            // Menggunakan relasi wilayah yang sudah diload untuk filter
+            $targetsWilayah = $targets->filter(function($target) use ($namaKabKota) {
+                return $target->wilayah && $target->wilayah->kode_nama_kabkota === $namaKabKota;
+            });
 
             $totalCapaian = 0;
             $count        = 0;
 
-            foreach ($targetsWilayah as$t) {
-                if ($t->target_daerah > 0) {$real = $realisasiPerTarget[$t->id_target_wilayah] ?? 0;
-                    $pct  = min(100, round(($real / $t->target_daerah) * 100, 1));
-                    $totalCapaian +=$pct;
-                    $count++;
+            if ($targetsWilayah->isNotEmpty()) {
+                foreach ($targetsWilayah as $t) {
+                    if ($t->target_daerah > 0) {
+                        $real = $realisasiPerTarget[$t->id_target_wilayah] ?? 0;
+                        $pct  = min(100, round(($real / $t->target_daerah) * 100, 1));
+                        $totalCapaian += $pct;
+                        $count++;
+                    }
                 }
             }
 
-            if ($count > 0) {$grafikLabels[] = $wilayah->kode_nama_kabkota ?? 'Wilayah ' . $wilayah->id_wilayah;
-                $grafikData[]   = round($totalCapaian / $count, 1);
-            }
+            $grafikLabels[] = $namaKabKota;
+            $grafikData[] = $count > 0 ? round($totalCapaian / $count, 1) : 0;
         }
 
         $top5Targets =$targets->map(function ($target) use ($realisasiPerTarget, $today) {$realisasi   = $realisasiPerTarget[$target->id_target_wilayah] ?? 0;
@@ -134,8 +141,10 @@ class DashboardController extends Controller
             ->pluck('total', 'status_laporan');
 
         $laporanPieData = [
-            $statusLaporan['pending'] ?? 0,   
-            $statusLaporan['revision'] ?? 0,  
+            $statusLaporan['pending'] ?? 0,
+            $statusLaporan['approved'] ?? 0,
+            $statusLaporan['revision'] ?? 0,
+            $statusLaporan['rejected'] ?? 0,
         ];
 
         return view('visualisasi.dashboard', compact(

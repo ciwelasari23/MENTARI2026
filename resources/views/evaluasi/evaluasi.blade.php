@@ -138,13 +138,13 @@
 
         @if(count($evaluasiData ?? []) > 0)
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
-                <thead>
+            <table class="w-full text-left border-collapse text-sm whitespace-normal lg:whitespace-nowrap">
+                <thead class="hidden lg:table-header-group">
                     <tr class="bg-gray-50/80 border-b text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                        <th class="px-6 py-4">Kegiatan & Wilayah</th>
+                        <th class="px-6 py-4 min-w-[200px]">Kegiatan & Wilayah</th>
                         <th class="px-4 py-4 text-center">Bukti Dukung</th>
-                        <th class="px-4 py-4 w-56">Target vs Realisasi</th>
-                        <th class="px-4 py-4">Parameter Penilaian</th>
+                        <th class="px-4 py-4 w-56 min-w-[200px]">Target vs Realisasi</th>
+                        <th class="px-4 py-4 min-w-[280px]">Parameter Penilaian</th>
                         <th class="px-4 py-4 text-center w-28">Skor Total</th>
                         <th class="px-6 py-4 text-center w-36">Rating</th>
                     </tr>
@@ -180,9 +180,9 @@
                             default => 'bg-red-500',
                         };
                     @endphp
-                    <tr class="hover:bg-gray-50 transition-colors group">
+                    <tr class="hover:bg-gray-50 transition-colors group block lg:table-row border-b-8 border-gray-100 lg:border-b-0">
                         {{-- Kolom 1: Informasi Kegiatan & Wilayah --}}
-                        <td class="px-6 py-5 align-top">
+                        <td class="px-6 py-4 lg:py-5 align-top block lg:table-cell border-b border-gray-100 lg:border-0">
                             <div class="font-bold text-gray-800 text-base mb-1">{{ $row['nama_kegiatan'] }}</div>
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
@@ -196,7 +196,8 @@
                         </td>
 
                         {{-- Kolom 2: Kelengkapan Bukti Dukung --}}
-                        <td class="px-4 py-5 align-top text-center">
+                        <td class="px-6 lg:px-4 py-4 lg:py-5 align-top lg:text-center block lg:table-cell flex justify-between items-center lg:block border-b border-gray-100 lg:border-0">
+                            <span class="lg:hidden text-xs font-bold text-gray-500 uppercase">Bukti Dukung</span>
                             @if($adaBukti)
                                 <div class="inline-flex flex-col items-center justify-center p-2 bg-emerald-50 border border-emerald-100 rounded-xl w-20">
                                     <svg class="w-5 h-5 text-emerald-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -211,7 +212,8 @@
                         </td>
 
                         {{-- Kolom 3: Target Dasar --}}
-                        <td class="px-4 py-5 align-top">
+                        <td class="px-6 lg:px-4 py-4 lg:py-5 align-top block lg:table-cell border-b border-gray-100 lg:border-0">
+                            <span class="lg:hidden text-xs font-bold text-gray-500 uppercase block mb-3">Target vs Realisasi</span>
                             <div class="flex justify-between items-end mb-2">
                                 <div class="text-xs text-gray-500">
                                     <div>Target: <span class="font-semibold text-gray-700">{{ number_format($row['total_target']) }}</span></div>
@@ -225,8 +227,9 @@
                         </td>
 
                         {{-- Kolom 4: Parameter Feedback (Kualitas, Respon, Kecepatan) --}}
-                        <td class="px-4 py-5 align-top">
-                            <div class="space-y-2.5 w-full pr-4">
+                        <td class="px-6 lg:px-4 py-4 lg:py-5 align-top block lg:table-cell border-b border-gray-100 lg:border-0">
+                            <span class="lg:hidden text-xs font-bold text-gray-500 uppercase block mb-3">Parameter Penilaian</span>
+                            <div class="space-y-2.5 w-full pr-0 lg:pr-4">
                                 {{-- Kualitas --}}
                                 <div class="flex items-center gap-3">
                                     <span class="text-xs font-medium text-gray-600 w-24">Kualitas</span>
@@ -255,15 +258,18 @@
                         </td>
 
                         {{-- Kolom 5: Skor Akhir Total --}}
-                        <td class="px-4 py-5 align-middle text-center bg-gray-50/30 group-hover:bg-blue-50/30 transition-colors border-l border-gray-100">
-                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full border-4 {{ $totalSkor >= 80 ? 'border-emerald-100 text-emerald-700' : ($totalSkor >= 60 ? 'border-blue-100 text-blue-700' : 'border-red-100 text-red-700') }} bg-white shadow-sm">
+                        <td class="px-6 lg:px-4 py-4 lg:py-5 align-middle lg:text-center bg-gray-50/30 group-hover:bg-blue-50/30 transition-colors border-b lg:border-b-0 lg:border-l border-gray-100 block lg:table-cell flex justify-between items-center lg:block">
+                            <span class="lg:hidden text-xs font-bold text-gray-500 uppercase">Skor Akhir</span>
+                            <div class="inline-flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full border-4 {{ $totalSkor >= 80 ? 'border-emerald-100 text-emerald-700' : ($totalSkor >= 60 ? 'border-blue-100 text-blue-700' : 'border-red-100 text-red-700') }} bg-white shadow-sm">
                                 <span class="text-lg font-black">{{ $totalSkor }}</span>
                             </div>
                         </td>
 
                         {{-- Kolom 6: Bintang Akhir --}}
-                        <td class="px-6 py-5 align-middle text-center border-l border-gray-100">
-                            <div class="flex items-center justify-center gap-0.5">
+                        <td class="px-6 py-4 lg:py-5 align-middle lg:text-center lg:border-l border-gray-100 block lg:table-cell flex justify-between items-center lg:block">
+                            <span class="lg:hidden text-xs font-bold text-gray-500 uppercase">Rating</span>
+                            <div>
+                                <div class="flex items-center justify-end lg:justify-center gap-0.5">
                                 @for ($i = 1; $i <= 5; $i++)
                                     @if ($i <= $ratingBintang)
                                         <svg class="w-5 h-5 text-amber-400 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -272,13 +278,14 @@
                                     @endif
                                 @endfor
                             </div>
-                            <div class="mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            <div class="mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right lg:text-center">
                                 @if($ratingBintang == 5) Sangat Baik
                                 @elseif($ratingBintang == 4) Baik
                                 @elseif($ratingBintang == 3) Cukup
                                 @elseif($ratingBintang == 2) Kurang
                                 @else Sangat Kurang
                                 @endif
+                            </div>
                             </div>
                         </td>
                     </tr>
