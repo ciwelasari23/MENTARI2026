@@ -43,11 +43,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pelaporan', [PelaporanController::class, 'index'])->name('pelaporan.index');
     Route::post('/pelaporan', [PelaporanController::class, 'store'])->name('pelaporan.store');
 
-// Rute Khusus untuk Mengunduh/Melihat File Bukti (Bypass 403 & 404)
+    // Rute Khusus untuk Mengunduh/Melihat File Bukti (Bypass 403 & 404)
     Route::get('/laporan/file/{filename}', function ($filename) {
         $cleanName = basename($filename);
         
-        // Daftar kemungkinan path absolut file di storage
         $possiblePaths = [
             public_path('uploads/bukti/' . $cleanName),
             storage_path('app/public/' . $cleanName),
@@ -69,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Rute Evaluasi Kegiatan
     Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
     Route::get('/evaluasi/export-pdf', [EvaluasiController::class, 'exportPdf'])->name('evaluasi.export-pdf');
+    Route::put('/evaluasi/{id}/update-skor', [EvaluasiController::class, 'updateSkor'])->name('evaluasi.update-skor'); // <-- Rute baru yang ditambahkan
 
 });
 
@@ -103,9 +103,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/kegiatan/level4/{id}', [KegiatanLevel4Controller::class, 'update'])->name('level4.update');
     Route::delete('/kegiatan/level4/{id}', [KegiatanLevel4Controller::class, 'destroy'])->name('level4.destroy');  
     
-    // Target Wilayah
+    // Target Wilayah (Ditambahkan rute import dan template)
     Route::get('/target', [TargetWilayahController::class, 'index'])->name('target.index');
     Route::post('/target', [TargetWilayahController::class, 'store'])->name('target.store');
+    Route::post('/target/import', [TargetWilayahController::class, 'import'])->name('target.import');
+    Route::get('/target/template', [TargetWilayahController::class, 'template'])->name('target.template');
     Route::put('/target/{id}', [TargetWilayahController::class, 'update'])->name('target.update');
     Route::delete('/target/{id}', [TargetWilayahController::class, 'destroy'])->name('target.destroy');
     Route::delete('/target-bulk', [TargetWilayahController::class, 'bulkDestroy'])->name('target.bulkDestroy');    

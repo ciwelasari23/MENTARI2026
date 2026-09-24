@@ -7,7 +7,8 @@
 <div class="space-y-6" x-data="{ 
     modalTambah: {{ $errors->any() ? 'true' : 'false' }}, 
     modalDetail: false, 
-    activeLaporan: {},
+    activeTargetId: null,
+    activeRiwayatList: [],
 
     /* --- Data Alpine JS untuk Dropdown Interaktif --- */
     openCreateTarget: false,
@@ -23,10 +24,32 @@
             'target_daerah' => $t->target_daerah
         ];
     })) }},
+
+    allHistoryData: {{ json_encode($laporanHistory->map(function($h) {
+        $fileNameOnly = $h->file_bukti ? basename($h->file_bukti) : null;
+        $fileUrl = $fileNameOnly ? route('laporan.file', ['filename' => $fileNameOnly]) : null;
+        return [
+            'id_target_wilayah' => $h->id_target_wilayah,
+            'tanggal_lapor' => \Carbon\Carbon::parse($h->tanggal_lapor)->format('d/m/Y'),
+            'realisasi_saat_ini' => $h->realisasi_saat_ini,
+            'status_laporan' => $h->status_laporan,
+            'catatan_verifikator' => $h->catatan_verifikator ?? '-',
+            'link_bukti' => $h->link_bukti,
+            'file_bukti' => $h->file_bukti,
+            'file_url' => $fileUrl,
+            'satuan' => $h->targetWilayah->proses->satuan_target ?? ''
+        ];
+    })) }},
     
     get filteredTargets() {
         if(this.searchCreateTarget === '') return this.targetData;
         return this.targetData.filter(t => t.label.toLowerCase().includes(this.searchCreateTarget.toLowerCase()));
+    },
+
+    openHistoryModal(targetId) {
+        this.activeTargetId = targetId;
+        this.activeRiwayatList = this.allHistoryData.filter(h => h.id_target_wilayah == targetId);
+        this.modalDetail = true;
     }
 }">
     
@@ -41,7 +64,6 @@
         </button>
     </div>
 
-    <!-- Notifikasi Sukses -->
     @if(session('success'))
         <div x-data="{ show: true }" 
              x-init="setTimeout(() => show = false, 3000)" 
@@ -70,73 +92,49 @@
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100 text-gray-600 font-semibold">
                         <th class="p-4 text-center w-16">No</th>
-                        <th class="p-4">Tanggal Lapor</th>
                         <th class="p-4">Pekerjaan & Wilayah</th>
-                        <th class="p-4 text-center">Capaian</th>
-                        <th class="p-4 text-center">Status & Catatan</th>
-                        <th class="p-4 text-center w-32">Aksi</th>
+                        <th class="p-4 text-center">Total Akumulasi Capaian</th>
+                        <th class="p-4 text-center">Update Terakhir</th>
+                        <th class="p-4 text-center w-28">Log History</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @forelse($laporan as $index => $item)
+                    @forelse($laporanGrouped as $index => $group)
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="p-4 text-center font-medium text-gray-500">{{ $index + 1 }}</td>
-                        <td class="p-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($item->tanggal_lapor)->format('d/m/Y') }}</td>
+                        
+                        <!-- Pekerjaan & Wilayah: Nama Proses, Nama Detail Kegiatan (Level 3), lalu Nama Kab/Kota -->
                         <td class="p-4">
-                            <span class="font-bold text-gray-800">{{ $item->targetWilayah->proses->nama_proses ?? '-' }}</span><br>
-                            <span class="text-xs text-gray-500 font-normal">{{ $item->targetWilayah->wilayah->nama_provinsi ?? '-' }} {{ $item->targetWilayah->wilayah->kode_nama_kabkota ?? '-' }}</span>
+                            <span class="font-bold text-gray-800 block">{{ $group->targetWilayah->proses->nama_proses ?? '-' }}</span>
+                            <!-- Ubah nama_detail_kegiatan menjadi nama_keg_detail -->
+                            <span class="text-xs text-gray-600 font-medium block mt-0.5">{{ $group->targetWilayah->proses->detail->nama_keg_detail ?? '-' }}</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">
+                                {{ $group->targetWilayah->wilayah->kode_nama_kabkota ?? '-' }}
+                            </span>
                         </td>
-                        <td class="p-4 text-center font-bold text-[#005A9C]">
-                            {{ $item->realisasi_saat_ini }} {{ $item->targetWilayah->proses->satuan_target ?? '' }}
-                        </td>
-                        <td class="p-4 text-center align-top">
-                            @if($item->status_laporan == 'pending')
-                                <span class="bg-amber-50 text-amber-600 border border-amber-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase inline-block mx-auto mt-2">Diajukan</span>
-                            @elseif($item->status_laporan == 'approved')
-                                <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase inline-block mx-auto mt-2">Disetujui</span>
-                            @elseif($item->status_laporan == 'revision')
-                                <span class="bg-blue-50 text-blue-600 border border-blue-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase inline-block mx-auto mb-2 mt-1">Perlu Revisi</span>
-                                @if($item->catatan_verifikator)
-                                    <div class="text-[11px] text-blue-700 bg-blue-50/80 p-2 rounded text-left leading-tight border border-blue-100 shadow-sm w-full mx-auto">
-                                        <span class="font-bold block mb-0.5">Catatan Verifikator:</span> 
-                                        {{ $item->catatan_verifikator }}
-                                    </div>
-                                @endif
-                            @else
-                                <span class="bg-red-50 text-red-600 border border-red-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase inline-block mx-auto mb-2 mt-1">Ditolak</span>
-                                @if($item->catatan_verifikator)
-                                    <div class="text-[11px] text-red-700 bg-red-50/80 p-2 rounded text-left leading-tight border border-red-100 shadow-sm w-full mx-auto">
-                                        <span class="font-bold block mb-0.5">Catatan Verifikator:</span> 
-                                        {{ $item->catatan_verifikator }}
-                                    </div>
-                                @endif
-                            @endif
-                        </td>
-                        <td class="p-4 text-center align-top pt-5">
-                            <div class="flex items-center justify-center gap-1">
-                                @php
-                                    $fileUrl = '';
-                                    if ($item->file_bukti) {
-                                        $fileNameOnly = basename($item->file_bukti);
-                                        $fileUrl = route('laporan.file', ['filename' => $fileNameOnly]);
-                                    }
-                                @endphp
 
-                                <!-- Tombol Aksi untuk Membuka Modal Detail yang Memuat Catatan -->
-                                <button @click="
-                                    activeLaporan = {{ json_encode($item) }}; 
-                                    activeLaporan.file_url = '{{ $fileUrl }}';
-                                    modalDetail = true;
-                                " class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold" title="Lihat Detail & Catatan">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    Detail
-                                </button>
-                            </div>
+                        <td class="p-4 text-center font-bold text-[#005A9C]">
+                            {{ $group->total_capaian }} {{ $group->targetWilayah->proses->satuan_target ?? '' }}
+                        </td>
+                        <td class="p-4 text-center text-xs text-gray-500 whitespace-nowrap">
+                            {{ \Carbon\Carbon::parse($group->tanggal_terakhir)->format('d/m/Y') }}
+                        </td>
+                        
+                        <!-- Kolom Log History -->
+                        <td class="p-4 text-center whitespace-nowrap">
+                            <button @click="openHistoryModal('{{ $group->id_target_wilayah }}')" 
+                                    class="text-blue-600 hover:text-white bg-blue-50 hover:bg-blue-600 p-2.5 rounded-lg transition-all duration-200 inline-flex items-center justify-center shadow-sm mx-auto" 
+                                    title="Lihat Log History">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-8 text-center text-gray-400 italic">
+                        <td colspan="5" class="p-8 text-center text-gray-400 italic">
                             Belum ada riwayat laporan Anda.
                         </td>
                     </tr>
@@ -157,7 +155,6 @@
             <form action="{{ route('pelaporan.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @csrf
                 
-                <!-- Dropdown Pencarian Interaktif -->
                 <div class="md:col-span-2 relative" @click.away="openCreateTarget = false">
                     <label class="block text-xs font-bold text-gray-700 mb-1">Pilih Target Kegiatan Wilayah</label>
                     <div @click="openCreateTarget = !openCreateTarget" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-[#005A9C]">
@@ -167,7 +164,6 @@
                     
                     <input type="hidden" name="id_target_wilayah" x-model="selectedCreateTargetId" required>
                     
-                    <!-- Kotak Dropdown -->
                     <div x-show="openCreateTarget" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto" style="display: none;">
                         <input type="text" x-model="searchCreateTarget" placeholder="Ketik nama pekerjaan atau kabupaten..." class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-[#005A9C]">
                         <ul>
@@ -183,13 +179,11 @@
                     </div>
                 </div>
 
-                <!-- Input Otomatis (Target Daerah) -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Target Daerah</label>
                     <input type="text" x-model="selectedTargetDaerah" readonly placeholder="Terisi otomatis..." class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-100 cursor-not-allowed text-gray-500 font-semibold focus:outline-none">
                 </div>
 
-                <!-- Tanggal Lapor (Terkunci Penuh) -->
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Tanggal Lapor</label>
                     <input type="text" value="{{ \Carbon\Carbon::now()->format('d/m/Y') }}" disabled class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-100 cursor-not-allowed text-gray-500 font-semibold focus:outline-none">
@@ -219,67 +213,57 @@
         </div>
     </div>
 
-    <!-- Modal Detail Laporan & Catatan Verifikator -->
+    <!-- Modal Log History / Detail Riwayat Pelaporan -->
     <div x-show="modalDetail" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" style="display: none;" x-transition.opacity>
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4" @click.away="modalDetail = false" x-transition.scale>
+        <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto" @click.away="modalDetail = false" x-transition.scale>
             <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                <h3 class="text-base font-bold text-gray-800">Detail Laporan & Catatan</h3>
+                <h3 class="text-base font-bold text-gray-800">Riwayat Log Pelaporan</h3>
                 <button @click="modalDetail = false" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             </div>
             
-            <div class="space-y-3 text-sm">
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold">Tanggal Lapor</span>
-                    <span class="font-bold text-gray-800" x-text="activeLaporan.tanggal_lapor"></span>
-                </div>
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold">Pekerjaan & Wilayah</span>
-                    <span class="text-gray-800 font-bold block" x-text="activeLaporan.target_wilayah?.proses?.nama_proses || '-'"></span>
-                    <span class="text-xs text-gray-500" x-text="(activeLaporan.target_wilayah?.wilayah?.nama_provinsi || '') + ' ' + (activeLaporan.target_wilayah?.wilayah?.kode_nama_kabkota || '')"></span>
-                </div>
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold">Capaian (Realisasi)</span>
-                    <span class="font-bold text-[#005A9C]" x-text="activeLaporan.realisasi_saat_ini + ' ' + (activeLaporan.target_wilayah?.proses?.satuan_target || '')"></span>
-                </div>
-                
-                <!-- Tautan External -->
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold">Tautan Bukti</span>
-                    <template x-if="activeLaporan.link_bukti">
-                        <a :href="activeLaporan.link_bukti.startsWith('http') ? activeLaporan.link_bukti : 'https://' + activeLaporan.link_bukti" target="_blank" class="text-blue-600 hover:underline break-all flex items-center gap-1 mt-1">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                            <span x-text="activeLaporan.link_bukti"></span>
-                        </a>
-                    </template>
-                    <template x-if="!activeLaporan.link_bukti">
-                        <span class="text-gray-500 italic">Tidak ada tautan external</span>
-                    </template>
-                </div>
-                
-                <!-- File System Lokal -->
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold">File Bukti Terlampir</span>
-                    <template x-if="activeLaporan.file_bukti">
-                        <a :href="activeLaporan.file_url" target="_blank" class="text-[#005A9C] font-semibold hover:underline inline-flex items-center gap-1 mt-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Lihat Dokumen / Gambar
-                        </a>
-                    </template>
-                    <template x-if="!activeLaporan.file_bukti">
-                        <span class="text-gray-500 italic">Tidak ada file lampiran</span>
-                    </template>
-                </div>
-                
-                <!-- Catatan Verifikator -->
-                <div>
-                    <span class="block text-xs text-gray-400 font-semibold mb-1">Catatan Verifikator</span>
-                    <div :class="{
-                        'bg-red-50 border border-red-200 text-red-700': activeLaporan.status_laporan === 'revision' || activeLaporan.status_laporan === 'rejected', 
-                        'bg-gray-50 border border-gray-100 text-gray-600': activeLaporan.status_laporan !== 'revision' && activeLaporan.status_laporan !== 'rejected'
-                    }" class="p-3 rounded-lg italic text-sm">
-                       <span x-text="activeLaporan.catatan_verifikasi || activeLaporan.catatan_verifikator || activeLaporan.catatan || activeLaporan.catatan_revisi || 'Belum ada catatan dari verifikator.'"></span>
+            <div class="space-y-4">
+                <template x-for="(item, index) in activeRiwayatList" :key="index">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 shadow-sm">
+                        <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                            <span class="text-xs font-bold text-gray-500" x-text="'Laporan ke-' + (index + 1) + ' — Tanggal: ' + item.tanggal_lapor"></span>
+                            <div>
+                                <template x-if="item.status_laporan == 'pending'">
+                                    <span class="bg-amber-50 text-amber-600 border border-amber-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Diajukan</span>
+                                </template>
+                                <template x-if="item.status_laporan == 'approved'">
+                                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Disetujui</span>
+                                </template>
+                                <template x-if="item.status_laporan == 'revision'">
+                                    <span class="bg-blue-50 text-blue-600 border border-blue-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Perlu Revisi</span>
+                                </template>
+                                <template x-if="item.status_laporan == 'rejected'">
+                                    <span class="bg-red-50 text-red-600 border border-red-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Ditolak</span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <span class="font-semibold text-gray-400 block">Realisasi Capaian</span>
+                                <span class="font-bold text-[#005A9C] text-sm" x-text="item.realisasi_saat_ini + ' ' + item.satuan"></span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-400 block">Lampiran Bukti</span>
+                                <template x-if="item.file_bukti">
+                                    <a :href="item.file_url" target="_blank" class="text-blue-600 hover:underline font-semibold inline-flex items-center gap-1 mt-0.5">Lihat File</a>
+                                </template>
+                                <template x-if="!item.file_bukti">
+                                    <span class="text-gray-400 italic">Tidak ada file</span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="block text-[11px] font-bold text-gray-500 mb-1">Catatan Verifikator:</span>
+                            <div class="bg-white border border-gray-200 p-2.5 rounded-lg text-xs italic text-gray-600" x-text="item.catatan_verifikator"></div>
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
             
             <div class="flex justify-end pt-4 border-t border-gray-100">

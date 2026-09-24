@@ -10,7 +10,14 @@ class VerifikasiLaporanController extends Controller
 {
     public function index()
     {
-        $laporans = TrxLaporanProgres::with(['targetWilayah.proses', 'targetWilayah.wilayah', 'pelapor', 'verifikator'])->latest()->get();
+        // Ubah 'kegiatanLevel3' menjadi 'detail' agar sesuai dengan model
+        $laporans = TrxLaporanProgres::with([
+            'targetWilayah.proses.detail', 
+            'targetWilayah.wilayah', 
+            'pelapor', 
+            'verifikator'
+        ])->latest()->get();
+        
         return view('admin.verifikasi.index', compact('laporans'));
     }
 
@@ -18,16 +25,16 @@ class VerifikasiLaporanController extends Controller
     {
         $request->validate([
             'status_laporan' => 'required|string',
-            'catatan_verifikator' => 'nullable|string' // Nama input dari form modal
+            'catatan_verifikator' => 'nullable|string'
         ]);
 
         $laporan = TrxLaporanProgres::findOrFail($id);
         
         $laporan->status_laporan = $request->status_laporan;
-        $laporan->catatan_verifikasi = $request->catatan_verifikator; // Disimpan ke kolom asli database: catatan_verifikasi
+        $laporan->catatan_verifikasi = $request->catatan_verifikator;
         
         if (auth()->check()) {
-            $laporan->id_user_verifikator = auth()->id(); // Disimpan ke kolom asli database: id_user_verifikator
+            $laporan->id_user_verifikator = auth()->id();
         }
         
         $laporan->save();

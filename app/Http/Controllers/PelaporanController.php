@@ -13,15 +13,25 @@ class PelaporanController extends Controller
     {
         $user_id = Auth::user()->id_user ?? Auth::id();
         
-        $laporan = TrxLaporanProgres::with(['targetWilayah.proses', 'targetWilayah.wilayah'])
+        // PERBAIKAN: Tambahkan '.detail' pada targetWilayah.proses
+        $laporanGrouped = TrxLaporanProgres::with(['targetWilayah.proses.detail', 'targetWilayah.wilayah'])
             ->where('id_user_pelapor', $user_id)
-            ->orderBy('created_at', 'desc')
+            ->select('id_target_wilayah')
+            ->selectRaw('MAX(tanggal_lapor) as tanggal_terakhir')
+            ->selectRaw('SUM(realisasi_saat_ini) as total_capaian')
+            ->groupBy('id_target_wilayah')
+            ->orderBy('tanggal_terakhir', 'desc')
+            ->get();
+
+        // PERBAIKAN: Tambahkan juga '.detail' pada riwayat history
+        $laporanHistory = TrxLaporanProgres::with(['targetWilayah.proses.detail', 'targetWilayah.wilayah'])
+            ->where('id_user_pelapor', $user_id)
+            ->orderBy('tanggal_lapor', 'desc')
             ->get();
              
-        $targets = TrxTargetWilayah::with(['proses', 'wilayah'])->get();
+        $targets = TrxTargetWilayah::with(['proses.detail', 'wilayah'])->get();
         
-        // Mengarahkan ke view pelaporan yang sesuai (pastikan nama file view benar, misal: 'pelaporan.pelaporan' atau 'admin.pelaporan')
-        return view('pelaporan.pelaporan', compact('laporan', 'targets'));
+        return view('pelaporan.pelaporan', compact('laporanGrouped', 'laporanHistory', 'targets'));
     }
 
     public function store(Request $request)

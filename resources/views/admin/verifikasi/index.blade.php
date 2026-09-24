@@ -15,17 +15,23 @@
     activeCatatanTitle: '',
     activeCatatanText: '',
 
-    /* --- Filter Dropdown Interaktif --- */
+    /* --- Filter Dropdown Pekerjaan & Wilayah --- */
     openFilter: false,
     searchFilter: '',
     selectedFilterId: '',
     selectedFilterLabel: '-- Semua Pekerjaan & Wilayah --',
 
+    /* --- Filter Status Laporan --- */
+    selectedStatus: '',
+
+    /* --- Sorting Waktu Pengajuan (newest / oldest) --- */
+    sortOrder: 'desc',
+
     filterData: [
         @foreach($laporans as $item)
         {
             id: '{{ $item->id_laporan }}',
-            label: '{{ ($item->targetWilayah->proses->nama_proses ?? "-") . " - " . ($item->targetWilayah->wilayah->nama_provinsi ?? "") . " " . ($item->targetWilayah->wilayah->kode_nama_kabkota ?? "") }}'
+            label: '{{ ($item->targetWilayah->proses->nama_proses ?? "-") . " - " . ($item->targetWilayah->wilayah->nama_kabkota ?? "") }}'
         },
         @endforeach
     ],
@@ -33,6 +39,24 @@
     get filteredList() {
         if(this.searchFilter === '') return this.filterData;
         return this.filterData.filter(f => f.label.toLowerCase().includes(this.searchFilter.toLowerCase()));
+    },
+
+    sortRows() {
+        let tbody = document.getElementById('table-laporan-body');
+        if (!tbody) return;
+        let rows = Array.from(tbody.querySelectorAll('tr[data-timestamp]'));
+
+        rows.sort((a, b) => {
+            let timeA = parseInt(a.getAttribute('data-timestamp'));
+            let timeB = parseInt(b.getAttribute('data-timestamp'));
+            return this.sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+        });
+
+        rows.forEach((row, index) => {
+            tbody.appendChild(row);
+            let numCell = row.querySelector('.row-number');
+            if(numCell) numCell.textContent = index + 1;
+        });
     }
 }">
     
@@ -50,29 +74,53 @@
                 <p class="text-xs text-gray-500 mt-0.5">Verifikasi laporan realisasi pekerjaan dari lapangan.</p>
             </div>
 
-            <!-- Dropdown Pencarian Interaktif untuk Filter Tabel -->
-            <div class="relative w-full md:w-80" @click.away="openFilter = false">
-                <div @click="openFilter = !openFilter" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white cursor-pointer flex justify-between items-center shadow-sm">
-                    <span x-text="selectedFilterLabel" class="truncate font-medium text-gray-700"></span>
-                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <!-- Bagian Filter & Sorting Controls -->
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                
+                <!-- 1. Filter Berdasarkan Status -->
+                <div class="w-full md:w-44">
+                    <select x-model="selectedStatus" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-[#005A9C]">
+                        <option value="">-- Semua Status --</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Disetujui</option>
+                        <option value="revision">Perlu Revisi</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
                 </div>
 
-                <div x-show="openFilter" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto" style="display: none;">
-                    <input type="text" x-model="searchFilter" placeholder="Ketik untuk mencari..." class="w-full px-3 py-1.5 border border-gray-200 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-[#005A9C]">
-                    <ul>
-                        <li @click="selectedFilterId = ''; selectedFilterLabel = '-- Semua Pekerjaan & Wilayah --'; openFilter = false; searchFilter = ''" 
-                            class="px-3 py-2 hover:bg-blue-50 text-sm rounded cursor-pointer text-gray-600 font-medium border-b border-gray-50">
-                            -- Tampilkan Semua --
-                        </li>
-                        <template x-for="f in filteredList" :key="f.id">
-                            <li @click="selectedFilterId = f.id; selectedFilterLabel = f.label; openFilter = false; searchFilter = ''" 
-                                class="px-3 py-2 hover:bg-blue-50 text-sm rounded cursor-pointer text-gray-800 flex items-center justify-between border-b border-gray-50">
-                                <span x-text="f.label" class="truncate"></span>
-                                <span x-show="selectedFilterId == f.id" class="text-[#005A9C] font-bold">✓</span>
-                            </li>
-                        </template>
-                    </ul>
+                <!-- 2. Sorting Berdasarkan Waktu Pengajuan -->
+                <div class="w-full md:w-44">
+                    <select x-model="sortOrder" @change="sortRows()" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-[#005A9C]">
+                        <option value="desc">Waktu: Terbaru</option>
+                        <option value="asc">Waktu: Terlama</option>
+                    </select>
                 </div>
+
+                <!-- 3. Dropdown Pencarian Interaktif untuk Filter Pekerjaan & Wilayah -->
+                <div class="relative w-full md:w-72" @click.away="openFilter = false">
+                    <div @click="openFilter = !openFilter" class="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-white cursor-pointer flex justify-between items-center shadow-sm">
+                        <span x-text="selectedFilterLabel" class="truncate font-medium text-gray-700"></span>
+                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+
+                    <div x-show="openFilter" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto" style="display: none;">
+                        <input type="text" x-model="searchFilter" placeholder="Ketik untuk mencari..." class="w-full px-3 py-1.5 border border-gray-200 rounded text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-[#005A9C]">
+                        <ul>
+                            <li @click="selectedFilterId = ''; selectedFilterLabel = '-- Semua Pekerjaan & Wilayah --'; openFilter = false; searchFilter = ''" 
+                                class="px-3 py-2 hover:bg-blue-50 text-sm rounded cursor-pointer text-gray-600 font-medium border-b border-gray-50">
+                                -- Tampilkan Semua --
+                            </li>
+                            <template x-for="f in filteredList" :key="f.id">
+                                <li @click="selectedFilterId = f.id; selectedFilterLabel = f.label; openFilter = false; searchFilter = ''" 
+                                    class="px-3 py-2 hover:bg-blue-50 text-sm rounded cursor-pointer text-gray-800 flex items-center justify-between border-b border-gray-50">
+                                    <span x-text="f.label" class="truncate"></span>
+                                    <span x-show="selectedFilterId == f.id" class="text-[#005A9C] font-bold">✓</span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -87,24 +135,25 @@
                         <th class="p-4 text-center">Realisasi</th>
                         <th class="p-4 text-center">Bukti</th>
                         <th class="p-4">Diajukan Oleh</th>
-                        <!-- Perubahan Nama Kolom -->
                         <th class="p-4">Waktu Pengajuan</th>
                         <th class="p-4">Diverifikasi Oleh</th>
                         <th class="p-4">Status & Waktu Diverifikasi</th>
                         <th class="p-4 text-center w-32">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-gray-700">
+                <tbody id="table-laporan-body" class="divide-y divide-gray-100 text-gray-700">
                     @forelse($laporans as $index => $item)
-                    <tr class="hover:bg-gray-50/50 transition-colors" x-show="selectedFilterId === '' || selectedFilterId === '{{ $item->id_laporan }}'">
-                        <td class="p-4 text-center font-medium text-gray-500">{{ $index + 1 }}</td>
+                    <tr class="hover:bg-gray-50/50 transition-colors" 
+                        x-show="(selectedFilterId === '' || selectedFilterId === '{{ $item->id_laporan }}') && 
+                                (selectedStatus === '' || selectedStatus === '{{ $item->status_laporan ?? 'pending' }}')"
+                        data-timestamp="{{ strtotime($item->created_at) }}">
+                        <td class="p-4 text-center font-medium text-gray-500 row-number">{{ $index + 1 }}</td>
                         
-                        <!-- Pekerjaan & Wilayah -->
                         <td class="p-4">
                             <span class="font-bold text-gray-800">{{ $item->targetWilayah->proses->nama_proses ?? '-' }}</span><br>
-                            <span class="text-xs text-gray-500">{{ $item->targetWilayah->wilayah->nama_provinsi ?? '-' }} {{ $item->targetWilayah->wilayah->kode_nama_kabkota ?? '-' }}</span>
+                            <span class="text-xs text-gray-600 font-medium block">{{ $item->targetWilayah->proses->detail->nama_keg_detail ?? '-' }}</span>
+                            <span class="text-xs text-gray-400">{{ $item->targetWilayah->wilayah->kode_nama_kabkota ?? '-' }}</span>
                         </td>
-
                         <!-- Target Daerah -->
                         <td class="p-4 text-center font-semibold text-gray-600">
                             {{ $item->targetWilayah->target_daerah ?? '-' }} {{ $item->targetWilayah->proses->satuan_target ?? '' }}
@@ -137,7 +186,7 @@
                             {{ $item->pelapor->nama_lengkap ?? ($item->user->nama_lengkap ?? '-') }}
                         </td>
 
-                        <!-- Waktu Pengajuan (Tampilan disamakan seperti waktu verifikasi) -->
+                        <!-- Waktu Pengajuan -->
                         <td class="p-4">
                             <span class="text-gray-700 font-medium block">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</span>
                             <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($item->created_at)->format('H:i') }} WIB</span>
@@ -148,13 +197,14 @@
                             {{ $item->verifikator->nama_lengkap ?? '-' }}
                         </td>
 
-                        <!-- Status & Waktu Diverifikasi + Tombol Interaktif Catatan Revisi/Ditolak -->
+                        <!-- Status & Waktu Diverifikasi -->
                         <td class="p-4">
                             <div class="flex flex-col items-start gap-1">
-                                @if($item->status_laporan == 'approved')
+                                @php $st = $item->status_laporan ?? 'pending'; @endphp
+                                @if($st == 'approved')
                                     <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Disetujui</span>
                                     <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($item->updated_at)->format('d/m/Y H:i') }} WIB</span>
-                                @elseif($item->status_laporan == 'revision')
+                                @elseif($st == 'revision')
                                     <div class="flex items-center gap-1.5">
                                         <span class="bg-blue-50 text-blue-700 border border-blue-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Perlu Revisi</span>
                                         @if($item->catatan_verifikasi)
@@ -166,7 +216,7 @@
                                         @endif
                                     </div>
                                     <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($item->updated_at)->format('d/m/Y H:i') }} WIB</span>
-                                @elseif($item->status_laporan == 'rejected')
+                                @elseif($st == 'rejected')
                                     <div class="flex items-center gap-1.5">
                                         <span class="bg-red-50 text-red-700 border border-red-200 font-bold px-2.5 py-0.5 rounded-full text-[10px] uppercase">Ditolak</span>
                                         @if($item->catatan_verifikasi)

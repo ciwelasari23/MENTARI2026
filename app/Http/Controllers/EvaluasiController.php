@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TrxTargetWilayah; // Perbaikan di sini
+use App\Models\TrxTargetWilayah;
+use App\Models\TrxLaporanProgres; // Perbaikan: menggunakan model yang benar
 use Illuminate\Support\Facades\DB;
 
 class EvaluasiController extends Controller
@@ -18,6 +19,26 @@ class EvaluasiController extends Controller
             'rataPersentase'    => $dataEvaluasi['rataPersentase'],
             'ratingKeseluruhan' => $dataEvaluasi['ratingKeseluruhan'],
         ]);
+    }
+
+    /**
+     * Method untuk menangani penyimpanan skor manual dan status selesai dari halaman Verifikasi.
+     */
+    public function updateSkor(Request $request, int $id)
+    {
+        $request->validate([
+            'skor_manual' => 'required|numeric|min:0|max:100',
+        ]);
+
+        // Menggunakan model TrxLaporanProgres sesuai struktur project Anda
+        $laporan = TrxLaporanProgres::findOrFail($id);
+        
+        // Simpan skor manual dan ubah status kegiatan menjadi selesai
+        $laporan->skor_manual = $request->skor_manual;
+        $laporan->status_kegiatan = 'selesai'; 
+        $laporan->save();
+
+        return redirect()->back()->with('success', 'Skor manual berhasil disimpan dan kegiatan ditandai selesai.');
     }
 
     /**
@@ -42,7 +63,6 @@ class EvaluasiController extends Controller
      */
     private function getEvaluasiData(): array
     {
-        // Perbaikan di sini menggunakan TrxTargetWilayah
         $targets = TrxTargetWilayah::with([
             'proses.detail.kegiatan.output',
             'wilayah',
@@ -87,6 +107,9 @@ class EvaluasiController extends Controller
         $laporanApproved = $laporanList->where('status_laporan', 'approved');
         $totalRealisasi = (int) $laporanApproved->sum('realisasi_saat_ini');
 
+        // Cek apakah ada skor manual yang sudah diinput dari verifikasi laporan
+        $skorManualInput = $laporanApproved->whereNotNull('skor_manual')->avg('skor_manual');
+
         $persentase = ($totalTarget > 0)
             ? round(($totalRealisasi / $totalTarget) * 100, 1)
             : 0;
@@ -119,7 +142,7 @@ class EvaluasiController extends Controller
             $skorKecepatan = 0;
         }
 
-        // 4. Verifikasi Bukti Dukung (Menyesuaikan dengan nama kolom)
+        // 4. Verifikasi Bukti Dukung
         $buktiLengkap = false;
         if ($laporanApproved->count() > 0) {
             $buktiAda = $laporanApproved->filter(function ($lap) {
@@ -128,36 +151,45 @@ class EvaluasiController extends Controller
             $buktiLengkap = ($buktiAda === $laporanApproved->count());
         }
 
-        // Total Skor Terbobot
-        $skorTerbobot = ($skorKualitas * 0.40) + ($skorResponsivitas * 0.30) + ($skorKecepatan * 0.30);
-        if (!$buktiLengkap && $totalTarget > 0) {
-            $skorTerbobot -= 10; // Penalti -10 jika bukti dukung tidak lengkap
+        // Jika admin menginput skor manual secara langsung, utamakan skor manual tersebut
+        if ($skorManualInput !== null) {
+            $totalSkor = (int) round($skorManualInput);
+        } else {
+            // Total Skor Terbobot otomatis
+            $skorTerbobot = ($skorKualitas * 0.40) + ($skorResponsivitas * 0.30) + ($skorKecepatan * 0.30);
+            if (!$buktiLengkap && $totalTarget > 0) {
+                $skorTerbobot -= 10; // Penalti -10 jika bukti dukung tidak lengkap
+            }
+            $totalSkor = (int) max(0, min(100, round($skorTerbobot)));
         }
 
-        $totalSkor = (int) max(0, min(100, round($skorTerbobot)));
         $namaWilayah = 'Semua Wilayah';
         if ($target->wilayah) {
             $namaWilayah = trim(($target->wilayah->nama_provinsi ?? '') . ' ' . ($target->wilayah->kode_nama_kabkota ?? ''));
-            // Jika kosong setelah trim, kembalikan ke default
             if (empty($namaWilayah)) {
                 $namaWilayah = $target->wilayah->id_wilayah ?? 'Semua Wilayah';
             }
         }
 
+        // Cek status kegiatan (selesai / proses) berdasarkan laporan
+        $statusKegiatan = $laporanApproved->contains('status_kegiatan', 'selesai') ? 'selesai' : 'proses';
+
         return [
-            'proses'              => $proses,
-            'nama_kegiatan'       => $proses->detail->kegiatan->nama_kegiatan ?? '-',
-            'nama_detail'         => $proses->detail->nama_keg_detail ?? '-',
-            'wilayah'             => $namaWilayah,
-            'total_target'        => $totalTarget,
-            'total_realisasi'     => $totalRealisasi,
-            'persentase'          => $persentase,
-            'skor_kualitas'       => $skorKualitas,
-            'skor_responsivitas'  => $skorResponsivitas,
-            'skor_kecepatan'      => $skorKecepatan,
-            'bukti_lengkap'       => $buktiLengkap,
-            'total_skor'          => $totalSkor,
-            'rating'              => $this->hitungRating($totalSkor),
+            'proses'             => $proses,
+            'nama_kegiatan'      => $proses->detail->kegiatan->nama_kegiatan ?? '-',
+            'nama_detail'        => $proses->detail->nama_keg_detail ?? '-',
+            'wilayah'            => $namaWilayah,
+            'total_target'       => $totalTarget,
+            'total_realisasi'    => $totalRealisasi,
+            'persentase'         => $persentase,
+            'skor_kualitas'      => $skorKualitas,
+            'skor_responsivitas' => $skorResponsivitas,
+            'skor_kecepatan'     => $skorKecepatan,
+            'bukti_lengkap'      => $buktiLengkap,
+            'skor_manual'        => $skorManualInput,
+            'status_kegiatan'    => $statusKegiatan,
+            'total_skor'         => $totalSkor,
+            'rating'             => $this->hitungRating($totalSkor),
         ];
     }
 
