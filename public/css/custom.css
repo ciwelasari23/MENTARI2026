@@ -118,10 +118,9 @@ html {
 }
 
 html, body {
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 html::-webkit-scrollbar, body::-webkit-scrollbar {

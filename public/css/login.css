@@ -8,11 +8,12 @@
     padding: 0;
 }
 
-/* Kunci utama agar layar pas 100vh penuh dan anti scroll */
+/* Kunci utama agar layar pas 100vh penuh dan bisa di-scroll saat di-zoom */
 .login-body {
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
+    min-height: 100vh;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
     display: flex;
     flex-direction: column;

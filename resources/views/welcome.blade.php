@@ -13,7 +13,7 @@
     <!-- CSS Kustom untuk Hilangkan Scrollbar & Kunci Layar -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 </head>
-<body class="bg-white text-gray-800 h-screen flex flex-col justify-between font-sans antialiased overflow-hidden">
+<body class="bg-white text-gray-800 min-h-screen flex flex-col justify-between font-sans antialiased overflow-y-auto overflow-x-hidden">
 
     <!-- Header Logo BPS Provinsi Riau -->
     <header class="w-full px-8 py-3 border-b border-gray-100 flex-shrink-0">
