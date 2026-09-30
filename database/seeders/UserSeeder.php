@@ -16,8 +16,8 @@ class UserSeeder extends Seeder
             [
                 'id_role' => 1,
                 'nip_nik' => '1234567890123456',
-                'nama_lengkap' => 'Cici Wela Sari',
-                'kategori_user' => 'Pegawai',
+                'nama_lengkap' => 'Administrator',
+                'kategori_user' => 'Admin',
                 'password_hash' => Hash::make('password123'),
             ]
         );

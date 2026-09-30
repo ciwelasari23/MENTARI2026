@@ -10,7 +10,7 @@ class VerifikasiLaporanController extends Controller
 {
     public function index()
     {
-        // Ubah 'kegiatanLevel3' menjadi 'detail' agar sesuai dengan model
+        // Memuat relasi lengkap termasuk targetWilayah agar data skor/penilaian terbaca
         $laporans = TrxLaporanProgres::with([
             'targetWilayah.proses.detail', 
             'targetWilayah.wilayah', 
@@ -38,6 +38,15 @@ class VerifikasiLaporanController extends Controller
         }
         
         $laporan->save();
+
+        // Jika request dikirim melalui AJAX (saat klik "Ya, Lanjutkan" pada persetujuan)
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status verifikasi berhasil diperbarui.',
+                'data' => $laporan
+            ]);
+        }
 
         return redirect()->route('admin.verifikasi.index')->with('success', 'Verifikasi laporan berhasil disimpan.');
     }

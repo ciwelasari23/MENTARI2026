@@ -36,7 +36,7 @@
          class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" style="display: none;"></div>
 
     <aside class="fixed md:static inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-gray-200 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0"
-            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+           :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
         <div class="h-20 w-full flex items-center justify-center border-b border-gray-100 flex-shrink-0 relative px-4">
             <img src="{{ asset('images/mentari_samping.png') }}" alt="Ikon MENTARI" class="w-full max-w-[180px] h-auto object-contain">
@@ -67,7 +67,10 @@
                     <a href="{{ url('/admin/master/wilayah') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/wilayah') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Wilayah</a>
                     <a href="{{ url('/admin/master/timkerja') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/timkerja') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Tim Kerja</a>
                     <a href="{{ route('admin.role.index') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/role') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Manajemen Role</a>
-                    <a href="{{ route('admin.menu.index') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/menu') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Manajemen Menu</a>
+                    
+                    <!-- Manajemen Menu disembunyikan menggunakan komentar (kode tetap ada tapi tidak tampil) -->
+                    <!-- <a href="{{ route('admin.menu.index') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/menu') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">Manajemen Menu</a> -->
+                    
                     <a href="{{ url('/admin/master/user') }}" class="block px-3 py-2 rounded-md transition-colors text-sm font-medium" :class="currentUrl.includes('/user') ? 'submenu-active' : 'text-gray-500 hover:text-[#005A9C] hover:bg-blue-50'">User</a>
                 </div>
             </div>
@@ -135,7 +138,7 @@
                             <button type="button" @click="openDynamic_{{ $menu->id_menu }} = !openDynamic_{{ $menu->id_menu }}" class="nav-item w-full flex justify-between items-center" 
                                     :class="openDynamic_{{ $menu->id_menu }} ? 'bg-blue-50 text-[#005A9C]' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'">
                                 <div class="flex items-center gap-3">
-                                    <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    <svg class="nav-icon w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                     {{ $menu->nama_menu }}
                                 </div>
                                 <svg class="w-4 h-4 transition-transform duration-200" :class="openDynamic_{{ $menu->id_menu }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

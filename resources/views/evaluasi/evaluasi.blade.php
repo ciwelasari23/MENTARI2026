@@ -18,7 +18,7 @@
             </div>
             
             <div class="flex-1 text-center sm:text-left">
-                <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-2">Rata-rata Skor Keseluruhan</h2>
+                <h2 class="text-xs uppercase tracking-wider text-gray-400 font-bold mb-2">Rata-rata Skor Keseluruhan</h2>
                 <div class="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-6 mt-1 justify-center sm:justify-start">
                     <span class="text-5xl font-black text-gray-800 tracking-tight">{{ $rataPersentase ?? 0 }}<span class="text-2xl text-gray-400 font-medium">/100</span></span>
                     <div class="flex items-center gap-1 text-amber-400 pb-1">
@@ -46,26 +46,31 @@
         </div>
     </div>
 
-    {{-- ===== LEGENDA SKORING MANUAL & BINTANG (0-100) ===== --}}
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-            <h3 class="text-sm font-bold text-gray-700 whitespace-nowrap">Rentang Skoring & Rating :</h3>
-            <div class="flex flex-wrap gap-2.5">
+    {{-- ===== LEGENDA SKORING MANUAL & BINTANG (0-100) - 100% SATU BARIS LURUS ===== --}}
+    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="w-2 h-4 bg-blue-600 rounded-full"></div>
+                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Rentang Skoring & Rating</h3>
+            </div>
+            
+            <div class="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
                 @foreach ([
-                    ['90 - 100', 'bg-green-50 border-green-200 text-green-700', 'Sangat Baik', 5],
-                    ['75 - 89', 'bg-teal-50 border-teal-200 text-teal-700', 'Baik', 4],
-                    ['60 - 74', 'bg-blue-50 border-blue-200 text-blue-700', 'Cukup', 3],
-                    ['40 - 59', 'bg-yellow-50 border-yellow-200 text-yellow-700', 'Kurang', 2],
-                    ['< 40', 'bg-red-50 border-red-200 text-red-700', 'Sangat Kurang', 1],
+                    ['90 - 100', 'bg-emerald-50 border-emerald-200 text-emerald-800', 'Sangat Baik', 5],
+                    ['75 - 89', 'bg-teal-50 border-teal-200 text-teal-800', 'Baik', 4],
+                    ['60 - 74', 'bg-blue-50 border-blue-200 text-blue-800', 'Cukup', 3],
+                    ['40 - 59', 'bg-amber-50 border-amber-200 text-amber-800', 'Kurang', 2],
+                    ['< 40', 'bg-rose-50 border-rose-200 text-rose-800', 'Sangat Kurang', 1],
                 ] as [$range, $classes, $label, $stars])
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border {{ $classes }}">
+                <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border {{ $classes }} text-[11px] font-semibold shadow-2xs whitespace-nowrap shrink-0">
                     <div class="flex text-amber-400">
                         @for($s = 1; $s <= 5; $s++)
-                            <svg class="w-3 h-3 {{ $s <= $stars ? 'fill-amber-400 text-amber-400' : 'fill-gray-300 text-gray-300' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-2.5 h-2.5 {{ $s <= $stars ? 'fill-amber-400 text-amber-400' : 'fill-gray-300 text-gray-300' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         @endfor
                     </div>
-                    <span class="text-xs font-bold">{{ $range }}</span>
-                    <span class="text-xs font-semibold">— {{ $label }}</span>
+                    <span class="font-bold">{{ $range }}</span>
+                    <span class="text-gray-400 font-normal">|</span>
+                    <span>{{ $label }}</span>
                 </div>
                 @endforeach
             </div>
@@ -76,7 +81,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 bg-white">
             <h3 class="text-lg font-bold text-gray-800">Rekapitulasi Penilaian & Status Kegiatan</h3>
-            <p class="text-sm text-gray-500 mt-1">Kelola status selesai dan input nilai skoring manual (0-100) berdasarkan target wilayah.</p>
+            <p class="text-sm text-gray-500 mt-1">Daftar rekapitulasi penilaian dan status kegiatan berdasarkan target wilayah.</p>
         </div>
 
         @if(count($evaluasiData ?? []) > 0)
@@ -88,8 +93,7 @@
                         <th class="px-4 py-4 text-center">Target vs Realisasi</th>
                         <th class="px-4 py-4 text-center">Status Kegiatan</th>
                         <th class="px-4 py-4 text-center">Skor Manual (0-100)</th>
-                        <th class="px-4 py-4 text-center">Rating Bintang</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
+                        <th class="px-6 py-4 text-center">Rating Bintang</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -101,7 +105,6 @@
                         $realisasiKab = $row['total_realisasi'] ?? 90;
                         $persenBar = min(100, ($targetKab > 0 ? ($realisasiKab / $targetKab) * 100 : 0));
                         
-                        // Hitung jumlah bintang berdasarkan skor manual
                         $rowStars = 0;
                         $rowLabel = 'Belum Dinilai';
                         if($skorManual !== null) {
@@ -154,7 +157,7 @@
                         </td>
 
                         {{-- Rating Bintang --}}
-                        <td class="px-4 py-4 text-center">
+                        <td class="px-6 py-4 text-center">
                             @if($skorManual !== null)
                                 <div class="flex justify-center items-center gap-0.5 text-amber-400 mb-0.5">
                                     @for($i = 1; $i <= 5; $i++)
@@ -165,60 +168,6 @@
                             @else
                                 <span class="text-xs text-gray-400 italic">-</span>
                             @endif
-                        </td>
-
-                        {{-- Aksi --}}
-                        <td class="px-6 py-4 text-center whitespace-nowrap" x-data="{ openModalNilai: false }">
-                            <div class="flex items-center justify-center gap-2">
-                                @if($statusKegiatan !== 'selesai')
-                                    <button type="button" 
-                                        @click="
-                                            let target = {{ $targetKab }};
-                                            let realisasi = {{ $realisasiKab }};
-                                            if(realisasi !== target) {
-                                                if(confirm('Peringatan: Target wilayah belum tercapai sepenuhnya (Target: ' + target + ', Realisasi: ' + realisasi + '). Yakin ingin menandai kegiatan ini sebagai Selesai?')) {
-                                                    alert('Status diubah jadi selesai. Silakan berikan nilai.');
-                                                }
-                                            } else {
-                                                if(confirm('Target sudah sesuai. Tandai kegiatan sebagai Selesai?')) {
-                                                    alert('Status selesai dikonfirmasi.');
-                                                }
-                                            }
-                                        "
-                                        class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
-                                        Tandai Selesai
-                                    </button>
-                                @else
-                                    <button @click="openModalNilai = true" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-sm inline-flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                        {{ $skorManual !== null ? 'Ubah Nilai' : 'Beri Nilai (0-100)' }}
-                                    </button>
-                                @endif
-                            </div>
-
-                            {{-- Modal Input Nilai Skoring Manual (0-100) --}}
-                            <div x-show="openModalNilai" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;" x-transition.opacity>
-                                <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-left space-y-4" @click.away="openModalNilai = false" x-transition.scale>
-                                    <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                                        <h4 class="font-bold text-gray-800 text-sm">Input Nilai Skoring (0 - 100)</h4>
-                                        <button @click="openModalNilai = false" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
-                                    </div>
-                                    <form action="#" method="POST">
-                                        @csrf
-                                        <div class="space-y-3">
-                                            <p class="text-xs text-gray-500">Berikan penilaian berdasarkan kelengkapan bukti dukung, ketepatan waktu, dan kualitas pekerjaan.</p>
-                                            <div>
-                                                <label class="block text-xs font-bold text-gray-700 mb-1">Skor Penilaian (0 - 100)</label>
-                                                <input type="number" name="skor_manual" min="0" max="100" value="{{ $skorManual ?? '' }}" required class="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold text-blue-600">
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end gap-2 mt-5 pt-3 border-t border-gray-100">
-                                            <button type="button" @click="openModalNilai = false" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold">Batal</button>
-                                            <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow">Simpan Nilai</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                         </td>
                     </tr>
                     @endforeach
