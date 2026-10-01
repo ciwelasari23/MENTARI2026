@@ -314,7 +314,7 @@
                             {{ $item->verifikator->nama_lengkap ?? '-' }}
                         </td>
 
-                        <!-- Penilaian -->
+                        <!-- Penilaian (Kembali Bersih Menampilkan Skor & Tombol Edit) -->
                         <td class="py-3.5 px-4 text-center">
                             @php
                                 $skorNilai = $item->skor_manual ?? ($item->targetWilayah->skor_manual ?? null);
@@ -322,7 +322,7 @@
                             @if($skorNilai !== null)
                                 <div class="flex flex-col items-center justify-center gap-1">
                                     <span class="font-bold text-gray-800 text-sm">
-                                        {{ $skorNilai }}
+                                        {{ $skorNilai }} / 100
                                     </span>
                                     <button @click="targetIdNilai = '{{ $item->id_laporan }}'; skorManualNilai = '{{ $skorNilai }}'; modalNilaiOpen = true;" 
                                         class="text-gray-400 hover:text-blue-600 transition-colors inline-flex items-center gap-1 text-xs" title="Edit Nilai">
@@ -331,18 +331,20 @@
                                     </button>
                                 </div>
                             @else
-                                <span class="text-gray-400 italic text-xs">- Belum ada -</span>
+                                <span class="text-gray-400 italic text-xs">- Belum dinilai -</span>
                             @endif
                         </td>
 
-                        <!-- Status Verifikasi -->
+                        <!-- Status Verifikasi (Dengan Centang Hijau Tanda Disetujui / Selesai) -->
                         <td class="py-3.5 px-4 text-center">
                             <div class="flex flex-col items-center justify-center gap-1.5">
                                 @php $st = $item->status_laporan ?? 'pending'; @endphp
                                 @if($st == 'approved')
                                     <div class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg font-bold text-xs uppercase tracking-wide">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                        Disetujui
+                                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Disetujui / Selesai
                                     </div>
                                 @elseif($st == 'revision')
                                     <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-lg font-bold text-xs uppercase tracking-wide">
