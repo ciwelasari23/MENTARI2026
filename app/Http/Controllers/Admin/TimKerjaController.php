@@ -11,13 +11,19 @@ class TimKerjaController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        
+        // Ambil nilai perPage dari request, default 10 baris jika tidak dipilih
+        $perPage = $request->input('perPage', 10);
+
         $query = MstTeam::query();
 
         if ($search) {
             $query->where('nama_team', 'like', "%{$search}%");
         }
 
-        $teams = $query->get();
+        // Ubah dari ->get() menjadi ->paginate() agar paginasi dan entri berfungsi dinamis
+        $teams = $query->paginate($perPage)->withQueryString();
+
         return view('admin.master.timkerja', compact('teams'));
     }
 

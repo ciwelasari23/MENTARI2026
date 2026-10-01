@@ -9,20 +9,26 @@ use App\Models\MstTeam;
 
 class KegiatanLevel1Controller extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
         $search = $request->input('search');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak diisi
+        $perPage = $request->input('perPage', 10);
+
         $query = MstKegiatanLevel1Output::with('team');
 
         if ($search) {
             $query->where('nama_output', 'like', "%{$search}%");
         }
 
-        $outputs = $query->get();
+        // Ubah dari ->get() menjadi ->paginate() agar entri per halaman berfungsi
+        $outputs = $query->paginate($perPage)->withQueryString();
         $teams = MstTeam::all();
         
         return view('admin.kegiatan.level1.level1', compact('outputs', 'teams', 'search'));
     }
+
     public function store(Request $request)
     {
         $request->validate([

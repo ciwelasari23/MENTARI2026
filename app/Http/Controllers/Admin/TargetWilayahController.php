@@ -11,9 +11,23 @@ use Illuminate\Support\Facades\DB;
 
 class TargetWilayahController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $targets = TrxTargetWilayah::with(['wilayah', 'proses.detail', 'pembuat'])->get();
+        $search = $request->input('search');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak diisi
+        $perPage = $request->input('perPage', 10);
+
+        $query = TrxTargetWilayah::with(['wilayah', 'proses.detail', 'pembuat']);
+
+        if ($search) {
+            $query->whereHas('proses', function($q) use ($search) {
+                $q->where('nama_proses', 'like', "%{$search}%");
+            });
+        }
+
+        // Ubah dari ->get() menjadi ->paginate() agar entri per halaman berfungsi
+        $targets = $query->paginate($perPage)->withQueryString();
         $wilayahs = MstWilayah::all();
         $prosesList = MstKegiatanLevel4Proses::all();
 
@@ -118,9 +132,7 @@ class TargetWilayahController extends Controller
 
         $callback = function() {
             $file = fopen('php://output', 'w');
-            // Header kolom CSV
             fputcsv($file, ['id_proses', 'id_wilayah', 'target_daerah']);
-            // Contoh baris data (sesuaikan ID Proses & Wilayah di database Anda)
             fputcsv($file, ['1', '101', '100']);
             fputcsv($file, ['1', '102', '150']);
             fclose($file);
@@ -141,7 +153,6 @@ class TargetWilayahController extends Controller
         $file = $request->file('file');
         $handle = fopen($file->getRealPath(), 'r');
         
-        // Lewati baris header pertama
         $header = fgetcsv($handle, 1000, ',');
         
         $importedData = [];
@@ -154,7 +165,6 @@ class TargetWilayahController extends Controller
             $id_wilayah = trim($row[1]);
             $target_daerah = (int) trim($row[2]);
 
-            // Kelompokkan per id_proses untuk divalidasi akumulasinya
             if (!isset($prosesTargets[$id_proses])) {
                 $prosesTargets[$id_proses] = 0;
             }
@@ -171,14 +181,12 @@ class TargetWilayahController extends Controller
         }
         fclose($handle);
 
-        // Validasi apakah total import per proses melebihi Target Total Provinsi
         foreach ($prosesTargets as $id_proses => $totalInput) {
             $proses = MstKegiatanLevel4Proses::find($id_proses);
             if (!$proses) {
                 return back()->withErrors(['file' => 'ID Proses Kegiatan (' . $id_proses . ') tidak ditemukan di database.']);
             }
 
-            // Hitung target kabupaten yang sudah ada sebelumnya di database untuk proses ini
             $existingTarget = TrxTargetWilayah::where('id_proses', $id_proses)->sum('target_daerah');
             $grandTotal = $existingTarget + $totalInput;
 
@@ -189,7 +197,6 @@ class TargetWilayahController extends Controller
             }
         }
 
-        // Simpan data secara massal jika lolos validasi
         DB::transaction(function () use ($importedData) {
             foreach ($importedData as $data) {
                 TrxTargetWilayah::create($data);

@@ -12,13 +12,18 @@ class KegiatanLevel4Controller extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak diisi
+        $perPage = $request->input('perPage', 10);
+
         $query = MstKegiatanLevel4Proses::with('detail');
 
         if ($search) {
             $query->where('nama_proses', 'like', "%{$search}%");
         }
 
-        $prosesList = $query->get();
+        // Ubah dari ->get() menjadi ->paginate() agar entri per halaman berfungsi
+        $prosesList = $query->paginate($perPage)->withQueryString();
         $details = MstKegiatanLevel3Detail::all();
         
         return view('admin.kegiatan.level1.level4', compact('prosesList', 'details', 'search'));

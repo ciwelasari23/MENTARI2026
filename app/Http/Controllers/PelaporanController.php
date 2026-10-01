@@ -6,24 +6,29 @@ use Illuminate\Http\Request;
 use App\Models\TrxLaporanProgres;
 use App\Models\TrxTargetWilayah;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PelaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user_id = Auth::user()->id_user ?? Auth::id();
         
-        // PERBAIKAN: Tambahkan '.detail' pada targetWilayah.proses
+        $perPage = $request->input('perPage', 10);
+        
+        // Mengambil laporan terbaru (berdasarkan id_laporan terbesar / paling akhir) per id_target_wilayah
         $laporanGrouped = TrxLaporanProgres::with(['targetWilayah.proses.detail', 'targetWilayah.wilayah'])
             ->where('id_user_pelapor', $user_id)
-            ->select('id_target_wilayah')
-            ->selectRaw('MAX(tanggal_lapor) as tanggal_terakhir')
-            ->selectRaw('SUM(realisasi_saat_ini) as total_capaian')
-            ->groupBy('id_target_wilayah')
-            ->orderBy('tanggal_terakhir', 'desc')
-            ->get();
+            ->whereIn('id_laporan', function($query) use ($user_id) {
+                $query->select(DB::raw('MAX(id_laporan)'))
+                      ->from('trx_laporan_progres')
+                      ->where('id_user_pelapor', $user_id)
+                      ->groupBy('id_target_wilayah');
+            })
+            ->orderBy('tanggal_lapor', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
 
-        // PERBAIKAN: Tambahkan juga '.detail' pada riwayat history
         $laporanHistory = TrxLaporanProgres::with(['targetWilayah.proses.detail', 'targetWilayah.wilayah'])
             ->where('id_user_pelapor', $user_id)
             ->orderBy('tanggal_lapor', 'desc')

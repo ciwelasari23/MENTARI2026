@@ -12,13 +12,18 @@ class KegiatanLevel3Controller extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $query = MstKegiatanLevel3Detail::with('kegiatan');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak diisi
+        $perPage = $request->input('perPage', 10);
+
+        $query = MstKegiatanLevel3Detail::with('kegiatan.output');
 
         if ($search) {
             $query->where('nama_keg_detail', 'like', "%{$search}%");
         }
 
-        $details = $query->get();
+        // Ubah dari ->get() menjadi ->paginate() agar entri per halaman berfungsi
+        $details = $query->paginate($perPage)->withQueryString();
         $kegiatanList = MstKegiatanLevel2Kegiatan::all();
         
         return view('admin.kegiatan.level1.level3', compact('details', 'kegiatanList', 'search'));

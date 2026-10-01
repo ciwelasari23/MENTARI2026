@@ -12,15 +12,23 @@ class KegiatanLevel2Controller extends Controller
     public function index(Request $request)
     {
         $outputId = $request->input('output_id');
+        $search = $request->input('search');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak diisi
+        $perPage = $request->input('perPage', 10);
 
         $query = MstKegiatanLevel2Kegiatan::with('output');
 
-        // Filter berdasarkan dropdown output induk yang dipilih
         if ($outputId) {
             $query->where('id_output', $outputId);
         }
 
-        $kegiatan = $query->get();
+        if ($search) {
+            $query->where('nama_kegiatan', 'like', "%{$search}%");
+        }
+
+        // Ubah dari ->get() menjadi ->paginate() agar entri per halaman berfungsi
+        $kegiatan = $query->paginate($perPage)->withQueryString();
         $outputs = MstKegiatanLevel1Output::all();
         
         return view('admin.kegiatan.level1.level2', compact('kegiatan', 'outputs', 'outputId'));

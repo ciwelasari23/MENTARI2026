@@ -6,7 +6,6 @@
 @section('content')
 <div class="space-y-6">
 
-    {{-- ===== KARTU RATING KESELURUHAN ===== --}}
     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
         <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full opacity-50 blur-2xl"></div>
         
@@ -46,15 +45,15 @@
         </div>
     </div>
 
-    {{-- ===== LEGENDA SKORING MANUAL & BINTANG (0-100) - 100% SATU BARIS LURUS ===== --}}
-    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100">
+    {{-- ===== LEGENDA SKORING MANUAL & BINTANG (0-100) ===== --}}
+    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2.5 shrink-0">
                 <div class="w-2 h-4 bg-blue-600 rounded-full"></div>
                 <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Rentang Skoring & Rating</h3>
             </div>
             
-            <div class="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
+            <div class="flex flex-nowrap items-center gap-2 overflow-x-auto">
                 @foreach ([
                     ['90 - 100', 'bg-emerald-50 border-emerald-200 text-emerald-800', 'Sangat Baik', 5],
                     ['75 - 89', 'bg-teal-50 border-teal-200 text-teal-800', 'Baik', 4],
@@ -62,10 +61,10 @@
                     ['40 - 59', 'bg-amber-50 border-amber-200 text-amber-800', 'Kurang', 2],
                     ['< 40', 'bg-rose-50 border-rose-200 text-rose-800', 'Sangat Kurang', 1],
                 ] as [$range, $classes, $label, $stars])
-                <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border {{ $classes }} text-[11px] font-semibold shadow-2xs whitespace-nowrap shrink-0">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border {{ $classes }} text-xs font-semibold shadow-2xs whitespace-nowrap shrink-0">
                     <div class="flex text-amber-400">
                         @for($s = 1; $s <= 5; $s++)
-                            <svg class="w-2.5 h-2.5 {{ $s <= $stars ? 'fill-amber-400 text-amber-400' : 'fill-gray-300 text-gray-300' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-3.5 h-3.5 {{ $s <= $stars ? 'fill-amber-400 text-amber-400' : 'fill-gray-300 text-gray-300' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         @endfor
                     </div>
                     <span class="font-bold">{{ $range }}</span>
@@ -77,26 +76,40 @@
         </div>
     </div>
 
-    {{-- ===== TABEL EVALUASI & STATUS SELESAI ===== --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100 bg-white">
-            <h3 class="text-lg font-bold text-gray-800">Rekapitulasi Penilaian & Status Kegiatan</h3>
-            <p class="text-sm text-gray-500 mt-1">Daftar rekapitulasi penilaian dan status kegiatan berdasarkan target wilayah.</p>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h3 class="text-base font-bold text-gray-800">Rekapitulasi Penilaian & Status Kegiatan</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Daftar rekapitulasi penilaian dan status kegiatan berdasarkan target wilayah.</p>
+            </div>
+
+            <form id="form-entries" action="{{ route('evaluasi.index') }}" method="GET" class="flex items-center gap-2 text-xs text-gray-600">
+                @foreach(request()->except(['page', 'perPage', '_token']) as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+                <select name="perPage" onchange="document.getElementById('form-entries').submit()" class="border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('perPage') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+                </select>
+                <span>entries per page</span>
+            </form>
         </div>
 
         @if(count($evaluasiData ?? []) > 0)
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
+        <div class="overflow-x-auto border border-gray-100 rounded-xl">
+            <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-gray-50/80 border-b text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                        <th class="px-6 py-4">Kegiatan & Wilayah</th>
-                        <th class="px-4 py-4 text-center">Target vs Realisasi</th>
-                        <th class="px-4 py-4 text-center">Status Kegiatan</th>
-                        <th class="px-4 py-4 text-center">Skor Manual (0-100)</th>
-                        <th class="px-6 py-4 text-center">Rating Bintang</th>
+                    <tr class="bg-gray-50/70 border-b border-gray-100 text-gray-500 text-[11px] uppercase tracking-wider font-semibold">
+                        <th class="py-3.5 px-4 font-bold">Kegiatan & Wilayah</th>
+                        <th class="py-3.5 px-4 text-center font-bold">Target vs Realisasi</th>
+                        <th class="py-3.5 px-4 text-center font-bold">Status Kegiatan</th>
+                        <th class="py-3.5 px-4 text-center font-bold">Skor Manual (0-100)</th>
+                        <th class="py-3.5 px-4 text-center font-bold">Rating Bintang</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-gray-700">
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
                     @foreach($evaluasiData as $row)
                     @php
                         $statusKegiatan = $row['status_kegiatan'] ?? 'proses'; 
@@ -115,56 +128,52 @@
                             else { $rowStars = 1; $rowLabel = 'Sangat Kurang'; }
                         }
                     @endphp
-                    <tr class="hover:bg-gray-50 transition-colors">
+                    <tr class="hover:bg-gray-50/50 transition-colors">
                         {{-- Kegiatan & Wilayah --}}
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-gray-800 text-base mb-1">{{ $row['nama_kegiatan'] }}</div>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                        <td class="py-3.5 px-4">
+                            <span class="font-bold text-gray-800 block text-sm">{{ $row['nama_kegiatan'] }}</span>
+                            <span class="inline-block px-2 py-0.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200 mt-1">
                                 {{ $row['proses']->nama_proses ?? 'Proses' }}
                             </span>
-                            <div class="text-xs font-medium text-blue-600 mt-1">
+                            <span class="text-xs font-medium text-blue-600 block mt-1">
                                 📍 {{ trim(str_ireplace(['RIAU', 'PROVINSI RIAU'], '', $row['wilayah'] ?? '')) }}
-                            </div>
+                            </span>
                         </td>
 
-                        {{-- Target vs Realisasi --}}
-                        <td class="px-4 py-4 text-center">
+                        <td class="py-3.5 px-4 text-center">
                             <div class="text-xs font-semibold text-gray-700">
                                 Target: <span class="text-gray-900">{{ number_format($targetKab) }}</span> | 
                                 Realisasi: <span class="text-blue-600 font-bold">{{ number_format($realisasiKab) }}</span>
                             </div>
-                            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2 max-w-[150px] mx-auto overflow-hidden">
-                                <div class="bg-blue-600 h-1.5 rounded-full" :style="'width: ' + {{ $persenBar }} + '%'"></div>
+                            <div class="w-full bg-gray-100 rounded-full h-2 mt-2 max-w-[140px] mx-auto overflow-hidden shadow-2xs">
+                                <div class="bg-blue-600 h-2 rounded-full" :style="'width: ' + {{ $persenBar }} + '%'"></div>
                             </div>
                         </td>
 
-                        {{-- Status Kegiatan --}}
-                        <td class="px-4 py-4 text-center">
+                        <td class="py-3.5 px-4 text-center">
                             @if($statusKegiatan == 'selesai')
-                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Selesai</span>
+                                <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded-xl text-xs uppercase tracking-wide">Selesai</span>
                             @else
-                                <span class="bg-amber-50 text-amber-700 border border-amber-200 font-bold px-3 py-1 rounded-full text-[10px] uppercase">Dalam Proses</span>
+                                <span class="bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-xl text-xs uppercase tracking-wide">Dalam Proses</span>
                             @endif
                         </td>
 
-                        {{-- Skor Manual (0-100) --}}
-                        <td class="px-4 py-4 text-center">
+                        <td class="py-3.5 px-4 text-center">
                             @if($skorManual !== null)
-                                <span class="text-base font-black text-gray-800 bg-gray-100 px-3 py-1 rounded-lg">{{ $skorManual }} / 100</span>
+                                <span class="text-xs font-black text-gray-800 bg-gray-100 px-3 py-1 rounded-xl">{{ $skorManual }} / 100</span>
                             @else
                                 <span class="text-xs text-gray-400 italic">Belum dinilai</span>
                             @endif
                         </td>
 
-                        {{-- Rating Bintang --}}
-                        <td class="px-6 py-4 text-center">
+                        <td class="py-3.5 px-4 text-center">
                             @if($skorManual !== null)
-                                <div class="flex justify-center items-center gap-0.5 text-amber-400 mb-0.5">
+                                <div class="flex justify-center items-center gap-1 text-amber-400 mb-1">
                                     @for($i = 1; $i <= 5; $i++)
                                         <svg class="w-4 h-4 {{ $i <= $rowStars ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                     @endfor
                                 </div>
-                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{{ $rowLabel }}</span>
+                                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{{ $rowLabel }}</span>
                             @else
                                 <span class="text-xs text-gray-400 italic">-</span>
                             @endif
@@ -174,10 +183,45 @@
                 </tbody>
             </table>
         </div>
+
+        @if(isset($targetsPaginator) && method_exists($targetsPaginator, 'links'))
+        <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 pt-3 gap-3">
+            <div>
+                Menampilkan <span class="font-semibold text-gray-700">{{ $targetsPaginator->firstItem() ?? 0 }}</span> ke <span class="font-semibold text-gray-700">{{ $targetsPaginator->lastItem() ?? 0 }}</span> dari <span class="font-semibold text-gray-700">{{ number_format($targetsPaginator->total(), 0, ',', '.') }}</span> entri
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                @if ($targetsPaginator->onFirstPage())
+                    <span class="px-3.5 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-300 cursor-not-allowed flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </span>
+                @else
+                    <a href="{{ $targetsPaginator->previousPageUrl() }}" class="px-3.5 py-2 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 flex items-center justify-center transition shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </a>
+                @endif
+
+                <span class="px-4 py-2 border border-blue-500 bg-blue-500 text-white font-bold rounded-xl text-xs shadow-sm">
+                    {{ $targetsPaginator->currentPage() }}
+                </span>
+
+                @if ($targetsPaginator->hasMorePages())
+                    <a href="{{ $targetsPaginator->nextPageUrl() }}" class="px-3.5 py-2 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 flex items-center justify-center transition shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                @else
+                    <span class="px-3.5 py-2 border border-gray-200 rounded-xl bg-gray-50 text-gray-300 cursor-not-allowed flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </span>
+                @endif
+            </div>
+        </div>
+        @endif
+
         @else
-        <div class="text-center py-16 text-gray-400 bg-gray-50/50">
-            <h4 class="text-gray-600 font-semibold mb-1">Tidak Ada Data</h4>
-            <p class="text-sm">Belum ada rekapitulasi penilaian wilayah yang tersedia.</p>
+        <div class="text-center py-16 text-gray-400 bg-gray-50/50 rounded-xl">
+            <h4 class="text-gray-600 font-semibold mb-1 text-sm">Tidak Ada Data</h4>
+            <p class="text-xs">Belum ada rekapitulasi penilaian wilayah yang tersedia.</p>
         </div>
         @endif
     </div>

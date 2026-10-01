@@ -15,7 +15,7 @@ class WilayahController extends Controller
     /**
      * Menampilkan daftar master Wilayah dengan fitur filter per kolom dan paginasi.
      */
-   public function index(Request $request): View
+    public function index(Request $request): View
     {
         $search = $request->input('search');
         $kabkota = $request->input('kabkota');
@@ -23,6 +23,9 @@ class WilayahController extends Controller
         $desa = $request->input('desa');
         $sls = $request->input('sls');
         $subSls = $request->input('sub_sls');
+        
+        // Ambil nilai perPage dari request, default 10 jika tidak ada
+        $perPage = $request->input('perPage', 10);
 
         $query = MstWilayah::query();
 
@@ -93,7 +96,8 @@ class WilayahController extends Controller
         // Hitung total KK berdasarkan filter aktif
         $totalKK = (clone $query)->sum('jumlah_kk');
 
-        $wilayahs = $query->paginate(15)->withQueryString();
+        // Gunakan variabel $perPage dinamis dan pertahankan query string termasuk perPage-nya
+        $wilayahs = $query->paginate($perPage)->withQueryString();
 
         return view('admin.master.wilayah', compact(
             'wilayahs', 

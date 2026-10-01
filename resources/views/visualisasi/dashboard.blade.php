@@ -13,16 +13,18 @@
 <!-- Library Flatpickr (Kalender Picker) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
-<!-- Mengambil Parameter URL untuk Label -->
+<!-- Mengambil Parameter URL untuk Label Rentang Tanggal -->
 @php
-    $periodeValue = request('periode');
-    if ($periodeValue) {
-        $periodeLabel = \Carbon\Carbon::createFromFormat('Y-m', $periodeValue)->translatedFormat('F Y');
+    $startDate = request('start_date');
+    $endDate = request('end_date');
+    
+    if ($startDate && $endDate) {
+        $periodeLabel = \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') . ' - ' . \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y');
+    } elseif ($startDate) {
+        $periodeLabel = 'Mulai ' . \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y');
     } else {
         $periodeLabel = 'Semua Periode';
     }
@@ -38,7 +40,7 @@
 
 <div class="space-y-6">
 
-    <!-- Filter Rentang Waktu - Kalender Picker -->
+    <!-- Filter Rentang Waktu - Kalender Picker (Mode Range) -->
     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
         <div>
             <h3 class="text-base font-bold text-gray-800">Ringkasan Eksekutif</h3>
@@ -47,17 +49,16 @@
         <div class="flex items-center gap-3">
             <!-- Label periode terpilih -->
             <div class="text-right hidden sm:block">
-                <p class="text-xs text-gray-400">Periode Dipilih</p>
                 <p class="text-sm font-bold text-[#005A9C]" id="label-periode">{{ $periodeLabel }}</p>
             </div>
-            <!-- Input Kalender Flatpickr -->
+            <!-- Input Kalender Flatpickr Range -->
             <div class="relative">
                 <input 
                     type="text" 
-                    id="filterKalender" 
-                    placeholder="Pilih Bulan & Tahun"
+                    id="filterKalenderRange" 
+                    placeholder="Pilih Rentang Tanggal"
                     readonly
-                    class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#005A9C] cursor-pointer w-48"
+                    class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#005A9C] cursor-pointer w-60"
                 >
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-[#005A9C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +203,7 @@
                     @forelse($top5Targets ?? [] as $row)
                     @php
                         $barColor = match($row['status']) {
-                            'Selesai'     => 'bg-emerald-500',
+                            'Selesai'   => 'bg-emerald-500',
                             'Terlambat'   => 'bg-red-500',
                             default       => 'bg-amber-500',
                         };
@@ -244,11 +245,11 @@
     </div>
 </div>
 
-<!-- Script Inisialisasi Chart.js & Flatpickr -->
+<!-- Script Inisialisasi Chart.js & Flatpickr Range -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        // Mengatur lebar progress bar secara dinamis via JS (Bebas dari linter CSS)
+        // Mengatur lebar progress bar secara dinamis via JS
         document.querySelectorAll('.progress-bar-item').forEach(function(el) {
             const width = el.getAttribute('data-width');
             el.style.width = width + '%';
@@ -259,20 +260,25 @@
         const parsedBarData = JSON.parse(dataContainer.dataset.bar || '[]');
         const parsedPieData = JSON.parse(dataContainer.dataset.pie || '[0,0,0,0]');
 
-        flatpickr("#filterKalender", {
+        // Inisialisasi Flatpickr dengan mode 'range'
+        flatpickr("#filterKalenderRange", {
             locale: "id",
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: false,
-                    dateFormat: "Y-m", 
-                    altFormat: "F Y",  
-                    theme: "material_blue"
-                })
+            mode: "range",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "j F Y",
+            defaultDate: [
+                "{{ request('start_date', '') }}", 
+                "{{ request('end_date', '') }}"
             ],
-            defaultDate: "{{ request('periode', '') }}",
             disableMobile: true,
-            onChange: function(selectedDates, dateStr) {
-                window.location.href = window.location.pathname + "?periode=" + dateStr;
+            onChange: function(selectedDates, dateStr, instance) {
+                // Ketika rentang tanggal selesai dipilih (dua tanggal: start dan end)
+                if (selectedDates.length === 2) {
+                    const startDate = instance.formatDate(selectedDates[0], "Y-m-d");
+                    const endDate = instance.formatDate(selectedDates[1], "Y-m-d");
+                    window.location.href = window.location.pathname + "?start_date=" + startDate + "&end_date=" + endDate;
+                }
             }
         });
 
